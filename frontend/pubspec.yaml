@@ -1,25 +1,26 @@
 name: medical_consultation_app
-description: Medical Consultation Online App
+description: "Aplicativo de consultas médicas online"
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
   # State Management
-  flutter_mobx: ^2.2.0
   mobx: ^2.3.0
+  flutter_mobx: ^2.2.0
+
+  # Dependency Injection
+  get_it: ^8.1.0
+  injectable: ^2.3.2
 
   # Navigation
   go_router: ^16.0.0
-
-  # Dependency Injection & Routing
-  get_it: ^8.1.0
-  injectable: ^2.3.2
 
   # HTTP Client
   dio: ^5.4.0
@@ -30,46 +31,54 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
-  # UI Components
-  cupertino_icons: ^1.0.6
-  flutter_svg: ^2.0.9
-  cached_network_image: ^3.3.0
-  image_picker: ^1.0.4
-  file_picker: ^10.2.0
+  # Media & Files
+  image_picker: ^1.0.7
+  file_picker: ^10.2.1
 
   # Real-time Communication
   socket_io_client: ^3.1.2
 
   # Date & Time
   intl: ^0.20.2
-  timeago: ^3.6.0
+  timeago: ^3.6.1
 
   # Forms & Validation
-  form_builder_validators: ^11.2.0
   flutter_form_builder: ^10.1.0
+  form_builder_validators: ^11.2.0
 
   # UI Enhancements
   flutter_staggered_animations: ^1.1.1
   shimmer: ^3.0.0
-  lottie: ^3.3.1
+  lottie: ^3.0.0
   flutter_rating_bar: ^4.0.1
 
-  # Utils
-  uuid: ^4.2.1
+  # Utilities
+  uuid: ^4.3.3
   permission_handler: ^12.0.1
-  url_launcher: ^6.2.1
+  url_launcher: ^6.2.4
   package_info_plus: ^8.3.0
   device_info_plus: ^11.5.0
+  mask_text_input_formatter: ^2.9.0
+
+  # JSON Serialization
+  json_annotation: ^4.9.0
+  json_serializable: ^6.7.1
+
+  # Charts
+  fl_chart: ^1.0.0
+
+  # Notifications
+  firebase_messaging: ^16.0.0
+  firebase_core: ^4.0.0
+  flutter_local_notifications: ^19.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   # Code Generation
-  build_runner: ^2.4.7
-  injectable_generator: ^2.4.1
-  mobx_codegen: ^2.4.0
-
+  build_runner: ^2.4.8
+  mobx_codegen: ^2.4.0+1
   # Linting
   flutter_lints: ^6.0.0
 
@@ -78,8 +87,8 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/icons/
     - assets/animations/
+    - assets/icons/
 
   fonts:
     - family: Poppins

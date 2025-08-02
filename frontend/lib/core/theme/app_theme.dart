@@ -2,46 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryColor = Color(0xFF2563EB);
-  static const Color primaryLightColor = Color(0xFF3B82F6);
-  static const Color primaryDarkColor = Color(0xFF1D4ED8);
+  // Colors - Baseadas na WelcomePage (gradiente azul/roxo)
+  static const Color primaryColor = Color(0xFF667eea); // Azul da WelcomePage
+  static const Color primaryLightColor = Color(0xFF7c8ff0);
+  static const Color primaryDarkColor = Color(0xFF5a6fd8);
 
-  static const Color secondaryColor = Color(0xFF10B981);
-  static const Color secondaryLightColor = Color(0xFF34D399);
-  static const Color secondaryDarkColor = Color(0xFF059669);
+  static const Color secondaryColor = Color(0xFF764ba2); // Roxo da WelcomePage
+  static const Color secondaryLightColor = Color(0xFF8a5bb8);
+  static const Color secondaryDarkColor = Color(0xFF6a4190);
 
-  static const Color accentColor = Color(0xFFF59E0B);
-  static const Color accentLightColor = Color(0xFFFBBF24);
-  static const Color accentDarkColor = Color(0xFFD97706);
+  static const Color accentColor = Color(0xFF667eea); // Usando azul como accent
+  static const Color accentLightColor = Color(0xFF7c8ff0);
+  static const Color accentDarkColor = Color(0xFF5a6fd8);
 
   static const Color errorColor = Color(0xFFEF4444);
   static const Color warningColor = Color(0xFFF59E0B);
   static const Color successColor = Color(0xFF10B981);
   static const Color infoColor = Color(0xFF3B82F6);
 
-  static const Color backgroundColor = Color(0xFFF8FAFC);
+  static const Color backgroundColor = Color(0xFFF8FAFF); // Azul muito claro
   static const Color surfaceColor = Color(0xFFFFFFFF);
   static const Color cardColor = Color(0xFFFFFFFF);
 
-  static const Color textPrimaryColor = Color(0xFF1F2937);
-  static const Color textSecondaryColor = Color(0xFF6B7280);
-  static const Color textTertiaryColor = Color(0xFF9CA3AF);
+  static const Color textPrimaryColor = Color(0xFF1E293B); // Azul escuro
+  static const Color textSecondaryColor = Color(0xFF475569); // Azul médio
+  static const Color textTertiaryColor = Color(0xFF64748B); // Azul claro
 
-  static const Color borderColor = Color(0xFFE5E7EB);
-  static const Color dividerColor = Color(0xFFE5E7EB);
+  static const Color borderColor = Color(0xFFE2E8F0); // Azul muito claro
+  static const Color dividerColor = Color(0xFFE2E8F0); // Azul muito claro
 
-  // Dark Theme Colors
-  static const Color darkBackgroundColor = Color(0xFF111827);
-  static const Color darkSurfaceColor = Color(0xFF1F2937);
-  static const Color darkCardColor = Color(0xFF374151);
+  // Dark Theme Colors - Baseadas na paleta azul/roxo
+  static const Color darkBackgroundColor =
+      Color(0xFF0F172A); // Azul muito escuro
+  static const Color darkSurfaceColor = Color(0xFF1E293B); // Azul escuro
+  static const Color darkCardColor = Color(0xFF334155); // Azul médio escuro
 
-  static const Color darkTextPrimaryColor = Color(0xFFF9FAFB);
-  static const Color darkTextSecondaryColor = Color(0xFFD1D5DB);
-  static const Color darkTextTertiaryColor = Color(0xFF9CA3AF);
+  static const Color darkTextPrimaryColor = Color(0xFFF1F5F9); // Branco azulado
+  static const Color darkTextSecondaryColor =
+      Color(0xFFCBD5E1); // Cinza azulado
+  static const Color darkTextTertiaryColor = Color(0xFF94A3B8); // Cinza médio
 
-  static const Color darkBorderColor = Color(0xFF374151);
-  static const Color darkDividerColor = Color(0xFF374151);
+  static const Color darkBorderColor = Color(0xFF334155); // Azul médio escuro
+  static const Color darkDividerColor = Color(0xFF334155); // Azul médio escuro
 
   // Light Theme
   static ThemeData get lightTheme {
@@ -526,4 +528,45 @@ class AppTheme {
       ),
     );
   }
+
+  // Helper methods for adaptive colors
+  static Color getCardBackgroundColor(Color baseColor, Brightness brightness) {
+    return brightness == Brightness.dark
+        ? baseColor.withValues(alpha: 0.15)
+        : baseColor.withValues(alpha: 0.1);
+  }
+
+  static Color getCardBorderColor(Color baseColor, Brightness brightness) {
+    return brightness == Brightness.dark
+        ? baseColor.withValues(alpha: 0.3)
+        : baseColor.withValues(alpha: 0.2);
+  }
+
+  static Color getCardIconBackgroundColor(
+      Color baseColor, Brightness brightness) {
+    return brightness == Brightness.dark
+        ? baseColor.withValues(alpha: 0.2)
+        : baseColor.withValues(alpha: 0.15);
+  }
+
+  static Color getCardTextColor(Color baseColor, Brightness brightness) {
+    return brightness == Brightness.dark
+        ? baseColor.withValues(alpha: 0.9)
+        : baseColor;
+  }
+
+  static Color getCardShadowColor(Color baseColor, Brightness brightness) {
+    return brightness == Brightness.dark
+        ? Colors.black.withValues(alpha: 0.3)
+        : baseColor.withValues(alpha: 0.1);
+  }
+
+  // Métodos semânticos para cores de cards
+  static Color getCardPrimary() => primaryColor;
+  static Color getCardSecondary() => secondaryColor;
+  static Color getCardAccent() => accentColor;
+  static Color getCardWarning() => warningColor;
+  static Color getCardInfo() => infoColor;
+  static Color getCardSuccess() => successColor;
+  static Color getCardError() => errorColor;
 }

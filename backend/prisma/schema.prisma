@@ -37,7 +37,8 @@ model User {
   consultations    Consultation[] @relation("PatientConsultations")
   doctorConsultations Consultation[] @relation("DoctorConsultations")
   schedules       Schedule[]
-  prescriptions   Prescription[]
+  doctorPrescriptions Prescription[] @relation("DoctorPrescriptions")
+  patientPrescriptions Prescription[] @relation("PatientPrescriptions")
   ratings         Rating[]
   receivedRatings Rating[] @relation("DoctorRatings")
 
@@ -147,8 +148,8 @@ model Prescription {
   updatedAt      DateTime @updatedAt
 
   consultation Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-  doctor      User        @relation(fields: [doctorId], references: [id])
-  patient     User        @relation(fields: [patientId], references: [id])
+  doctor      User        @relation("DoctorPrescriptions", fields: [doctorId], references: [id])
+  patient     User        @relation("PatientPrescriptions", fields: [patientId], references: [id])
 
   @@map("prescriptions")
 }

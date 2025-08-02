@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,10 +17,18 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormBuilderState>();
+  final AuthStore _authStore = getIt<AuthStore>();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String _selectedUserType = AppConstants.patientType;
+
+  // Máscara para telefone brasileiro
+  final _phoneMask = MaskTextInputFormatter(
+    mask: '(##) #####-####',
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -133,13 +144,20 @@ class _RegisterPageState extends State<RegisterPage> {
                   name: 'phone',
                   decoration: const InputDecoration(
                     labelText: 'Telefone',
-                    hintText: '(11) 99999-9999',
+                    hintText: '(99) 99999-9999',
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: AppConstants.requiredField),
+                    (value) {
+                      if (value != null && value.length < 14) {
+                        return 'Telefone inválido';
+                      }
+                      return null;
+                    },
                   ]),
+                  inputFormatters: [_phoneMask],
                   keyboardType: TextInputType.phone,
                 ),
 
@@ -295,13 +313,25 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       try {
-        // TODO: Implementar registro com AuthStore
-        await Future.delayed(const Duration(seconds: 2)); // Simulação
+        final formData = _formKey.currentState!.value;
 
-        if (mounted) {
+        // Remover máscara do telefone
+        String phone = formData['phone'] ?? '';
+        phone = phone.replaceAll(RegExp(r'[^\d]'), '');
+
+        // Chamar AuthStore para registro
+        final success = await _authStore.register(
+          name: formData['name'],
+          email: formData['email'],
+          phone: phone,
+          password: formData['password'],
+          userType: _selectedUserType,
+        );
+
+        if (mounted && success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Conta criada com sucesso!'),
+              content: const Text('Conta criada com sucesso!'),
               backgroundColor: AppTheme.successColor,
             ),
           );

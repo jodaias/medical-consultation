@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implementar recuperação de senha
+                      context.push('/forgot-password');
                     },
                     child: const Text('Esqueci minha senha'),
                   ),

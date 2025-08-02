@@ -18,6 +18,10 @@ class PatientHomePage extends StatelessWidget {
         title: const Text('Início'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authStore.logout();
@@ -120,33 +124,41 @@ class PatientHomePage extends StatelessWidget {
             _buildMenuCard(
               title: 'Nova Consulta',
               icon: Icons.add_circle_outline,
-              color: AppTheme.primaryColor,
+              color: AppTheme.getCardPrimary(),
               onTap: () {
-                // TODO: Navegar para agendamento
+                context.push('/schedule');
               },
             ),
             _buildMenuCard(
               title: 'Minhas Consultas',
               icon: Icons.calendar_today,
-              color: AppTheme.secondaryColor,
+              color: AppTheme.getCardSuccess(),
               onTap: () {
-                // TODO: Navegar para lista de consultas
+                context.push('/consultations');
               },
             ),
             _buildMenuCard(
-              title: 'Médicos',
-              icon: Icons.medical_services,
-              color: AppTheme.accentColor,
+              title: 'Dashboard',
+              icon: Icons.analytics,
+              color: AppTheme.getCardSecondary(),
               onTap: () {
-                // TODO: Navegar para lista de médicos
+                context.push('/dashboard');
+              },
+            ),
+            _buildMenuCard(
+              title: 'Encontrar Médicos',
+              icon: Icons.medical_services,
+              color: AppTheme.getCardWarning(),
+              onTap: () {
+                context.push('/doctors');
               },
             ),
             _buildMenuCard(
               title: 'Perfil',
               icon: Icons.person_outline,
-              color: AppTheme.infoColor,
+              color: AppTheme.getCardInfo(),
               onTap: () {
-                // TODO: Navegar para perfil
+                context.push('/profile');
               },
             ),
           ],
@@ -161,34 +173,68 @@ class PatientHomePage extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 40,
-              color: color,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w600,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final brightness = theme.brightness;
+
+        return GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.getCardBackgroundColor(color, brightness),
+                  AppTheme.getCardBackgroundColor(color, brightness)
+                      .withValues(alpha: 0.5),
+                ],
               ),
-              textAlign: TextAlign.center,
+              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              border: Border.all(
+                color: AppTheme.getCardBorderColor(color, brightness),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.getCardShadowColor(color, brightness),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color:
+                        AppTheme.getCardIconBackgroundColor(color, brightness),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 32,
+                    color: AppTheme.getCardTextColor(color, brightness),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.getCardTextColor(color, brightness),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

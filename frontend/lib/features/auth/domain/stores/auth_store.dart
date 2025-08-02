@@ -1,6 +1,9 @@
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
+import 'package:get_it/get_it.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/features/auth/data/services/auth_service.dart';
+import 'package:medical_consultation_app/core/services/storage_service.dart';
 
 part 'auth_store.g.dart';
 
@@ -8,6 +11,13 @@ part 'auth_store.g.dart';
 class AuthStore = _AuthStore with _$AuthStore;
 
 abstract class _AuthStore with Store {
+  final AuthService _authService = AuthService();
+  late final StorageService _storageService;
+
+  _AuthStore() {
+    _storageService = GetIt.instance<StorageService>();
+  }
+
   @observable
   bool isAuthenticated = false;
 
@@ -41,20 +51,24 @@ abstract class _AuthStore with Store {
     errorMessage = null;
 
     try {
-      // TODO: Implementar chamada para API
-      await Future.delayed(const Duration(seconds: 2)); // Simulação
+      final response = await _authService.login(email, password);
 
-      // Simular dados de resposta
+      // Extrair dados da resposta
       isAuthenticated = true;
-      userType =
-          AppConstants.patientType; // Por padrão, vamos simular um paciente
-      userId = 'user_123';
-      userName = 'João Silva';
-      userEmail = email;
+      userType = response['user']['userType'];
+      userId = response['user']['id'];
+      userName = response['user']['name'];
+      userEmail = response['user']['email'];
+
+      // Salvar dados no storage
+      await _storageService.saveToken(response['token']);
+      await _storageService.saveUserData(response['user']);
+      await _storageService.saveUserType(response['user']['userType']);
+      await _storageService.setAuthenticated(true);
 
       return true;
     } catch (e) {
-      errorMessage = 'Erro ao fazer login: $e';
+      errorMessage = e.toString();
       return false;
     } finally {
       isLoading = false;
@@ -73,19 +87,31 @@ abstract class _AuthStore with Store {
     errorMessage = null;
 
     try {
-      // TODO: Implementar chamada para API
-      await Future.delayed(const Duration(seconds: 2)); // Simulação
+      final response = await _authService.register(
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+        userType: userType,
+      );
 
-      // Simular dados de resposta
+      // Extrair dados da resposta
       isAuthenticated = true;
-      userType = userType;
-      userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
-      userName = name;
-      userEmail = email;
+      this.userType = response['user']['userType'];
+      userId = response['user']['id'];
+      userName = response['user']['name'];
+      userEmail = response['user']['email'];
+
+      // Salvar dados no storage
+      await _storageService.saveToken(response['token']);
+      await _storageService.saveUserData(response['user']);
+      await _storageService.saveUserType(response['user']['userType']);
+      await _storageService.saveUserId(response['user']['id']);
+      await _storageService.setAuthenticated(true);
 
       return true;
     } catch (e) {
-      errorMessage = 'Erro ao criar conta: $e';
+      errorMessage = e.toString();
       return false;
     } finally {
       isLoading = false;
@@ -97,17 +123,20 @@ abstract class _AuthStore with Store {
     isLoading = true;
 
     try {
-      // TODO: Implementar logout na API
-      await Future.delayed(const Duration(seconds: 1)); // Simulação
+      await _authService.logout();
 
+      // Limpar dados locais
       isAuthenticated = false;
       userType = null;
       userId = null;
       userName = null;
       userEmail = null;
       errorMessage = null;
+
+      // Limpar dados do storage
+      await _storageService.clearAll();
     } catch (e) {
-      errorMessage = 'Erro ao fazer logout: $e';
+      errorMessage = e.toString();
     } finally {
       isLoading = false;
     }
@@ -115,13 +144,57 @@ abstract class _AuthStore with Store {
 
   @action
   Future<void> checkAuthStatus() async {
-    // TODO: Verificar token salvo e validar com a API
-    // Por enquanto, vamos simular que não está autenticado
-    isAuthenticated = false;
+    try {
+      await _storageService.initialize();
+
+      final isAuth = await _storageService.isAuthenticated();
+      if (!isAuth) {
+        isAuthenticated = false;
+        return;
+      }
+
+      final token = await _storageService.getToken();
+      if (token == null || _storageService.isTokenExpired(token)) {
+        await _storageService.clearAll();
+        isAuthenticated = false;
+        return;
+      }
+
+      final userData = await _storageService.getUserData();
+      final storedUserId = await _storageService.getUserId();
+      if (userData != null && storedUserId != null) {
+        isAuthenticated = true;
+        userType = userData['userType'];
+        userId = storedUserId;
+        userName = userData['name'];
+        userEmail = userData['email'];
+      } else {
+        isAuthenticated = false;
+      }
+    } catch (e) {
+      isAuthenticated = false;
+      await _storageService.clearAll();
+    }
   }
 
   @action
   void clearError() {
     errorMessage = null;
+  }
+
+  @action
+  Future<bool> resetPassword(String email) async {
+    isLoading = true;
+    errorMessage = null;
+
+    try {
+      await _authService.forgotPassword(email);
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+    }
   }
 }

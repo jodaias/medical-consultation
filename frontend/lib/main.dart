@@ -6,6 +6,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/router/app_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,10 @@ void main() async {
 
   // Configure dependency injection
   await configureDependencies();
+
+  // Initialize storage and check auth status
+  final authStore = GetIt.instance<AuthStore>();
+  await authStore.checkAuthStatus();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

@@ -175,6 +175,14 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$checkAuthStatusAsyncAction.run(() => super.checkAuthStatus());
   }
 
+  late final _$resetPasswordAsyncAction =
+      AsyncAction('_AuthStore.resetPassword', context: context);
+
+  @override
+  Future<bool> resetPassword(String email) {
+    return _$resetPasswordAsyncAction.run(() => super.resetPassword(email));
+  }
+
   late final _$_AuthStoreActionController =
       ActionController(name: '_AuthStore', context: context);
 
