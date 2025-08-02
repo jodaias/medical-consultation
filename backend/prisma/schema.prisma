@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String   @id @default(dbgenerated("gen_random_uuid()"))
   email         String   @unique
   password      String
   name          String
@@ -22,6 +22,14 @@ model User {
   isVerified    Boolean  @default(false)
   isActive      Boolean  @default(true)
   profileImage  String?
+
+  // Security fields
+  loginAttempts Int      @default(0)
+  isLocked      Boolean  @default(false)
+  lockoutUntil  DateTime?
+  lastLoginAt   DateTime?
+  passwordChangedAt DateTime?
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -34,19 +42,20 @@ model User {
   // Relations
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
-  consultations    Consultation[] @relation("PatientConsultations")
+  patientConsultations Consultation[] @relation("PatientConsultations")
   doctorConsultations Consultation[] @relation("DoctorConsultations")
   schedules       Schedule[]
   doctorPrescriptions Prescription[] @relation("DoctorPrescriptions")
   patientPrescriptions Prescription[] @relation("PatientPrescriptions")
   ratings         Rating[]
   receivedRatings Rating[] @relation("DoctorRatings")
+  reports         Report[]
 
   @@map("users")
 }
 
 model DoctorProfile {
-  id              String   @id @default(cuid())
+  id              String   @id @default(dbgenerated("gen_random_uuid()"))
   userId          String   @unique
   crm             String   @unique
   specialty       String
@@ -66,7 +75,7 @@ model DoctorProfile {
 }
 
 model PatientProfile {
-  id              String   @id @default(cuid())
+  id              String   @id @default(dbgenerated("gen_random_uuid()"))
   userId          String   @unique
   emergencyContact String?
   allergies       String[]
@@ -82,7 +91,7 @@ model PatientProfile {
 }
 
 model Consultation {
-  id          String           @id @default(cuid())
+  id          String @id @default(dbgenerated("gen_random_uuid()"))
   patientId   String
   doctorId    String
   status      ConsultationStatus @default(SCHEDULED)
@@ -104,7 +113,7 @@ model Consultation {
 }
 
 model Message {
-  id             String   @id @default(cuid())
+  id             String @id @default(dbgenerated("gen_random_uuid()"))
   consultationId String
   senderId       String
   receiverId     String
@@ -121,7 +130,7 @@ model Message {
 }
 
 model Schedule {
-  id            String   @id @default(cuid())
+  id            String @id @default(dbgenerated("gen_random_uuid()"))
   doctorId      String
   dayOfWeek     Int      // 0-6 (Sunday-Saturday)
   startTime     String   // Format: "HH:MM"
@@ -136,7 +145,7 @@ model Schedule {
 }
 
 model Prescription {
-  id             String   @id @default(cuid())
+  id             String @id @default(dbgenerated("gen_random_uuid()"))
   consultationId String
   doctorId       String
   patientId      String
@@ -155,7 +164,7 @@ model Prescription {
 }
 
 model Rating {
-  id             String   @id @default(cuid())
+  id             String @id @default(dbgenerated("gen_random_uuid()"))
   patientId      String
   doctorId       String
   consultationId String?
@@ -167,6 +176,45 @@ model Rating {
   doctor       User        @relation("DoctorRatings", fields: [doctorId], references: [id])
 
   @@map("ratings")
+}
+
+model Report {
+  id         String  @id @default(dbgenerated("gen_random_uuid()"))
+  userId     String
+  reportType ReportType
+  startDate  DateTime
+  endDate    DateTime
+  filters    Json?
+  format     FormatType   @default(PDF)
+  status     ReportStatus   @default(PENDING)
+  fileUrl    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+enum ReportType {
+  CONSULTATION
+  FINANCIAL
+  PATIENT
+  RATING
+  PRESCRIPTION
+}
+
+enum FormatType {
+ PDF
+ CSV
+ EXCEL
+}
+
+enum ReportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 enum UserType {

@@ -148,11 +148,52 @@ Aplicativo completo de consultas médicas online com chat em tempo real.
 
 ### Backend
 
+1. **Configure as variáveis de ambiente:**
+
 ```bash
 cd backend
+cp env.example .env
+```
+
+2. **Edite o arquivo `.env` com suas configurações:**
+
+```env
+# Servidor
+PORT=3001
+NODE_ENV=development
+
+# Banco de Dados
+DATABASE_URL="postgresql://username:password@localhost:5432/medical_consultation"
+
+# JWT
+JWT_SECRET="your-super-secret-jwt-key-here"
+JWT_EXPIRES_IN="7d"
+JWT_REFRESH_EXPIRES_IN="30d"
+
+# Segurança Bcrypt
+BCRYPT_ROUNDS=14
+PASSWORD_PEPPER="medical-consultation-pepper-2025-secure"
+
+# Segurança de Conta
+MAX_LOGIN_ATTEMPTS=5
+LOCKOUT_DURATION=15
+
+# Recursos de Segurança
+SECURITY_LOGGING=true
+SECURITY_BACKUP=true
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
+```
+
+3. **Instale as dependências e execute:**
+
+```bash
 npm install
 npm run dev
 ```
+
+**📋 Para lista completa de variáveis, consulte `backend/ENVIRONMENT.md`**
 
 ### Frontend
 

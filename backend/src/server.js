@@ -7,16 +7,17 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const consultationRoutes = require('./routes/consultations');
-const messageRoutes = require('./routes/messages');
-const scheduleRoutes = require('./routes/schedules');
-const prescriptionRoutes = require('./routes/prescriptions');
-const ratingRoutes = require('./routes/ratings');
+const userRoutes = require('./routes/user-routes');
+const consultationRoutes = require('./routes/consultation-routes');
+const messageRoutes = require('./routes/message-routes');
+const scheduleRoutes = require('./routes/schedule-routes');
+const reportRoutes = require('./routes/report-routes');
+const prescriptionRoutes = require('./routes/prescription-routes');
+const ratingRoutes = require('./routes/rating-routes');
 
 const { authenticateSocket } = require('./middleware/auth');
-const { handleSocketConnection } = require('./services/socketService');
+const { handleSocketConnection } = require('./services/socket-service');
+const errorHandler = require('./middleware/error-handler');
 
 const app = express();
 const server = createServer(app);
@@ -57,11 +58,11 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/ratings', ratingRoutes);
 
@@ -72,13 +73,7 @@ io.on('connection', (socket) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
-});
+app.use(errorHandler);
 
 // 404 handler
 app.use('*', (req, res) => {

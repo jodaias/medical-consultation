@@ -1,0 +1,288 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const UserRepository = require('../repositories/user-repository');
+const { CreateUserDTO, UpdateUserDTO, UserResponseDTO } = require('../dto/user-dto');
+const { ValidationException, UnauthorizedException, NotFoundException } = require('../exceptions/app-exception');
+
+/**
+ * UserService - Lógica de negócio para usuários
+ * Seguindo o princípio de responsabilidade única (SRP)
+ */
+class UserService {
+  constructor() {
+    this.repository = new UserRepository();
+    // Configurações de segurança
+    this.BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS) || 14; // Mais seguro que 12
+    this.PASSWORD_PEPPER = process.env.PASSWORD_PEPPER || 'medical-consultation-pepper-2025-secure';
+    this.MAX_LOGIN_ATTEMPTS = parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 5;
+    this.LOCKOUT_DURATION = parseInt(process.env.LOCKOUT_DURATION) || 15; // minutos
+  }
+
+  async register(userData) {
+    // Validação com DTO
+    const createUserDTO = new CreateUserDTO(userData);
+    const validationErrors = createUserDTO.validate();
+
+    if (validationErrors.length > 0) {
+      throw new ValidationException(validationErrors.join(', '));
+    }
+
+    // Verificar se email já existe
+    try {
+      await this.repository.findByEmail(userData.email);
+      throw new ValidationException('Email already exists');
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        // Email não existe, pode continuar
+      } else {
+        throw error;
+      }
+    }
+
+    // Hash da senha com salt + pepper
+    const hashedPassword = await this.hashPassword(userData.password);
+
+    // Preparar dados para criação
+    const userEntity = createUserDTO.toEntity();
+    userEntity.password = hashedPassword;
+
+    // Criar usuário
+    const user = await this.repository.create(userEntity);
+
+    // Gerar token JWT
+    const token = this.generateToken(user);
+
+    return {
+      user: UserResponseDTO.fromEntity(user),
+      token
+    };
+  }
+
+  async login(email, password) {
+    // Buscar usuário por email
+    const user = await this.repository.findByEmail(email);
+
+    // Verificar se conta está bloqueada
+    if (user.isLocked && user.lockoutUntil && new Date() < user.lockoutUntil) {
+      const remainingMinutes = Math.ceil((user.lockoutUntil - new Date()) / (1000 * 60));
+      throw new UnauthorizedException(`Account is locked. Try again in ${remainingMinutes} minutes.`);
+    }
+
+    // Verificar senha com salt + pepper
+    const isPasswordValid = await this.verifyPassword(password, user.password);
+
+    if (!isPasswordValid) {
+      // Incrementar tentativas de login
+      await this.handleFailedLogin(user);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Reset de tentativas de login em caso de sucesso
+    if (user.loginAttempts > 0) {
+      await this.resetLoginAttempts(user.id);
+    }
+
+    // Gerar token JWT
+    const token = this.generateToken(user);
+
+    return {
+      user: UserResponseDTO.fromEntity(user),
+      token
+    };
+  }
+
+  async findById(id) {
+    const user = await this.repository.findById(id);
+    return UserResponseDTO.fromEntity(user);
+  }
+
+  async findAll(filters = {}) {
+    const result = await this.repository.findAll(filters);
+    return {
+      users: UserResponseDTO.fromEntities(result.users),
+      pagination: result.pagination
+    };
+  }
+
+  async update(id, userData) {
+    // Validação com DTO
+    const updateUserDTO = new UpdateUserDTO(userData);
+    const validationErrors = updateUserDTO.validate();
+
+    if (validationErrors.length > 0) {
+      throw new ValidationException(validationErrors.join(', '));
+    }
+
+    // Preparar dados para atualização
+    const userEntity = updateUserDTO.toEntity();
+
+    // Atualizar usuário
+    const user = await this.repository.update(id, userEntity);
+    return UserResponseDTO.fromEntity(user);
+  }
+
+  async delete(id) {
+    return await this.repository.delete(id);
+  }
+
+  async findBySpecialty(specialty) {
+    const doctors = await this.repository.findBySpecialty(specialty);
+    return UserResponseDTO.fromEntities(doctors);
+  }
+
+  async getDoctorsWithStats() {
+    const doctors = await this.repository.getDoctorsWithStats();
+    return doctors.map(doctor => {
+      const avgRating = doctor.receivedRatings.length > 0
+        ? doctor.receivedRatings.reduce((sum, r) => sum + r.rating, 0) / doctor.receivedRatings.length
+        : 0;
+
+      return {
+        ...UserResponseDTO.fromEntity(doctor),
+        stats: {
+          totalConsultations: doctor._count.doctorConsultations,
+          totalRatings: doctor._count.ratings,
+          averageRating: avgRating
+        }
+      };
+    });
+  }
+
+  async changePassword(id, currentPassword, newPassword) {
+    const user = await this.repository.findById(id);
+
+    // Verificar senha atual
+    const isCurrentPasswordValid = await this.verifyPassword(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Validar nova senha
+    if (!newPassword || newPassword.length < 8) {
+      throw new ValidationException('New password must be at least 8 characters long');
+    }
+
+    // Verificar se nova senha é diferente da atual
+    if (await this.verifyPassword(newPassword, user.password)) {
+      throw new ValidationException('New password must be different from current password');
+    }
+
+    // Hash da nova senha com salt + pepper
+    const hashedNewPassword = await this.hashPassword(newPassword);
+
+    // Atualizar senha
+    await this.repository.updatePassword(id, hashedNewPassword);
+
+    return { message: 'Password updated successfully' };
+  }
+
+  async verifyUser(id) {
+    const user = await this.repository.verifyUser(id);
+    return UserResponseDTO.fromEntity(user);
+  }
+
+  generateToken(user) {
+    return jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        userType: user.userType,
+        // Adicionar claims de segurança
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (parseInt(process.env.JWT_EXPIRES_IN) || 7 * 24 * 60 * 60)
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+        algorithm: 'HS256' // Algoritmo seguro
+      }
+    );
+  }
+
+  verifyToken(token) {
+    try {
+      return jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  async validate(data) {
+    const createUserDTO = new CreateUserDTO(data);
+    return createUserDTO.validate();
+  }
+
+  /**
+   * Hash de senha com salt + pepper
+   * Segurança máxima contra ataques de rainbow table
+   */
+  async hashPassword(password) {
+    // Pepper (chave secreta adicional)
+    const pepper = this.PASSWORD_PEPPER;
+
+    // Combinar senha + pepper
+    const passwordWithPepper = password + pepper;
+
+    // Hash com bcrypt (já inclui salt automático)
+    // Rounds = 14 (muito mais seguro que 12)
+    return await bcrypt.hash(passwordWithPepper, this.BCRYPT_ROUNDS);
+  }
+
+  /**
+   * Verificar senha com salt + pepper
+   */
+  async verifyPassword(password, hashedPassword) {
+    // Pepper (mesmo usado no hash)
+    const pepper = this.PASSWORD_PEPPER;
+
+    // Combinar senha + pepper
+    const passwordWithPepper = password + pepper;
+
+    // Verificar com bcrypt
+    return await bcrypt.compare(passwordWithPepper, hashedPassword);
+  }
+
+  /**
+   * Lidar com tentativa de login falhada
+   */
+  async handleFailedLogin(user) {
+    const loginAttempts = (user.loginAttempts || 0) + 1;
+    const isLocked = loginAttempts >= this.MAX_LOGIN_ATTEMPTS;
+    const lockoutUntil = isLocked ? new Date(Date.now() + (this.LOCKOUT_DURATION * 60 * 1000)) : null;
+
+    await this.repository.update(user.id, {
+      loginAttempts,
+      isLocked,
+      lockoutUntil
+    });
+  }
+
+  /**
+   * Reset de tentativas de login
+   */
+  async resetLoginAttempts(userId) {
+    await this.repository.update(userId, {
+      loginAttempts: 0,
+      isLocked: false,
+      lockoutUntil: null
+    });
+  }
+
+  /**
+   * Gerar senha temporária segura
+   */
+  generateSecurePassword() {
+    const length = 16;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(crypto.randomInt(charset.length));
+    }
+
+    return password;
+  }
+}
+
+module.exports = UserService;
