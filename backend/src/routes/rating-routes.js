@@ -21,8 +21,8 @@ router.delete('/:id', ratingController.delete);
 
 // Specialized routes
 router.get('/consultation/:consultationId', ratingController.findByConsultation);
-router.get('/doctor/:doctorId', ratingController.findByDoctor);
-router.get('/patient/:patientId', ratingController.findByPatient);
+router.get('/doctors/:doctorId', ratingController.findByDoctor);
+router.get('/patients/:patientId', ratingController.findByPatient);
 
 // Interactive features
 router.post('/:id/helpful', ratingController.markAsHelpful);

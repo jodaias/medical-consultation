@@ -25,23 +25,23 @@ router.put('/:id', authenticateToken, scheduleController.update);
 // DELETE /api/schedules/:id - Deletar agendamento
 router.delete('/:id', authenticateToken, scheduleController.delete);
 
-// GET /api/schedules/doctor/:doctorId - Buscar agendamentos por médico
-router.get('/doctor/:doctorId', authenticateToken, scheduleController.findByDoctor);
+// GET /api/schedules/doctors/:doctorId - Buscar agendamentos por médico
+router.get('/doctors/:doctorId', authenticateToken, scheduleController.findByDoctor);
 
-// GET /api/schedules/doctor/:doctorId/available-slots - Buscar slots disponíveis
-router.get('/doctor/:doctorId/available-slots', authenticateToken, scheduleController.findAvailableSlots);
+// GET /api/schedules/doctors/:doctorId/available-slots - Buscar slots disponíveis
+router.get('/doctors/:doctorId/available-slots', authenticateToken, scheduleController.findAvailableSlots);
 
-// POST /api/schedules/doctor/:doctorId/check-availability - Verificar disponibilidade
-router.post('/doctor/:doctorId/check-availability', authenticateToken, scheduleController.checkAvailability);
+// POST /api/schedules/doctors/:doctorId/check-availability - Verificar disponibilidade
+router.post('/doctors/:doctorId/check-availability', authenticateToken, scheduleController.checkAvailability);
 
 // GET /api/schedules/stats - Obter estatísticas de agendamento
 router.get('/stats', authenticateToken, scheduleController.getStats);
 
-// GET /api/schedules/doctor/:doctorId/weekly - Obter agenda semanal
-router.get('/doctor/:doctorId/weekly', authenticateToken, scheduleController.getWeeklySchedule);
+// GET /api/schedules/doctors/:doctorId/weekly - Obter agenda semanal
+router.get('/doctors/:doctorId/weekly', authenticateToken, scheduleController.getWeeklySchedule);
 
-// PUT /api/schedules/doctor/:doctorId/bulk - Atualizar agendamentos em lote
-router.put('/doctor/:doctorId/bulk', authenticateToken, scheduleController.bulkUpdate);
+// PUT /api/schedules/doctors/:doctorId/bulk - Atualizar agendamentos em lote
+router.put('/doctors/:doctorId/bulk', authenticateToken, scheduleController.bulkUpdate);
 
 // POST /api/schedules/validate - Validar dados de agendamento
 router.post('/validate', authenticateToken, scheduleController.validate);

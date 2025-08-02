@@ -21,7 +21,7 @@ router.delete('/:id', prescriptionController.delete);
 
 // Specialized routes
 router.get('/consultation/:consultationId', prescriptionController.findByConsultation);
-router.get('/doctor/:doctorId', prescriptionController.findByDoctor);
+router.get('/doctors/:doctorId', prescriptionController.findByDoctor);
 router.get('/patient/:patientId', prescriptionController.findByPatient);
 
 // Statistics and utilities

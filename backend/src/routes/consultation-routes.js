@@ -32,13 +32,13 @@ router.post('/:id/start', authenticateToken, consultationController.startConsult
 router.post('/:id/end', authenticateToken, consultationController.endConsultation);
 
 // POST /api/consultations/:id/cancel - Cancelar consulta
-router.post('/:id/cancel', authenticateToken, consultationController.cancelConsultation);
+router.put('/:id/cancel', authenticateToken, consultationController.cancelConsultation);
 
 // GET /api/consultations/patient/:patientId - Buscar consultas por paciente
 router.get('/patient/:patientId', authenticateToken, consultationController.findByPatient);
 
-// GET /api/consultations/doctor/:doctorId - Buscar consultas por médico
-router.get('/doctor/:doctorId', authenticateToken, consultationController.findByDoctor);
+// GET /api/consultations/doctors/:doctorId - Buscar consultas por médico
+router.get('/doctors/:doctorId', authenticateToken, consultationController.findByDoctor);
 
 // GET /api/consultations/stats - Obter estatísticas de consultas
 router.get('/stats', authenticateToken, consultationController.getStats);
