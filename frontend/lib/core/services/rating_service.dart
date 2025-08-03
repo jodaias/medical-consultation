@@ -18,7 +18,7 @@ class RatingService {
     Map<String, int>? criteriaRatings, // Avaliações por critério
   }) async {
     try {
-      final response = await _apiService.post('/ratings/create', data: {
+      final response = await _apiService.post('ratings/create', data: {
         'doctorId': doctorId,
         'consultationId': consultationId,
         'rating': rating,
@@ -48,7 +48,7 @@ class RatingService {
       if (sortBy != null) queryParams['sortBy'] = sortBy;
       if (order != null) queryParams['order'] = order;
 
-      final response = await _apiService.get('/ratings/doctor/$doctorId',
+      final response = await _apiService.get('ratings/doctors/$doctorId',
           queryParameters: queryParams);
       return List<Map<String, dynamic>>.from(response.data['ratings']);
     } catch (e) {
@@ -60,7 +60,7 @@ class RatingService {
   // Obter estatísticas de avaliação do médico
   Future<Map<String, dynamic>?> getDoctorRatingStats(String doctorId) async {
     try {
-      final response = await _apiService.get('/ratings/doctor/$doctorId/stats');
+      final response = await _apiService.get('ratings/doctors/$doctorId/stats');
       return response.data;
     } catch (e) {
       print('Erro ao obter estatísticas de avaliação: $e');
@@ -71,7 +71,7 @@ class RatingService {
   // Marcar avaliação como útil
   Future<bool> markRatingAsHelpful(String ratingId) async {
     try {
-      await _apiService.post('/ratings/$ratingId/helpful');
+      await _apiService.post('ratings/$ratingId/helpful');
       return true;
     } catch (e) {
       print('Erro ao marcar avaliação como útil: $e');
@@ -86,7 +86,7 @@ class RatingService {
     String? description,
   }) async {
     try {
-      await _apiService.post('/ratings/$ratingId/report', data: {
+      await _apiService.post('ratings/$ratingId/report', data: {
         'reason': reason,
         'description': description,
       });
@@ -103,7 +103,7 @@ class RatingService {
     required String reply,
   }) async {
     try {
-      await _apiService.post('/ratings/$ratingId/reply', data: {
+      await _apiService.post('ratings/$ratingId/reply', data: {
         'reply': reply,
       });
       return true;
@@ -126,7 +126,7 @@ class RatingService {
       if (comment != null) data['comment'] = comment;
       if (criteriaRatings != null) data['criteriaRatings'] = criteriaRatings;
 
-      await _apiService.put('/ratings/$ratingId', data: data);
+      await _apiService.put('ratings/$ratingId', data: data);
       return true;
     } catch (e) {
       print('Erro ao atualizar avaliação: $e');
@@ -137,7 +137,7 @@ class RatingService {
   // Deletar avaliação
   Future<bool> deleteRating(String ratingId) async {
     try {
-      await _apiService.delete('/ratings/$ratingId');
+      await _apiService.delete('ratings/$ratingId');
       return true;
     } catch (e) {
       print('Erro ao deletar avaliação: $e');
@@ -156,7 +156,7 @@ class RatingService {
       if (offset != null) queryParams['offset'] = offset;
 
       final response =
-          await _apiService.get('/ratings/user', queryParameters: queryParams);
+          await _apiService.get('ratings/user', queryParameters: queryParams);
       return List<Map<String, dynamic>>.from(response.data['ratings']);
     } catch (e) {
       print('Erro ao obter avaliações do usuário: $e');
@@ -168,7 +168,7 @@ class RatingService {
   Future<bool> canRateConsultation(String consultationId) async {
     try {
       final response =
-          await _apiService.get('/ratings/can-rate/$consultationId');
+          await _apiService.get('ratings/can-rate/$consultationId');
       return response.data['canRate'] ?? false;
     } catch (e) {
       print('Erro ao verificar se pode avaliar: $e');
@@ -179,7 +179,7 @@ class RatingService {
   // Obter critérios de avaliação
   Future<List<Map<String, dynamic>>> getRatingCriteria() async {
     try {
-      final response = await _apiService.get('/ratings/criteria');
+      final response = await _apiService.get('ratings/criteria');
       return List<Map<String, dynamic>>.from(response.data['criteria']);
     } catch (e) {
       print('Erro ao obter critérios de avaliação: $e');

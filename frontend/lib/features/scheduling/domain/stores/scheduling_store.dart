@@ -5,12 +5,12 @@ import 'package:medical_consultation_app/features/scheduling/data/services/sched
 
 part 'scheduling_store.g.dart';
 
-class SchedulingStore = _SchedulingStoreBase with _$SchedulingStore;
+class SchedulingStore = SchedulingStoreBase with _$SchedulingStore;
 
-abstract class _SchedulingStoreBase with Store {
+abstract class SchedulingStoreBase with Store {
   final SchedulingService _schedulingService;
 
-  _SchedulingStoreBase(this._schedulingService);
+  SchedulingStoreBase(this._schedulingService);
 
   // Observables
   @observable

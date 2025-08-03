@@ -50,12 +50,14 @@ class UserService {
     // Criar usuário
     const user = await this.repository.create(userEntity);
 
-    // Gerar token JWT
+    // Gerar token JWT e refresh token
     const token = this.generateToken(user);
+    const refreshToken = this.generateRefreshToken(user);
 
     return {
       user: UserResponseDTO.fromEntity(user),
-      token
+      token,
+      refreshToken
     };
   }
 
@@ -83,13 +85,44 @@ class UserService {
       await this.resetLoginAttempts(user.id);
     }
 
-    // Gerar token JWT
+    // Gerar token JWT e refresh token
     const token = this.generateToken(user);
+    const refreshToken = this.generateRefreshToken(user);
 
     return {
       user: UserResponseDTO.fromEntity(user),
-      token
+      token,
+      refreshToken
     };
+  }
+
+  async refreshToken(refreshToken) {
+    try {
+      // Verificar se o refresh token é válido
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+      // Buscar usuário pelo ID do token
+      const user = await this.repository.findById(decoded.id);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // Gerar novo token JWT
+      const newToken = this.generateToken(user);
+
+      return {
+        token: newToken,
+        refreshToken: refreshToken // Manter o mesmo refresh token
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Refresh token expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      throw error;
+    }
   }
 
   async findById(id) {
@@ -183,19 +216,34 @@ class UserService {
   }
 
   generateToken(user) {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      userType: user.userType,
+    };
+
     return jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        userType: user.userType,
-        // Adicionar claims de segurança
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + (parseInt(process.env.JWT_EXPIRES_IN) || 7 * 24 * 60 * 60)
-      },
+      payload,
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-        algorithm: 'HS256' // Algoritmo seguro
+        expiresIn: process.env.JWT_EXPIRES_IN || '2h',
+        algorithm: 'HS256'
+      }
+    );
+  }
+
+  generateRefreshToken(user) {
+    const payload = {
+      id: user.id,
+      type: 'refresh'
+    };
+
+    return jwt.sign(
+      payload,
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+        algorithm: 'HS256'
       }
     );
   }
@@ -282,6 +330,78 @@ class UserService {
     }
 
     return password;
+  }
+
+  // Buscar especialidades
+  async getSpecialties() {
+    const specialties = await this.repository.getSpecialties();
+    return specialties;
+  }
+
+  // Buscar médicos online
+  async getOnlineDoctors() {
+    const doctors = await this.repository.getOnlineDoctors();
+    return UserResponseDTO.fromEntities(doctors);
+  }
+
+  // Buscar médicos favoritos
+  async getFavoriteDoctors(userId) {
+    const favorites = await this.repository.getFavoriteDoctors(userId);
+    return UserResponseDTO.fromEntities(favorites);
+  }
+
+  // Adicionar/remover médico dos favoritos
+  async toggleFavorite(userId, doctorId) {
+    const result = await this.repository.toggleFavorite(userId, doctorId);
+    return result;
+  }
+
+  // Dashboard do médico
+  async getDoctorDashboard(doctorId) {
+    const dashboard = await this.repository.getDoctorDashboard(doctorId);
+    return dashboard;
+  }
+
+  // Dashboard do paciente
+  async getPatientDashboard(patientId) {
+    const dashboard = await this.repository.getPatientDashboard(patientId);
+    return dashboard;
+  }
+
+  // Estatísticas do médico
+  async getDoctorStats(doctorId) {
+    const stats = await this.repository.getDoctorStats(doctorId);
+    return stats;
+  }
+
+  // Pacientes recentes do médico
+  async getRecentPatients(doctorId) {
+    const patients = await this.repository.getRecentPatients(doctorId);
+    return patients;
+  }
+
+  // Receita do médico
+  async getDoctorRevenue(doctorId) {
+    const revenue = await this.repository.getDoctorRevenue(doctorId);
+    return revenue;
+  }
+
+  // Médicos favoritos do paciente
+  async getPatientFavoriteDoctors(patientId) {
+    const doctors = await this.repository.getPatientFavoriteDoctors(patientId);
+    return doctors;
+  }
+
+  // Histórico médico do paciente
+  async getPatientMedicalHistory(patientId) {
+    const history = await this.repository.getPatientMedicalHistory(patientId);
+    return history;
+  }
+
+  // Gastos médicos do paciente
+  async getPatientExpenses(patientId) {
+    const expenses = await this.repository.getPatientExpenses(patientId);
+    return expenses;
   }
 }
 

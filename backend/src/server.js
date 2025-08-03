@@ -14,6 +14,7 @@ const scheduleRoutes = require('./routes/schedule-routes');
 const reportRoutes = require('./routes/report-routes');
 const prescriptionRoutes = require('./routes/prescription-routes');
 const ratingRoutes = require('./routes/rating-routes');
+const dashboardRoutes = require('./routes/dashboard-routes');
 
 const { authenticateSocket } = require('./middleware/auth');
 const { handleSocketConnection } = require('./services/socket-service');
@@ -37,9 +38,19 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
+};
+
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan('combined'));
 app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
@@ -65,6 +76,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Socket.io authentication and connection handling
 io.use(authenticateSocket);
@@ -80,7 +92,7 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

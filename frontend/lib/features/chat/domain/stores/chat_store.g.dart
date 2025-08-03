@@ -8,24 +8,24 @@ part of 'chat_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$ChatStore on _ChatStore, Store {
+mixin _$ChatStore on ChatStoreBase, Store {
   Computed<bool>? _$hasMessagesComputed;
 
   @override
   bool get hasMessages =>
       (_$hasMessagesComputed ??= Computed<bool>(() => super.hasMessages,
-              name: '_ChatStore.hasMessages'))
+              name: 'ChatStoreBase.hasMessages'))
           .value;
   Computed<int>? _$unreadCountComputed;
 
   @override
   int get unreadCount =>
       (_$unreadCountComputed ??= Computed<int>(() => super.unreadCount,
-              name: '_ChatStore.unreadCount'))
+              name: 'ChatStoreBase.unreadCount'))
           .value;
 
   late final _$messagesAtom =
-      Atom(name: '_ChatStore.messages', context: context);
+      Atom(name: 'ChatStoreBase.messages', context: context);
 
   @override
   ObservableList<MessageModel> get messages {
@@ -41,7 +41,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_ChatStore.isLoading', context: context);
+      Atom(name: 'ChatStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -57,7 +57,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$isConnectedAtom =
-      Atom(name: '_ChatStore.isConnected', context: context);
+      Atom(name: 'ChatStoreBase.isConnected', context: context);
 
   @override
   bool get isConnected {
@@ -73,7 +73,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$errorMessageAtom =
-      Atom(name: '_ChatStore.errorMessage', context: context);
+      Atom(name: 'ChatStoreBase.errorMessage', context: context);
 
   @override
   String? get errorMessage {
@@ -89,7 +89,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$currentConsultationIdAtom =
-      Atom(name: '_ChatStore.currentConsultationId', context: context);
+      Atom(name: 'ChatStoreBase.currentConsultationId', context: context);
 
   @override
   String get currentConsultationId {
@@ -106,7 +106,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$typingUsersAtom =
-      Atom(name: '_ChatStore.typingUsers', context: context);
+      Atom(name: 'ChatStoreBase.typingUsers', context: context);
 
   @override
   ObservableSet<String> get typingUsers {
@@ -122,7 +122,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$connectToChatAsyncAction =
-      AsyncAction('_ChatStore.connectToChat', context: context);
+      AsyncAction('ChatStoreBase.connectToChat', context: context);
 
   @override
   Future<void> connectToChat(String consultationId) {
@@ -131,7 +131,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$disconnectAsyncAction =
-      AsyncAction('_ChatStore.disconnect', context: context);
+      AsyncAction('ChatStoreBase.disconnect', context: context);
 
   @override
   Future<void> disconnect() {
@@ -139,7 +139,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$loadMessagesAsyncAction =
-      AsyncAction('_ChatStore.loadMessages', context: context);
+      AsyncAction('ChatStoreBase.loadMessages', context: context);
 
   @override
   Future<void> loadMessages(String consultationId) {
@@ -148,7 +148,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   late final _$sendMessageAsyncAction =
-      AsyncAction('_ChatStore.sendMessage', context: context);
+      AsyncAction('ChatStoreBase.sendMessage', context: context);
 
   @override
   Future<void> sendMessage(String content, {String? attachmentPath}) {
@@ -156,72 +156,72 @@ mixin _$ChatStore on _ChatStore, Store {
         .run(() => super.sendMessage(content, attachmentPath: attachmentPath));
   }
 
-  late final _$_ChatStoreActionController =
-      ActionController(name: '_ChatStore', context: context);
+  late final _$ChatStoreBaseActionController =
+      ActionController(name: 'ChatStoreBase', context: context);
 
   @override
   void addMessage(MessageModel message) {
-    final _$actionInfo =
-        _$_ChatStoreActionController.startAction(name: '_ChatStore.addMessage');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.addMessage');
     try {
       return super.addMessage(message);
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void markMessageAsRead(String messageId) {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-        name: '_ChatStore.markMessageAsRead');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.markMessageAsRead');
     try {
       return super.markMessageAsRead(messageId);
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void markAllAsRead() {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-        name: '_ChatStore.markAllAsRead');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.markAllAsRead');
     try {
       return super.markAllAsRead();
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearError() {
-    final _$actionInfo =
-        _$_ChatStoreActionController.startAction(name: '_ChatStore.clearError');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void updateConnectionStatus(bool connected) {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-        name: '_ChatStore.updateConnectionStatus');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.updateConnectionStatus');
     try {
       return super.updateConnectionStatus(connected);
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void sendTypingIndicator(String consultationId, bool isTyping) {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-        name: '_ChatStore.sendTypingIndicator');
+    final _$actionInfo = _$ChatStoreBaseActionController.startAction(
+        name: 'ChatStoreBase.sendTypingIndicator');
     try {
       return super.sendTypingIndicator(consultationId, isTyping);
     } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
+      _$ChatStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

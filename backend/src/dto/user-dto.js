@@ -66,11 +66,11 @@ class CreateUserDTO {
       }
     }
 
-    if (!this.userType || !['patient', 'doctor'].includes(this.userType)) {
-      errors.push('User type must be either patient or doctor');
+    if (!this.userType || !['PATIENT', 'DOCTOR'].includes(this.userType)) {
+      errors.push('User type must be either PATIENT or DOCTOR');
     }
 
-    if (this.userType === 'doctor') {
+    if (this.userType === 'DOCTOR') {
       if (!this.specialty) {
         errors.push('Specialty is required for doctors');
       }
@@ -144,14 +144,15 @@ class UserResponseDTO {
     this.email = user.email;
     this.phone = user.phone;
     this.userType = user.userType;
-    this.specialty = user.specialty;
-    this.crm = user.crm;
-    this.bio = user.bio;
-    this.hourlyRate = user.hourlyRate;
     this.avatar = user.avatar;
     this.isVerified = user.isVerified;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
+
+    this.specialty = user.doctorProfile.specialty;
+    this.crm = user.doctorProfile.crm;
+    this.bio = user.doctorProfile.bio;
+    this.hourlyRate = user.doctorProfile.hourlyRate;
   }
 
   static fromEntity(user) {

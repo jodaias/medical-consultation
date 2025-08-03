@@ -6,9 +6,9 @@ import 'package:medical_consultation_app/features/chat/data/services/chat_servic
 part 'chat_store.g.dart';
 
 @injectable
-class ChatStore = _ChatStore with _$ChatStore;
+class ChatStore = ChatStoreBase with _$ChatStore;
 
-abstract class _ChatStore with Store {
+abstract class ChatStoreBase with Store {
   final ChatService _chatService = ChatService();
 
   @observable

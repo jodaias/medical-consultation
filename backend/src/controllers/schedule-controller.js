@@ -269,6 +269,26 @@ class ScheduleController extends BaseController {
       return this.sendError(res, error, error.statusCode || 400);
     }
   });
+
+  confirmSchedule = this.handleAsync(async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const userType = req.user.userType;
+      const schedule = await this.scheduleService.confirmSchedule(
+        id,
+        userId,
+        userType
+      );
+      return this.sendSuccess(
+        res,
+        schedule,
+        "Schedule confirmed successfully"
+      );
+    } catch (error) {
+      return this.sendError(res, error, error.statusCode || 400);
+    }
+  });
 }
 
 module.exports = ScheduleController;

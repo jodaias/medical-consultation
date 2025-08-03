@@ -8,14 +8,14 @@ part of 'scheduling_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$SchedulingStore on _SchedulingStoreBase, Store {
+mixin _$SchedulingStore on SchedulingStoreBase, Store {
   Computed<List<AppointmentModel>>? _$filteredAppointmentsComputed;
 
   @override
   List<AppointmentModel> get filteredAppointments =>
       (_$filteredAppointmentsComputed ??= Computed<List<AppointmentModel>>(
               () => super.filteredAppointments,
-              name: '_SchedulingStoreBase.filteredAppointments'))
+              name: 'SchedulingStoreBase.filteredAppointments'))
           .value;
   Computed<List<AppointmentModel>>? _$pendingAppointmentsComputed;
 
@@ -23,7 +23,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   List<AppointmentModel> get pendingAppointments =>
       (_$pendingAppointmentsComputed ??= Computed<List<AppointmentModel>>(
               () => super.pendingAppointments,
-              name: '_SchedulingStoreBase.pendingAppointments'))
+              name: 'SchedulingStoreBase.pendingAppointments'))
           .value;
   Computed<List<AppointmentModel>>? _$confirmedAppointmentsComputed;
 
@@ -31,7 +31,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   List<AppointmentModel> get confirmedAppointments =>
       (_$confirmedAppointmentsComputed ??= Computed<List<AppointmentModel>>(
               () => super.confirmedAppointments,
-              name: '_SchedulingStoreBase.confirmedAppointments'))
+              name: 'SchedulingStoreBase.confirmedAppointments'))
           .value;
   Computed<List<AppointmentModel>>? _$upcomingAppointmentsComputed;
 
@@ -39,25 +39,25 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   List<AppointmentModel> get upcomingAppointments =>
       (_$upcomingAppointmentsComputed ??= Computed<List<AppointmentModel>>(
               () => super.upcomingAppointments,
-              name: '_SchedulingStoreBase.upcomingAppointments'))
+              name: 'SchedulingStoreBase.upcomingAppointments'))
           .value;
   Computed<List<TimeSlotModel>>? _$availableSlotsComputed;
 
   @override
   List<TimeSlotModel> get availableSlots => (_$availableSlotsComputed ??=
           Computed<List<TimeSlotModel>>(() => super.availableSlots,
-              name: '_SchedulingStoreBase.availableSlots'))
+              name: 'SchedulingStoreBase.availableSlots'))
       .value;
   Computed<List<TimeSlotModel>>? _$todaySlotsComputed;
 
   @override
   List<TimeSlotModel> get todaySlots => (_$todaySlotsComputed ??=
           Computed<List<TimeSlotModel>>(() => super.todaySlots,
-              name: '_SchedulingStoreBase.todaySlots'))
+              name: 'SchedulingStoreBase.todaySlots'))
       .value;
 
   late final _$appointmentsAtom =
-      Atom(name: '_SchedulingStoreBase.appointments', context: context);
+      Atom(name: 'SchedulingStoreBase.appointments', context: context);
 
   @override
   ObservableList<AppointmentModel> get appointments {
@@ -73,7 +73,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$availableTimeSlotsAtom =
-      Atom(name: '_SchedulingStoreBase.availableTimeSlots', context: context);
+      Atom(name: 'SchedulingStoreBase.availableTimeSlots', context: context);
 
   @override
   ObservableList<TimeSlotModel> get availableTimeSlots {
@@ -89,7 +89,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedAppointmentAtom =
-      Atom(name: '_SchedulingStoreBase.selectedAppointment', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedAppointment', context: context);
 
   @override
   AppointmentModel? get selectedAppointment {
@@ -105,7 +105,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedTimeSlotAtom =
-      Atom(name: '_SchedulingStoreBase.selectedTimeSlot', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedTimeSlot', context: context);
 
   @override
   TimeSlotModel? get selectedTimeSlot {
@@ -121,7 +121,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_SchedulingStoreBase.isLoading', context: context);
+      Atom(name: 'SchedulingStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -137,7 +137,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$isLoadingTimeSlotsAtom =
-      Atom(name: '_SchedulingStoreBase.isLoadingTimeSlots', context: context);
+      Atom(name: 'SchedulingStoreBase.isLoadingTimeSlots', context: context);
 
   @override
   bool get isLoadingTimeSlots {
@@ -153,7 +153,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$errorAtom =
-      Atom(name: '_SchedulingStoreBase.error', context: context);
+      Atom(name: 'SchedulingStoreBase.error', context: context);
 
   @override
   String? get error {
@@ -169,7 +169,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$timeSlotsErrorAtom =
-      Atom(name: '_SchedulingStoreBase.timeSlotsError', context: context);
+      Atom(name: 'SchedulingStoreBase.timeSlotsError', context: context);
 
   @override
   String? get timeSlotsError {
@@ -185,7 +185,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$searchQueryAtom =
-      Atom(name: '_SchedulingStoreBase.searchQuery', context: context);
+      Atom(name: 'SchedulingStoreBase.searchQuery', context: context);
 
   @override
   String get searchQuery {
@@ -201,7 +201,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedStatusAtom =
-      Atom(name: '_SchedulingStoreBase.selectedStatus', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedStatus', context: context);
 
   @override
   String get selectedStatus {
@@ -217,7 +217,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedStartDateAtom =
-      Atom(name: '_SchedulingStoreBase.selectedStartDate', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedStartDate', context: context);
 
   @override
   DateTime? get selectedStartDate {
@@ -233,7 +233,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedEndDateAtom =
-      Atom(name: '_SchedulingStoreBase.selectedEndDate', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedEndDate', context: context);
 
   @override
   DateTime? get selectedEndDate {
@@ -249,7 +249,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$selectedDoctorIdAtom =
-      Atom(name: '_SchedulingStoreBase.selectedDoctorId', context: context);
+      Atom(name: 'SchedulingStoreBase.selectedDoctorId', context: context);
 
   @override
   String get selectedDoctorId {
@@ -264,9 +264,8 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
     });
   }
 
-  late final _$loadUserAppointmentsAsyncAction = AsyncAction(
-      '_SchedulingStoreBase.loadUserAppointments',
-      context: context);
+  late final _$loadUserAppointmentsAsyncAction =
+      AsyncAction('SchedulingStoreBase.loadUserAppointments', context: context);
 
   @override
   Future<void> loadUserAppointments() {
@@ -275,7 +274,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$loadDoctorAppointmentsAsyncAction = AsyncAction(
-      '_SchedulingStoreBase.loadDoctorAppointments',
+      'SchedulingStoreBase.loadDoctorAppointments',
       context: context);
 
   @override
@@ -285,7 +284,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$loadAvailableTimeSlotsAsyncAction = AsyncAction(
-      '_SchedulingStoreBase.loadAvailableTimeSlots',
+      'SchedulingStoreBase.loadAvailableTimeSlots',
       context: context);
 
   @override
@@ -297,7 +296,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$scheduleAppointmentAsyncAction =
-      AsyncAction('_SchedulingStoreBase.scheduleAppointment', context: context);
+      AsyncAction('SchedulingStoreBase.scheduleAppointment', context: context);
 
   @override
   Future<AppointmentModel?> scheduleAppointment(
@@ -313,7 +312,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$confirmAppointmentAsyncAction =
-      AsyncAction('_SchedulingStoreBase.confirmAppointment', context: context);
+      AsyncAction('SchedulingStoreBase.confirmAppointment', context: context);
 
   @override
   Future<bool> confirmAppointment(String appointmentId) {
@@ -322,7 +321,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$cancelAppointmentAsyncAction =
-      AsyncAction('_SchedulingStoreBase.cancelAppointment', context: context);
+      AsyncAction('SchedulingStoreBase.cancelAppointment', context: context);
 
   @override
   Future<bool> cancelAppointment(String appointmentId, {String? reason}) {
@@ -331,7 +330,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$getAppointmentDetailsAsyncAction = AsyncAction(
-      '_SchedulingStoreBase.getAppointmentDetails',
+      'SchedulingStoreBase.getAppointmentDetails',
       context: context);
 
   @override
@@ -341,7 +340,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$checkTimeSlotAvailabilityAsyncAction = AsyncAction(
-      '_SchedulingStoreBase.checkTimeSlotAvailability',
+      'SchedulingStoreBase.checkTimeSlotAvailability',
       context: context);
 
   @override
@@ -353,7 +352,7 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
   }
 
   late final _$getSchedulingStatsAsyncAction =
-      AsyncAction('_SchedulingStoreBase.getSchedulingStats', context: context);
+      AsyncAction('SchedulingStoreBase.getSchedulingStats', context: context);
 
   @override
   Future<Map<String, dynamic>?> getSchedulingStats(
@@ -362,105 +361,105 @@ mixin _$SchedulingStore on _SchedulingStoreBase, Store {
         () => super.getSchedulingStats(startDate: startDate, endDate: endDate));
   }
 
-  late final _$_SchedulingStoreBaseActionController =
-      ActionController(name: '_SchedulingStoreBase', context: context);
+  late final _$SchedulingStoreBaseActionController =
+      ActionController(name: 'SchedulingStoreBase', context: context);
 
   @override
   void setSearchQuery(String query) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSearchQuery');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSearchQuery');
     try {
       return super.setSearchQuery(query);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedStatus(String status) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedStatus');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedStatus');
     try {
       return super.setSelectedStatus(status);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedStartDate(DateTime? date) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedStartDate');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedStartDate');
     try {
       return super.setSelectedStartDate(date);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedEndDate(DateTime? date) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedEndDate');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedEndDate');
     try {
       return super.setSelectedEndDate(date);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedDoctorId(String doctorId) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedDoctorId');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedDoctorId');
     try {
       return super.setSelectedDoctorId(doctorId);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedAppointment(AppointmentModel? appointment) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedAppointment');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedAppointment');
     try {
       return super.setSelectedAppointment(appointment);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedTimeSlot(TimeSlotModel? timeSlot) {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.setSelectedTimeSlot');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.setSelectedTimeSlot');
     try {
       return super.setSelectedTimeSlot(timeSlot);
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearFilters() {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.clearFilters');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.clearFilters');
     try {
       return super.clearFilters();
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearError() {
-    final _$actionInfo = _$_SchedulingStoreBaseActionController.startAction(
-        name: '_SchedulingStoreBase.clearError');
+    final _$actionInfo = _$SchedulingStoreBaseActionController.startAction(
+        name: 'SchedulingStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_SchedulingStoreBaseActionController.endAction(_$actionInfo);
+      _$SchedulingStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

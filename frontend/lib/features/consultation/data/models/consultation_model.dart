@@ -99,7 +99,7 @@ class ConsultationModel {
   bool get isInProgress => status == AppConstants.inProgressStatus;
   bool get isCompleted => status == AppConstants.completedStatus;
   bool get isCancelled => status == AppConstants.cancelledStatus;
-  bool get isNoShow => status == AppConstants.noShowStatus;
+  bool get isAll => status == AppConstants.allStatus;
 
   bool get canStart =>
       isScheduled &&

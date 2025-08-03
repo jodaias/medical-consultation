@@ -7,9 +7,9 @@ import 'package:medical_consultation_app/features/dashboard/data/services/dashbo
 part 'dashboard_store.g.dart';
 
 @injectable
-class DashboardStore = _DashboardStore with _$DashboardStore;
+class DashboardStore = DashboardStoreBase with _$DashboardStore;
 
-abstract class _DashboardStore with Store {
+abstract class DashboardStoreBase with Store {
   final DashboardService _dashboardService = DashboardService();
 
   @observable

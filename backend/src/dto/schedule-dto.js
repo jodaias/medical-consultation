@@ -190,8 +190,8 @@ class ScheduleResponseDTO {
       id: schedule.doctor.id,
       name: schedule.doctor.name,
       email: schedule.doctor.email,
-      specialty: schedule.doctor.specialty,
-      crm: schedule.doctor.crm
+      specialty: schedule.doctor.doctorProfile.specialty,
+      crm: schedule.doctor.doctorProfile.crm
     } : null;
 
     // Estatísticas

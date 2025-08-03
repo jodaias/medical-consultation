@@ -152,8 +152,8 @@ class ConsultationResponseDTO {
       id: consultation.doctor.id,
       name: consultation.doctor.name,
       email: consultation.doctor.email,
-      specialty: consultation.doctor.specialty,
-      crm: consultation.doctor.crm
+      specialty: consultation.doctor.doctorProfile.specialty,
+      crm: consultation.doctor.doctorProfile.crm
     } : null;
 
     // Estatísticas

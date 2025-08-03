@@ -28,8 +28,12 @@ class ConsultationRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              },
             }
           },
           messages: {
@@ -63,8 +67,12 @@ class ConsultationRepository {
             id: true,
             name: true,
             email: true,
-            specialty: true,
-            crm: true
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
           }
         },
         messages: {
@@ -138,8 +146,12 @@ class ConsultationRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              }
             }
           },
           _count: {
@@ -182,8 +194,12 @@ class ConsultationRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              }
             }
           },
           messages: {
@@ -260,8 +276,12 @@ class ConsultationRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              }
             }
           },
           _count: {
@@ -448,11 +468,181 @@ class ConsultationRepository {
             id: true,
             name: true,
             email: true,
-            specialty: true
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
           }
         }
       }
     });
+  }
+
+  // Avaliar consulta
+  async rateConsultation(id, rating, review, userId) {
+    // Criar avaliação
+    const ratingRecord = await this.prisma.rating.create({
+      data: {
+        consultationId: id,
+        raterId: userId,
+        rating: rating,
+        comment: review,
+        type: 'CONSULTATION'
+      }
+    });
+
+    // Atualizar consulta com a avaliação
+    return await this.prisma.consultation.update({
+      where: { id },
+      data: {
+        rating: rating,
+        review: review
+      },
+      include: {
+        patient: true,
+        doctor: true
+      }
+    });
+  }
+
+  // Buscar avaliação existente
+  async findRatingByConsultation(consultationId, userId) {
+    return await this.prisma.rating.findFirst({
+      where: {
+        consultationId: consultationId,
+        raterId: userId,
+        type: 'CONSULTATION'
+      }
+    });
+  }
+
+  // Marcar como no-show
+  async markAsNoShow(id) {
+    return await this.prisma.consultation.update({
+      where: { id },
+      data: {
+        status: 'NO_SHOW'
+      },
+      include: {
+        patient: true,
+        doctor: true
+      }
+    });
+  }
+
+  // Reagendar consulta
+  async rescheduleConsultation(id, newScheduledAt) {
+    const consultation = await this.prisma.consultation.update({
+      where: { id },
+      data: { scheduledAt: newScheduledAt },
+              include: {
+          doctor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              }
+            }
+          },
+          patient: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true
+            }
+          }
+        }
+    });
+    return consultation;
+  }
+
+  // Consultas próximas do médico
+  async getDoctorUpcomingConsultations(doctorId) {
+    const consultations = await this.prisma.consultation.findMany({
+      where: {
+        doctorId: doctorId,
+        status: 'SCHEDULED',
+        scheduledAt: { gte: new Date() }
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: 10,
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true
+          }
+        }
+      }
+    });
+    return consultations;
+  }
+
+  // Consultas recentes do paciente
+  async getPatientRecentConsultations(patientId) {
+    const consultations = await this.prisma.consultation.findMany({
+      where: {
+        patientId: patientId,
+        status: { in: ['COMPLETED', 'CANCELLED'] }
+      },
+      orderBy: { scheduledAt: 'desc' },
+      take: 10,
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
+          }
+        }
+      }
+    });
+    return consultations;
+  }
+
+  // Próximas consultas do paciente
+  async getPatientUpcomingConsultations(patientId) {
+    const consultations = await this.prisma.consultation.findMany({
+      where: {
+        patientId: patientId,
+        status: 'SCHEDULED',
+        scheduledAt: { gte: new Date() }
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: 10,
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
+          }
+        }
+      }
+    });
+    return consultations;
   }
 }
 

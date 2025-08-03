@@ -24,6 +24,9 @@ router.get('/consultation/:consultationId', prescriptionController.findByConsult
 router.get('/doctors/:doctorId', prescriptionController.findByDoctor);
 router.get('/patient/:patientId', prescriptionController.findByPatient);
 
+// GET /patients/:patientId/recent - Prescrições recentes do paciente
+router.get('/patients/:patientId/recent', prescriptionController.getPatientRecentPrescriptions);
+
 // Statistics and utilities
 router.get('/stats/overview', prescriptionController.getStats);
 router.post('/deactivate-expired', prescriptionController.deactivateExpired);

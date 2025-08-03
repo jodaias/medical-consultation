@@ -4,19 +4,48 @@ import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
+import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_dashboard_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 
-class DoctorHomePage extends StatelessWidget {
+class DoctorHomePage extends StatefulWidget {
   const DoctorHomePage({super.key});
+
+  @override
+  State<DoctorHomePage> createState() => _DoctorHomePageState();
+}
+
+class _DoctorHomePageState extends State<DoctorHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    final dashboardStore = getIt<DoctorDashboardStore>();
+    dashboardStore.loadDashboardData();
+  }
 
   @override
   Widget build(BuildContext context) {
     final authStore = getIt<AuthStore>();
+    final dashboardStore = getIt<DoctorDashboardStore>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
+          Observer(
+            builder: (context) => IconButton(
+              icon: Icon(
+                dashboardStore.isLoading
+                    ? Icons.refresh
+                    : Icons.refresh_outlined,
+                color: dashboardStore.isLoading ? AppTheme.primaryColor : null,
+              ),
+              onPressed: dashboardStore.isLoading
+                  ? null
+                  : () async {
+                      await dashboardStore.refreshData();
+                    },
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () => context.push('/profile'),
@@ -34,29 +63,34 @@ class DoctorHomePage extends StatelessWidget {
       ),
       body: Observer(
         builder: (context) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header com informações do médico
-                _buildDoctorHeader(authStore),
+          return RefreshIndicator(
+            onRefresh: () async {
+              await dashboardStore.refreshData();
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header com informações do médico
+                  _buildDoctorHeader(authStore, dashboardStore),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                // Estatísticas rápidas
-                _buildQuickStats(),
+                  // Estatísticas rápidas
+                  _buildQuickStats(dashboardStore),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                // Menu de funcionalidades
-                _buildMenuGrid(context),
+                  // Menu de funcionalidades
+                  _buildMenuGrid(context),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                // Próximas consultas
-                _buildUpcomingConsultations(),
-              ],
+                  // Próximas consultas
+                  _buildUpcomingConsultations(dashboardStore),
+                ],
+              ),
             ),
           );
         },
@@ -64,7 +98,8 @@ class DoctorHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildDoctorHeader(AuthStore authStore) {
+  Widget _buildDoctorHeader(
+      AuthStore authStore, DoctorDashboardStore dashboardStore) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -95,11 +130,14 @@ class DoctorHomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Cardiologia', // TODO: Buscar especialidade do médico
-                    style: TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.w600,
+                  Observer(
+                    builder: (context) => Text(
+                      dashboardStore.doctorSpecialty ??
+                          'Especialidade não definida',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -123,46 +161,50 @@ class DoctorHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStats() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Estatísticas de Hoje',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Row(
+  Widget _buildQuickStats(DoctorDashboardStore dashboardStore) {
+    return Observer(
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: _buildStatCard(
-                title: 'Consultas',
-                value: '8',
-                icon: Icons.calendar_today,
-                color: AppTheme.primaryColor,
-              ),
+            const Text(
+              'Estatísticas de Hoje',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(
-                title: 'Pacientes',
-                value: '12',
-                icon: Icons.people,
-                color: AppTheme.getCardSuccess(),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(
-                title: 'Avaliações',
-                value: '4.8',
-                icon: Icons.star,
-                color: AppTheme.getCardWarning(),
-              ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Consultas',
+                    value: dashboardStore.todayConsultations.toString(),
+                    icon: Icons.calendar_today,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Pacientes',
+                    value: dashboardStore.totalPatients.toString(),
+                    icon: Icons.people,
+                    color: AppTheme.getCardSuccess(),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    title: 'Avaliações',
+                    value: dashboardStore.averageRating.toStringAsFixed(1),
+                    icon: Icons.star,
+                    color: AppTheme.getCardWarning(),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -349,57 +391,97 @@ class DoctorHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildUpcomingConsultations() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildUpcomingConsultations(DoctorDashboardStore dashboardStore) {
+    return Observer(
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Próximas Consultas',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            TextButton(
-              onPressed: () {
-                // TODO: Navegar para agenda completa
-              },
-              child: const Text('Ver todas'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildConsultationItem(
-                  patientName: 'Maria Silva',
-                  time: '09:00',
-                  status: 'Agendada',
-                  statusColor: AppTheme.successColor,
+                const Text(
+                  'Próximas Consultas',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const Divider(),
-                _buildConsultationItem(
-                  patientName: 'João Santos',
-                  time: '10:30',
-                  status: 'Em andamento',
-                  statusColor: AppTheme.primaryColor,
-                ),
-                const Divider(),
-                _buildConsultationItem(
-                  patientName: 'Ana Costa',
-                  time: '14:00',
-                  status: 'Agendada',
-                  statusColor: AppTheme.successColor,
+                TextButton(
+                  onPressed: () {
+                    // TODO: Navegar para agenda completa
+                  },
+                  child: const Text('Ver todas'),
                 ),
               ],
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 16),
+            if (dashboardStore.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (dashboardStore.hasError)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Text(
+                    'Erro: ${dashboardStore.errorMessage}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              )
+            else if (dashboardStore.hasUpcomingConsultations)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Column(
+                    children: [
+                      for (int i = 0;
+                          i < dashboardStore.upcomingConsultations.length;
+                          i++)
+                        Column(
+                          children: [
+                            if (i > 0) const Divider(),
+                            _buildConsultationItem(
+                              patientName: dashboardStore
+                                  .upcomingConsultations[i]['patientName'],
+                              time: dashboardStore.upcomingConsultations[i]
+                                  ['time'],
+                              status: dashboardStore.upcomingConsultations[i]
+                                  ['status'],
+                              statusColor: _getStatusColor(dashboardStore
+                                  .upcomingConsultations[i]['statusColor']),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: const Text(
+                    'Nenhuma consulta agendada para hoje',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  Color _getStatusColor(String statusColor) {
+    switch (statusColor) {
+      case 'success':
+        return AppTheme.successColor;
+      case 'primary':
+        return AppTheme.primaryColor;
+      case 'warning':
+        return AppTheme.warningColor;
+      case 'error':
+        return AppTheme.errorColor;
+      default:
+        return AppTheme.infoColor;
+    }
   }
 
   Widget _buildConsultationItem({

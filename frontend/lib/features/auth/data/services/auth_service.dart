@@ -8,7 +8,7 @@ class AuthService {
   // Login
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _apiService.post('/auth/login', data: {
+      final response = await _apiService.post('/users/login', data: {
         'email': email,
         'password': password,
       });
@@ -26,36 +26,57 @@ class AuthService {
     required String phone,
     required String password,
     required String userType,
+    String? specialty,
+    String? crm,
+    String? bio,
+    double? hourlyRate,
   }) async {
     try {
-      final response = await _apiService.post('/auth/register', data: {
+      print('🔍 AuthService.register iniciado');
+      final data = {
         'name': name,
         'email': email,
         'phone': phone,
         'password': password,
         'userType': userType,
-      });
+      };
+
+      // Adicionar campos específicos para médicos
+      if (userType == 'DOCTOR') {
+        if (specialty != null) data['specialty'] = specialty;
+        if (crm != null) data['crm'] = crm;
+        if (bio != null) data['bio'] = bio;
+        if (hourlyRate != null) data['hourlyRate'] = hourlyRate.toString();
+      }
+
+      print('🔍 Dados enviados: $data');
+      final response = await _apiService.post('/users/register', data: data);
+      print('🔍 Resposta da API: ${response.data}');
 
       return response.data;
     } on DioException catch (e) {
+      print('❌ AuthService.register erro DioException: $e');
       throw _handleDioError(e);
+    } catch (e) {
+      print('❌ AuthService.register erro geral: $e');
+      throw e;
     }
   }
 
   // Logout
   Future<void> logout() async {
     try {
-      await _apiService.post('/auth/logout');
+      await _apiService.post('/users/logout');
     } on DioException {
       // Não lançar erro no logout, apenas logar
-      // TODO: Implementar logging adequado
+      print('Logout completed');
     }
   }
 
   // Refresh Token
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     try {
-      final response = await _apiService.post('/auth/refresh', data: {
+      final response = await _apiService.post('/users/refresh', data: {
         'refreshToken': refreshToken,
       });
 
@@ -68,7 +89,7 @@ class AuthService {
   // Forgot Password
   Future<void> forgotPassword(String email) async {
     try {
-      await _apiService.post('/auth/forgot-password', data: {
+      await _apiService.post('/users/forgot-password', data: {
         'email': email,
       });
     } on DioException catch (e) {
@@ -82,7 +103,7 @@ class AuthService {
     required String newPassword,
   }) async {
     try {
-      await _apiService.post('/auth/reset-password', data: {
+      await _apiService.post('/users/reset-password', data: {
         'token': token,
         'newPassword': newPassword,
       });
@@ -94,7 +115,7 @@ class AuthService {
   // Get User Profile
   Future<Map<String, dynamic>> getUserProfile() async {
     try {
-      final response = await _apiService.get('/auth/profile');
+      final response = await _apiService.get('/users/profile');
       return response.data;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -105,7 +126,7 @@ class AuthService {
   Future<Map<String, dynamic>> updateUserProfile(
       Map<String, dynamic> data) async {
     try {
-      final response = await _apiService.put('/auth/profile', data: data);
+      final response = await _apiService.put('/users/profile', data: data);
       return response.data;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -118,7 +139,7 @@ class AuthService {
     required String newPassword,
   }) async {
     try {
-      await _apiService.post('/auth/change-password', data: {
+      await _apiService.post('/users/change-password', data: {
         'currentPassword': currentPassword,
         'newPassword': newPassword,
       });
@@ -130,7 +151,7 @@ class AuthService {
   // Verificar se o token é válido
   Future<bool> validateToken() async {
     try {
-      await _apiService.get('/auth/validate');
+      await _apiService.get('/users/validate');
       return true;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {

@@ -8,38 +8,38 @@ part of 'doctor_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$DoctorStore on _DoctorStore, Store {
+mixin _$DoctorStore on DoctorStoreBase, Store {
   Computed<List<DoctorModel>>? _$filteredDoctorsComputed;
 
   @override
   List<DoctorModel> get filteredDoctors => (_$filteredDoctorsComputed ??=
           Computed<List<DoctorModel>>(() => super.filteredDoctors,
-              name: '_DoctorStore.filteredDoctors'))
+              name: 'DoctorStoreBase.filteredDoctors'))
       .value;
   Computed<List<DoctorModel>>? _$topRatedDoctorsComputed;
 
   @override
   List<DoctorModel> get topRatedDoctors => (_$topRatedDoctorsComputed ??=
           Computed<List<DoctorModel>>(() => super.topRatedDoctors,
-              name: '_DoctorStore.topRatedDoctors'))
+              name: 'DoctorStoreBase.topRatedDoctors'))
       .value;
   Computed<List<DoctorModel>>? _$verifiedDoctorsComputed;
 
   @override
   List<DoctorModel> get verifiedDoctors => (_$verifiedDoctorsComputed ??=
           Computed<List<DoctorModel>>(() => super.verifiedDoctors,
-              name: '_DoctorStore.verifiedDoctors'))
+              name: 'DoctorStoreBase.verifiedDoctors'))
       .value;
   Computed<Map<String, int>>? _$specialtyCountsComputed;
 
   @override
   Map<String, int> get specialtyCounts => (_$specialtyCountsComputed ??=
           Computed<Map<String, int>>(() => super.specialtyCounts,
-              name: '_DoctorStore.specialtyCounts'))
+              name: 'DoctorStoreBase.specialtyCounts'))
       .value;
 
   late final _$doctorsAtom =
-      Atom(name: '_DoctorStore.doctors', context: context);
+      Atom(name: 'DoctorStoreBase.doctors', context: context);
 
   @override
   ObservableList<DoctorModel> get doctors {
@@ -55,7 +55,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$specialtiesAtom =
-      Atom(name: '_DoctorStore.specialties', context: context);
+      Atom(name: 'DoctorStoreBase.specialties', context: context);
 
   @override
   ObservableList<SpecialtyModel> get specialties {
@@ -71,7 +71,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$favoriteDoctorsAtom =
-      Atom(name: '_DoctorStore.favoriteDoctors', context: context);
+      Atom(name: 'DoctorStoreBase.favoriteDoctors', context: context);
 
   @override
   ObservableList<DoctorModel> get favoriteDoctors {
@@ -87,7 +87,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$onlineDoctorsAtom =
-      Atom(name: '_DoctorStore.onlineDoctors', context: context);
+      Atom(name: 'DoctorStoreBase.onlineDoctors', context: context);
 
   @override
   ObservableList<DoctorModel> get onlineDoctors {
@@ -103,7 +103,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$selectedDoctorAtom =
-      Atom(name: '_DoctorStore.selectedDoctor', context: context);
+      Atom(name: 'DoctorStoreBase.selectedDoctor', context: context);
 
   @override
   DoctorModel? get selectedDoctor {
@@ -119,7 +119,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$doctorRatingsAtom =
-      Atom(name: '_DoctorStore.doctorRatings', context: context);
+      Atom(name: 'DoctorStoreBase.doctorRatings', context: context);
 
   @override
   ObservableList<RatingModel> get doctorRatings {
@@ -135,7 +135,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_DoctorStore.isLoading', context: context);
+      Atom(name: 'DoctorStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -151,7 +151,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$isLoadingRatingsAtom =
-      Atom(name: '_DoctorStore.isLoadingRatings', context: context);
+      Atom(name: 'DoctorStoreBase.isLoadingRatings', context: context);
 
   @override
   bool get isLoadingRatings {
@@ -166,7 +166,8 @@ mixin _$DoctorStore on _DoctorStore, Store {
     });
   }
 
-  late final _$errorAtom = Atom(name: '_DoctorStore.error', context: context);
+  late final _$errorAtom =
+      Atom(name: 'DoctorStoreBase.error', context: context);
 
   @override
   String? get error {
@@ -182,7 +183,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$searchQueryAtom =
-      Atom(name: '_DoctorStore.searchQuery', context: context);
+      Atom(name: 'DoctorStoreBase.searchQuery', context: context);
 
   @override
   String? get searchQuery {
@@ -198,7 +199,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$selectedSpecialtyAtom =
-      Atom(name: '_DoctorStore.selectedSpecialty', context: context);
+      Atom(name: 'DoctorStoreBase.selectedSpecialty', context: context);
 
   @override
   String? get selectedSpecialty {
@@ -213,7 +214,8 @@ mixin _$DoctorStore on _DoctorStore, Store {
     });
   }
 
-  late final _$sortByAtom = Atom(name: '_DoctorStore.sortBy', context: context);
+  late final _$sortByAtom =
+      Atom(name: 'DoctorStoreBase.sortBy', context: context);
 
   @override
   String get sortBy {
@@ -229,7 +231,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$minRatingAtom =
-      Atom(name: '_DoctorStore.minRating', context: context);
+      Atom(name: 'DoctorStoreBase.minRating', context: context);
 
   @override
   double? get minRating {
@@ -245,7 +247,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$maxPriceAtom =
-      Atom(name: '_DoctorStore.maxPrice', context: context);
+      Atom(name: 'DoctorStoreBase.maxPrice', context: context);
 
   @override
   double? get maxPrice {
@@ -261,7 +263,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$currentPageAtom =
-      Atom(name: '_DoctorStore.currentPage', context: context);
+      Atom(name: 'DoctorStoreBase.currentPage', context: context);
 
   @override
   int get currentPage {
@@ -277,7 +279,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$hasMorePagesAtom =
-      Atom(name: '_DoctorStore.hasMorePages', context: context);
+      Atom(name: 'DoctorStoreBase.hasMorePages', context: context);
 
   @override
   bool get hasMorePages {
@@ -293,7 +295,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadDoctorsAsyncAction =
-      AsyncAction('_DoctorStore.loadDoctors', context: context);
+      AsyncAction('DoctorStoreBase.loadDoctors', context: context);
 
   @override
   Future<void> loadDoctors({bool refresh = false}) {
@@ -302,7 +304,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadMoreDoctorsAsyncAction =
-      AsyncAction('_DoctorStore.loadMoreDoctors', context: context);
+      AsyncAction('DoctorStoreBase.loadMoreDoctors', context: context);
 
   @override
   Future<void> loadMoreDoctors() {
@@ -310,7 +312,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadSpecialtiesAsyncAction =
-      AsyncAction('_DoctorStore.loadSpecialties', context: context);
+      AsyncAction('DoctorStoreBase.loadSpecialties', context: context);
 
   @override
   Future<void> loadSpecialties() {
@@ -318,7 +320,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadFavoriteDoctorsAsyncAction =
-      AsyncAction('_DoctorStore.loadFavoriteDoctors', context: context);
+      AsyncAction('DoctorStoreBase.loadFavoriteDoctors', context: context);
 
   @override
   Future<void> loadFavoriteDoctors() {
@@ -327,7 +329,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadOnlineDoctorsAsyncAction =
-      AsyncAction('_DoctorStore.loadOnlineDoctors', context: context);
+      AsyncAction('DoctorStoreBase.loadOnlineDoctors', context: context);
 
   @override
   Future<void> loadOnlineDoctors() {
@@ -335,7 +337,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadDoctorDetailsAsyncAction =
-      AsyncAction('_DoctorStore.loadDoctorDetails', context: context);
+      AsyncAction('DoctorStoreBase.loadDoctorDetails', context: context);
 
   @override
   Future<void> loadDoctorDetails(String doctorId) {
@@ -344,7 +346,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$loadDoctorRatingsAsyncAction =
-      AsyncAction('_DoctorStore.loadDoctorRatings', context: context);
+      AsyncAction('DoctorStoreBase.loadDoctorRatings', context: context);
 
   @override
   Future<void> loadDoctorRatings(String doctorId) {
@@ -353,7 +355,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$rateDoctorAsyncAction =
-      AsyncAction('_DoctorStore.rateDoctor', context: context);
+      AsyncAction('DoctorStoreBase.rateDoctor', context: context);
 
   @override
   Future<void> rateDoctor(String doctorId, double rating, String comment) {
@@ -362,7 +364,7 @@ mixin _$DoctorStore on _DoctorStore, Store {
   }
 
   late final _$toggleFavoriteAsyncAction =
-      AsyncAction('_DoctorStore.toggleFavorite', context: context);
+      AsyncAction('DoctorStoreBase.toggleFavorite', context: context);
 
   @override
   Future<void> toggleFavorite(String doctorId) {
@@ -370,83 +372,83 @@ mixin _$DoctorStore on _DoctorStore, Store {
         .run(() => super.toggleFavorite(doctorId));
   }
 
-  late final _$_DoctorStoreActionController =
-      ActionController(name: '_DoctorStore', context: context);
+  late final _$DoctorStoreBaseActionController =
+      ActionController(name: 'DoctorStoreBase', context: context);
 
   @override
   void setSearchQuery(String? query) {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.setSearchQuery');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setSearchQuery');
     try {
       return super.setSearchQuery(query);
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedSpecialty(String? specialty) {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.setSelectedSpecialty');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setSelectedSpecialty');
     try {
       return super.setSelectedSpecialty(specialty);
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSortBy(String sort) {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.setSortBy');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setSortBy');
     try {
       return super.setSortBy(sort);
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setMinRating(double? rating) {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.setMinRating');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setMinRating');
     try {
       return super.setMinRating(rating);
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setMaxPrice(double? price) {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.setMaxPrice');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setMaxPrice');
     try {
       return super.setMaxPrice(price);
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearFilters() {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.clearFilters');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.clearFilters');
     try {
       return super.clearFilters();
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearError() {
-    final _$actionInfo = _$_DoctorStoreActionController.startAction(
-        name: '_DoctorStore.clearError');
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_DoctorStoreActionController.endAction(_$actionInfo);
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

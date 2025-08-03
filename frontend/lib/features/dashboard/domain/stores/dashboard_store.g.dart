@@ -8,27 +8,27 @@ part of 'dashboard_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$DashboardStore on _DashboardStore, Store {
+mixin _$DashboardStore on DashboardStoreBase, Store {
   Computed<bool>? _$hasStatsComputed;
 
   @override
   bool get hasStats =>
       (_$hasStatsComputed ??= Computed<bool>(() => super.hasStats,
-              name: '_DashboardStore.hasStats'))
+              name: 'DashboardStoreBase.hasStats'))
           .value;
   Computed<bool>? _$hasNotificationsComputed;
 
   @override
   bool get hasNotifications => (_$hasNotificationsComputed ??= Computed<bool>(
           () => super.hasNotifications,
-          name: '_DashboardStore.hasNotifications'))
+          name: 'DashboardStoreBase.hasNotifications'))
       .value;
   Computed<int>? _$unreadNotificationsCountComputed;
 
   @override
   int get unreadNotificationsCount => (_$unreadNotificationsCountComputed ??=
           Computed<int>(() => super.unreadNotificationsCount,
-              name: '_DashboardStore.unreadNotificationsCount'))
+              name: 'DashboardStoreBase.unreadNotificationsCount'))
       .value;
   Computed<List<NotificationModel>>? _$unreadNotificationsComputed;
 
@@ -36,7 +36,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   List<NotificationModel> get unreadNotifications =>
       (_$unreadNotificationsComputed ??= Computed<List<NotificationModel>>(
               () => super.unreadNotifications,
-              name: '_DashboardStore.unreadNotifications'))
+              name: 'DashboardStoreBase.unreadNotifications'))
           .value;
   Computed<List<NotificationModel>>? _$recentNotificationsComputed;
 
@@ -44,11 +44,11 @@ mixin _$DashboardStore on _DashboardStore, Store {
   List<NotificationModel> get recentNotifications =>
       (_$recentNotificationsComputed ??= Computed<List<NotificationModel>>(
               () => super.recentNotifications,
-              name: '_DashboardStore.recentNotifications'))
+              name: 'DashboardStoreBase.recentNotifications'))
           .value;
 
   late final _$statsAtom =
-      Atom(name: '_DashboardStore.stats', context: context);
+      Atom(name: 'DashboardStoreBase.stats', context: context);
 
   @override
   DashboardStatsModel? get stats {
@@ -64,7 +64,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$notificationsAtom =
-      Atom(name: '_DashboardStore.notifications', context: context);
+      Atom(name: 'DashboardStoreBase.notifications', context: context);
 
   @override
   ObservableList<NotificationModel> get notifications {
@@ -80,7 +80,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_DashboardStore.isLoading', context: context);
+      Atom(name: 'DashboardStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -96,7 +96,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$errorMessageAtom =
-      Atom(name: '_DashboardStore.errorMessage', context: context);
+      Atom(name: 'DashboardStoreBase.errorMessage', context: context);
 
   @override
   String? get errorMessage {
@@ -112,7 +112,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$chartDataAtom =
-      Atom(name: '_DashboardStore.chartData', context: context);
+      Atom(name: 'DashboardStoreBase.chartData', context: context);
 
   @override
   Map<String, dynamic> get chartData {
@@ -128,7 +128,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$reportsAtom =
-      Atom(name: '_DashboardStore.reports', context: context);
+      Atom(name: 'DashboardStoreBase.reports', context: context);
 
   @override
   Map<String, dynamic> get reports {
@@ -144,7 +144,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$realTimeMetricsAtom =
-      Atom(name: '_DashboardStore.realTimeMetrics', context: context);
+      Atom(name: 'DashboardStoreBase.realTimeMetrics', context: context);
 
   @override
   Map<String, dynamic> get realTimeMetrics {
@@ -160,7 +160,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$alertsAndInsightsAtom =
-      Atom(name: '_DashboardStore.alertsAndInsights', context: context);
+      Atom(name: 'DashboardStoreBase.alertsAndInsights', context: context);
 
   @override
   List<Map<String, dynamic>> get alertsAndInsights {
@@ -176,7 +176,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$selectedPeriodAtom =
-      Atom(name: '_DashboardStore.selectedPeriod', context: context);
+      Atom(name: 'DashboardStoreBase.selectedPeriod', context: context);
 
   @override
   String get selectedPeriod {
@@ -192,7 +192,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$isRefreshingAtom =
-      Atom(name: '_DashboardStore.isRefreshing', context: context);
+      Atom(name: 'DashboardStoreBase.isRefreshing', context: context);
 
   @override
   bool get isRefreshing {
@@ -208,7 +208,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadDashboardStatsAsyncAction =
-      AsyncAction('_DashboardStore.loadDashboardStats', context: context);
+      AsyncAction('DashboardStoreBase.loadDashboardStats', context: context);
 
   @override
   Future<void> loadDashboardStats({String? period}) {
@@ -217,7 +217,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadNotificationsAsyncAction =
-      AsyncAction('_DashboardStore.loadNotifications', context: context);
+      AsyncAction('DashboardStoreBase.loadNotifications', context: context);
 
   @override
   Future<void> loadNotifications({int? limit, int? offset}) {
@@ -225,8 +225,9 @@ mixin _$DashboardStore on _DashboardStore, Store {
         .run(() => super.loadNotifications(limit: limit, offset: offset));
   }
 
-  late final _$markNotificationAsReadAsyncAction =
-      AsyncAction('_DashboardStore.markNotificationAsRead', context: context);
+  late final _$markNotificationAsReadAsyncAction = AsyncAction(
+      'DashboardStoreBase.markNotificationAsRead',
+      context: context);
 
   @override
   Future<void> markNotificationAsRead(String notificationId) {
@@ -235,7 +236,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$markAllNotificationsAsReadAsyncAction = AsyncAction(
-      '_DashboardStore.markAllNotificationsAsRead',
+      'DashboardStoreBase.markAllNotificationsAsRead',
       context: context);
 
   @override
@@ -245,7 +246,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$deleteNotificationAsyncAction =
-      AsyncAction('_DashboardStore.deleteNotification', context: context);
+      AsyncAction('DashboardStoreBase.deleteNotification', context: context);
 
   @override
   Future<void> deleteNotification(String notificationId) {
@@ -254,7 +255,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadChartDataAsyncAction =
-      AsyncAction('_DashboardStore.loadChartData', context: context);
+      AsyncAction('DashboardStoreBase.loadChartData', context: context);
 
   @override
   Future<void> loadChartData({String? chartType}) {
@@ -263,7 +264,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadReportsAsyncAction =
-      AsyncAction('_DashboardStore.loadReports', context: context);
+      AsyncAction('DashboardStoreBase.loadReports', context: context);
 
   @override
   Future<void> loadReports({String? reportType}) {
@@ -272,7 +273,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadRealTimeMetricsAsyncAction =
-      AsyncAction('_DashboardStore.loadRealTimeMetrics', context: context);
+      AsyncAction('DashboardStoreBase.loadRealTimeMetrics', context: context);
 
   @override
   Future<void> loadRealTimeMetrics() {
@@ -281,7 +282,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$loadAlertsAndInsightsAsyncAction =
-      AsyncAction('_DashboardStore.loadAlertsAndInsights', context: context);
+      AsyncAction('DashboardStoreBase.loadAlertsAndInsights', context: context);
 
   @override
   Future<void> loadAlertsAndInsights() {
@@ -290,7 +291,7 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$exportDashboardDataAsyncAction =
-      AsyncAction('_DashboardStore.exportDashboardData', context: context);
+      AsyncAction('DashboardStoreBase.exportDashboardData', context: context);
 
   @override
   Future<void> exportDashboardData({String? format}) {
@@ -299,46 +300,46 @@ mixin _$DashboardStore on _DashboardStore, Store {
   }
 
   late final _$refreshDashboardAsyncAction =
-      AsyncAction('_DashboardStore.refreshDashboard', context: context);
+      AsyncAction('DashboardStoreBase.refreshDashboard', context: context);
 
   @override
   Future<void> refreshDashboard() {
     return _$refreshDashboardAsyncAction.run(() => super.refreshDashboard());
   }
 
-  late final _$_DashboardStoreActionController =
-      ActionController(name: '_DashboardStore', context: context);
+  late final _$DashboardStoreBaseActionController =
+      ActionController(name: 'DashboardStoreBase', context: context);
 
   @override
   void setPeriod(String period) {
-    final _$actionInfo = _$_DashboardStoreActionController.startAction(
-        name: '_DashboardStore.setPeriod');
+    final _$actionInfo = _$DashboardStoreBaseActionController.startAction(
+        name: 'DashboardStoreBase.setPeriod');
     try {
       return super.setPeriod(period);
     } finally {
-      _$_DashboardStoreActionController.endAction(_$actionInfo);
+      _$DashboardStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearError() {
-    final _$actionInfo = _$_DashboardStoreActionController.startAction(
-        name: '_DashboardStore.clearError');
+    final _$actionInfo = _$DashboardStoreBaseActionController.startAction(
+        name: 'DashboardStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_DashboardStoreActionController.endAction(_$actionInfo);
+      _$DashboardStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void reset() {
-    final _$actionInfo = _$_DashboardStoreActionController.startAction(
-        name: '_DashboardStore.reset');
+    final _$actionInfo = _$DashboardStoreBaseActionController.startAction(
+        name: 'DashboardStoreBase.reset');
     try {
       return super.reset();
     } finally {
-      _$_DashboardStoreActionController.endAction(_$actionInfo);
+      _$DashboardStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

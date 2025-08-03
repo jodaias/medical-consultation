@@ -13,6 +13,13 @@ class ChatService {
   Function(String)? _onTypingStarted;
   Function(String)? _onTypingStopped;
 
+  // Obter token de autenticação
+  Future<String> _getAuthToken() async {
+    // TODO: Implementar obtenção do token de autenticação
+    // Por enquanto, retornar token mock
+    return 'mock_token';
+  }
+
   // Conectar ao chat
   Future<void> connect(String consultationId) async {
     try {
@@ -21,7 +28,7 @@ class ChatService {
         'autoConnect': false,
         'auth': {
           'consultationId': consultationId,
-          // TODO: Adicionar token de autenticação
+          'token': await _getAuthToken(),
         },
       });
 
@@ -91,7 +98,7 @@ class ChatService {
     String? attachmentPath,
   }) async {
     try {
-      final response = await _apiService.post('/chat/messages', data: {
+      final response = await _apiService.post('messages', data: {
         'consultationId': consultationId,
         'content': content,
         'messageType': attachmentPath != null
@@ -100,15 +107,19 @@ class ChatService {
         'attachmentPath': attachmentPath,
       });
 
-      final message = MessageModel.fromJson(response.data);
+      if (response.data['success'] == true) {
+        final message = MessageModel.fromJson(response.data['data']);
 
-      // Emitir evento para outros usuários
-      _socket?.emit('send_message', {
-        'consultationId': consultationId,
-        'message': response.data,
-      });
+        // Emitir evento para outros usuários
+        _socket?.emit('send_message', {
+          'consultationId': consultationId,
+          'message': response.data['data'],
+        });
 
-      return message;
+        return message;
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao enviar mensagem');
+      }
     } catch (e) {
       throw Exception('Erro ao enviar mensagem: $e');
     }
@@ -117,10 +128,15 @@ class ChatService {
   // Buscar mensagens
   Future<List<MessageModel>> getMessages(String consultationId) async {
     try {
-      final response = await _apiService.get('/chat/messages/$consultationId');
+      final response =
+          await _apiService.get('messages/consultation/$consultationId');
 
-      final List<dynamic> messagesData = response.data['messages'];
-      return messagesData.map((json) => MessageModel.fromJson(json)).toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> messagesData = response.data['data']['messages'];
+        return messagesData.map((json) => MessageModel.fromJson(json)).toList();
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao buscar mensagens');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar mensagens: $e');
     }
@@ -129,7 +145,14 @@ class ChatService {
   // Marcar mensagem como lida
   Future<void> markMessageAsRead(String messageId) async {
     try {
-      await _apiService.put('/chat/messages/$messageId/read');
+      final response = await _apiService.post('messages/mark-read', data: {
+        'messageId': messageId,
+      });
+
+      if (response.data['success'] != true) {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao marcar mensagem como lida');
+      }
     } catch (e) {
       throw Exception('Erro ao marcar mensagem como lida: $e');
     }
@@ -138,7 +161,13 @@ class ChatService {
   // Marcar todas as mensagens como lidas
   Future<void> markAllMessagesAsRead(String consultationId) async {
     try {
-      await _apiService.put('/chat/messages/$consultationId/read-all');
+      final response = await _apiService
+          .post('messages/consultation/$consultationId/mark-all-read');
+
+      if (response.data['success'] != true) {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao marcar mensagens como lidas');
+      }
     } catch (e) {
       throw Exception('Erro ao marcar mensagens como lidas: $e');
     }
@@ -147,20 +176,23 @@ class ChatService {
   // Editar mensagem
   Future<MessageModel> editMessage(String messageId, String newContent) async {
     try {
-      final response =
-          await _apiService.put('/chat/messages/$messageId', data: {
+      final response = await _apiService.put('messages/$messageId', data: {
         'content': newContent,
       });
 
-      final message = MessageModel.fromJson(response.data);
+      if (response.data['success'] == true) {
+        final message = MessageModel.fromJson(response.data['data']);
 
-      // Emitir evento para outros usuários
-      _socket?.emit('edit_message', {
-        'messageId': messageId,
-        'message': response.data,
-      });
+        // Emitir evento para outros usuários
+        _socket?.emit('edit_message', {
+          'messageId': messageId,
+          'message': response.data['data'],
+        });
 
-      return message;
+        return message;
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao editar mensagem');
+      }
     } catch (e) {
       throw Exception('Erro ao editar mensagem: $e');
     }
@@ -169,12 +201,16 @@ class ChatService {
   // Deletar mensagem
   Future<void> deleteMessage(String messageId) async {
     try {
-      await _apiService.delete('/chat/messages/$messageId');
+      final response = await _apiService.delete('messages/$messageId');
 
-      // Emitir evento para outros usuários
-      _socket?.emit('delete_message', {
-        'messageId': messageId,
-      });
+      if (response.data['success'] == true) {
+        // Emitir evento para outros usuários
+        _socket?.emit('delete_message', {
+          'messageId': messageId,
+        });
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao deletar mensagem');
+      }
     } catch (e) {
       throw Exception('Erro ao deletar mensagem: $e');
     }

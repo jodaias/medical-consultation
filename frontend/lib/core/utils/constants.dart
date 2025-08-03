@@ -3,8 +3,8 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // API Configuration
-  static const String baseUrl = 'http://localhost:3000/api';
-  static const String socketUrl = 'http://localhost:3000';
+  static const String baseUrl = 'http://localhost:3001/api';
+  static const String socketUrl = 'http://localhost:3001';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';
@@ -29,27 +29,27 @@ class AppConstants {
   static const String appLogo = 'assets/images/app_logo.png';
 
   // Validation Messages
-  static const String requiredField = 'This field is required';
-  static const String invalidEmail = 'Please enter a valid email';
+  static const String requiredField = 'Este campo é obrigatório';
+  static const String invalidEmail = 'Digite um email válido';
   static const String invalidPassword =
-      'Password must be at least 6 characters';
-  static const String passwordMismatch = 'Passwords do not match';
-  static const String invalidPhone = 'Please enter a valid phone number';
+      'Senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial';
+  static const String passwordMismatch = 'As senhas não coincidem';
+  static const String invalidPhone = 'Digite um telefone válido';
+  static const String invalidSpecialty =
+      'Especialidade inválida. Selecione da lista.';
 
   // Error Messages
-  static const String networkError =
-      'Network error. Please check your connection.';
-  static const String serverError = 'Server error. Please try again later.';
-  static const String unknownError = 'An unknown error occurred.';
-  static const String sessionExpired = 'Session expired. Please login again.';
+  static const String networkError = 'Erro de conexão. Verifique sua internet.';
+  static const String serverError = 'Erro do servidor. Tente novamente.';
+  static const String unknownError = 'Ocorreu um erro desconhecido.';
+  static const String sessionExpired = 'Sessão expirada. Faça login novamente.';
 
   // Success Messages
-  static const String loginSuccess = 'Login successful';
-  static const String registerSuccess = 'Registration successful';
-  static const String profileUpdated = 'Profile updated successfully';
-  static const String consultationScheduled =
-      'Consultation scheduled successfully';
-  static const String messageSent = 'Message sent successfully';
+  static const String loginSuccess = 'Login realizado com sucesso';
+  static const String registerSuccess = 'Conta criada com sucesso';
+  static const String profileUpdated = 'Perfil atualizado com sucesso';
+  static const String consultationScheduled = 'Consulta agendada com sucesso';
+  static const String messageSent = 'Mensagem enviada com sucesso';
 
   // User Types
   static const String patientType = 'PATIENT';
@@ -61,6 +61,7 @@ class AppConstants {
   static const String completedStatus = 'COMPLETED';
   static const String cancelledStatus = 'CANCELLED';
   static const String noShowStatus = 'NO_SHOW';
+  static const String allStatus = 'ALL';
 
   // Message Types
   static const String textMessage = 'TEXT';
@@ -75,31 +76,69 @@ class AppConstants {
 
   // Days of Week
   static const List<String> daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    'Domingo',
+    'Segunda-feira',
+    'Terça-feira',
+    'Quarta-feira',
+    'Quinta-feira',
+    'Sexta-feira',
+    'Sábado',
   ];
 
   // Specialties
   static const List<String> specialties = [
-    'Cardiology',
-    'Dermatology',
-    'Endocrinology',
-    'Gastroenterology',
-    'General Medicine',
-    'Gynecology',
-    'Neurology',
-    'Oncology',
-    'Ophthalmology',
-    'Orthopedics',
-    'Pediatrics',
-    'Psychiatry',
-    'Pulmonology',
-    'Radiology',
-    'Urology',
+    'Acupuntura',
+    'Alergologia',
+    'Anestesiologia',
+    'Angiologia',
+    'Cardiologia',
+    'Cirurgia Cardiovascular',
+    'Cirurgia da Mão',
+    'Cirurgia de Cabeça e Pescoço',
+    'Cirurgia do Aparelho Digestivo',
+    'Cirurgia Geral',
+    'Cirurgia Pediátrica',
+    'Cirurgia Plástica',
+    'Cirurgia Torácica',
+    'Cirurgia Vascular',
+    'Clínica Médica',
+    'Coloproctologia',
+    'Dermatologia',
+    'Endocrinologia e Metabologia',
+    'Endoscopia',
+    'Gastroenterologia',
+    'Genética Médica',
+    'Geriatria',
+    'Ginecologia e Obstetrícia',
+    'Hematologia e Hemoterapia',
+    'Homeopatia',
+    'Infectologia',
+    'Mastologia',
+    'Medicina de Família e Comunidade',
+    'Medicina do Trabalho',
+    'Medicina de Tráfego',
+    'Medicina Esportiva',
+    'Medicina Física e Reabilitação',
+    'Medicina Intensiva',
+    'Medicina Legal e Perícia Médica',
+    'Medicina Nuclear',
+    'Medicina Preventiva e Social',
+    'Nefrologia',
+    'Neurocirurgia',
+    'Neurologia',
+    'Nutrologia',
+    'Oftalmologia',
+    'Oncologia Clínica',
+    'Ortopedia e Traumatologia',
+    'Otorrinolaringologia',
+    'Patologia',
+    'Patologia Clínica/Medicina Laboratorial',
+    'Pediatria',
+    'Pneumologia',
+    'Psiquiatria',
+    'Radiologia e Diagnóstico por Imagem',
+    'Radioterapia',
+    'Reumatologia',
+    'Urologia',
   ];
 }

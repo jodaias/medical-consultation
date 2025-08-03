@@ -20,8 +20,12 @@ class ScheduleRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              }
             }
           }
         }
@@ -44,8 +48,12 @@ class ScheduleRepository {
             id: true,
             name: true,
             email: true,
-            specialty: true,
-            crm: true
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            },
           }
         }
       }
@@ -96,8 +104,12 @@ class ScheduleRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              },
             }
           }
         }
@@ -127,8 +139,12 @@ class ScheduleRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              },
             }
           }
         }
@@ -195,8 +211,12 @@ class ScheduleRepository {
               id: true,
               name: true,
               email: true,
-              specialty: true,
-              crm: true
+              doctorProfile: {
+                select: {
+                  specialty: true,
+                  crm: true
+                }
+              },
             }
           }
         }
@@ -334,8 +354,12 @@ class ScheduleRepository {
             id: true,
             name: true,
             email: true,
-            specialty: true,
-            crm: true
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            },
           }
         }
       }
@@ -367,8 +391,12 @@ class ScheduleRepository {
                 id: true,
                 name: true,
                 email: true,
-                specialty: true,
-                crm: true
+                doctorProfile: {
+                  select: {
+                    specialty: true,
+                    crm: true
+                  }
+                },
               }
             }
           }
@@ -377,6 +405,30 @@ class ScheduleRepository {
     );
 
     return createdSchedules;
+  }
+
+  async confirmSchedule(id) {
+    const schedule = await this.prisma.schedule.update({
+      where: { id },
+      data: { isConfirmed: true },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            },
+          }
+        }
+      }
+    });
+
+    return schedule;
   }
 }
 

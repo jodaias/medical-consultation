@@ -4,19 +4,48 @@ import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
+import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 
-class PatientHomePage extends StatelessWidget {
+class PatientHomePage extends StatefulWidget {
   const PatientHomePage({super.key});
+
+  @override
+  State<PatientHomePage> createState() => _PatientHomePageState();
+}
+
+class _PatientHomePageState extends State<PatientHomePage> {
+  final authStore = getIt<AuthStore>();
+  final patientStore = getIt<PatientDashboardStore>();
+
+  @override
+  void initState() {
+    super.initState();
+    patientStore.loadDashboardData();
+  }
 
   @override
   Widget build(BuildContext context) {
     final authStore = getIt<AuthStore>();
+    final patientStore = getIt<PatientDashboardStore>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Início'),
         actions: [
+          Observer(
+            builder: (context) => IconButton(
+              icon: Icon(
+                patientStore.isLoading ? Icons.refresh : Icons.refresh_outlined,
+                color: patientStore.isLoading ? AppTheme.primaryColor : null,
+              ),
+              onPressed: patientStore.isLoading
+                  ? null
+                  : () async {
+                      await patientStore.loadDashboardData();
+                    },
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () => context.push('/profile'),
@@ -34,24 +63,29 @@ class PatientHomePage extends StatelessWidget {
       ),
       body: Observer(
         builder: (context) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header com informações do usuário
-                _buildUserHeader(authStore),
+          return RefreshIndicator(
+            onRefresh: () async {
+              await patientStore.loadDashboardData();
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header com informações do usuário
+                  _buildUserHeader(authStore),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                // Menu de funcionalidades
-                _buildMenuGrid(context),
+                  // Menu de funcionalidades
+                  _buildMenuGrid(context),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                // Consultas recentes
-                _buildRecentConsultations(),
-              ],
+                  // Consultas recentes
+                  _buildRecentConsultations(),
+                ],
+              ),
             ),
           );
         },
@@ -239,45 +273,90 @@ class PatientHomePage extends StatelessWidget {
   }
 
   Widget _buildRecentConsultations() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Consultas Recentes',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              children: [
-                _buildConsultationItem(
-                  doctorName: 'Dr. Maria Silva',
-                  specialty: 'Cardiologia',
-                  date: '15/01/2024',
-                  time: '14:00',
-                  status: 'Agendada',
-                  statusColor: AppTheme.successColor,
-                ),
-                const Divider(),
-                _buildConsultationItem(
-                  doctorName: 'Dr. João Santos',
-                  specialty: 'Dermatologia',
-                  date: '10/01/2024',
-                  time: '10:30',
-                  status: 'Concluída',
-                  statusColor: AppTheme.infoColor,
-                ),
-              ],
+    return Observer(
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Consultas Recentes',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 16),
+            if (patientStore.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (patientStore.hasError)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Text(
+                    'Erro: ${patientStore.errorMessage}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              )
+            else if (patientStore.hasRecentConsultations)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Column(
+                    children: [
+                      for (int i = 0;
+                          i < patientStore.recentConsultations.length;
+                          i++)
+                        Column(
+                          children: [
+                            if (i > 0) const Divider(),
+                            _buildConsultationItem(
+                              doctorName: patientStore.recentConsultations[i]
+                                  ['doctorName'],
+                              specialty: patientStore.recentConsultations[i]
+                                  ['specialty'],
+                              date: patientStore.recentConsultations[i]['date'],
+                              time: patientStore.recentConsultations[i]['time'],
+                              status: patientStore.recentConsultations[i]
+                                  ['status'],
+                              statusColor: _getStatusColor(patientStore
+                                  .recentConsultations[i]['statusColor']),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: const Text(
+                    'Nenhuma consulta recente',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  Color _getStatusColor(String statusColor) {
+    switch (statusColor) {
+      case 'success':
+        return AppTheme.successColor;
+      case 'primary':
+        return AppTheme.primaryColor;
+      case 'warning':
+        return AppTheme.warningColor;
+      case 'error':
+        return AppTheme.errorColor;
+      default:
+        return AppTheme.infoColor;
+    }
   }
 
   Widget _buildConsultationItem({

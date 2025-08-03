@@ -6,9 +6,9 @@ import 'package:medical_consultation_app/features/consultation/data/services/con
 part 'consultation_store.g.dart';
 
 @injectable
-class ConsultationStore = _ConsultationStore with _$ConsultationStore;
+class ConsultationStore = ConsultationStoreBase with _$ConsultationStore;
 
-abstract class _ConsultationStore with Store {
+abstract class ConsultationStoreBase with Store {
   final ConsultationService _consultationService = ConsultationService();
 
   @observable

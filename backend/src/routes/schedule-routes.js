@@ -46,4 +46,7 @@ router.put('/doctors/:doctorId/bulk', authenticateToken, scheduleController.bulk
 // POST /api/schedules/validate - Validar dados de agendamento
 router.post('/validate', authenticateToken, scheduleController.validate);
 
+// PUT /api/schedules/:id/confirm - Confirmar agendamento
+router.put('/:id/confirm', authenticateToken, scheduleController.confirmSchedule);
+
 module.exports = router;

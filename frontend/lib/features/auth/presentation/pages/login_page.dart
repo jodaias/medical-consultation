@@ -4,6 +4,10 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
+import 'package:mobx/mobx.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  final AuthStore _authStore = getIt<AuthStore>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,11 @@ class _LoginPageState extends State<LoginPage> {
                         errorText: AppConstants.invalidEmail),
                   ]),
                   keyboardType: TextInputType.emailAddress,
+                  onChanged: (value) {
+                    if (_authStore.errorMessage != null) {
+                      _authStore.clearError();
+                    }
+                  },
                 ),
 
                 const SizedBox(height: 20),
@@ -105,6 +115,11 @@ class _LoginPageState extends State<LoginPage> {
                     FormBuilderValidators.minLength(6,
                         errorText: AppConstants.invalidPassword),
                   ]),
+                  onChanged: (value) {
+                    if (_authStore.errorMessage != null) {
+                      _authStore.clearError();
+                    }
+                  },
                 ),
 
                 const SizedBox(height: 10),
@@ -123,15 +138,19 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 30),
 
                 // Botão de login
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Entrar'),
+                Observer(
+                  builder: (_) => ElevatedButton(
+                    onPressed: (_isLoading || _authStore.isLoading)
+                        ? null
+                        : _handleLogin,
+                    child: (_isLoading || _authStore.isLoading)
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Entrar'),
+                  ),
                 ),
 
                 const SizedBox(height: 20),
@@ -175,18 +194,34 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        // TODO: Implementar login com AuthStore
-        await Future.delayed(const Duration(seconds: 2)); // Simulação
+        final formData = _formKey.currentState!.value;
+        final email = formData['email'];
+        final password = formData['password'];
 
-        if (mounted) {
-          // TODO: Navegar para a tela principal baseada no tipo de usuário
-          context.go('/patient');
+        // Implementar login com AuthStore
+        final success = await _authStore.login(email, password);
+
+        if (mounted && success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Login realizado com sucesso!'),
+              backgroundColor: AppTheme.successColor,
+            ),
+          );
+
+          // Navegar para a tela principal baseada no tipo de usuário
+          if (_authStore.isDoctor) {
+            context.go('/doctor');
+          } else {
+            context.go('/patient');
+          }
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao fazer login: $e'),
+              content:
+                  Text('Erro ao fazer login: ${_authStore.errorMessage ?? e}'),
               backgroundColor: AppTheme.errorColor,
             ),
           );

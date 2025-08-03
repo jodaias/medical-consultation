@@ -6,12 +6,12 @@ import 'package:medical_consultation_app/features/doctor/data/services/doctor_se
 
 part 'doctor_store.g.dart';
 
-class DoctorStore = _DoctorStore with _$DoctorStore;
+class DoctorStore = DoctorStoreBase with _$DoctorStore;
 
-abstract class _DoctorStore with Store {
+abstract class DoctorStoreBase with Store {
   final DoctorService _doctorService;
 
-  _DoctorStore(this._doctorService);
+  DoctorStoreBase(this._doctorService);
 
   // Observables
   @observable
@@ -69,24 +69,33 @@ abstract class _DoctorStore with Store {
 
     // Filtrar por busca
     if (searchQuery != null && searchQuery!.isNotEmpty) {
-      filtered = filtered.where((doctor) =>
-          doctor.name.toLowerCase().contains(searchQuery!.toLowerCase()) ||
-          doctor.specialty.toLowerCase().contains(searchQuery!.toLowerCase())).toList();
+      filtered = filtered
+          .where((doctor) =>
+              doctor.name.toLowerCase().contains(searchQuery!.toLowerCase()) ||
+              doctor.specialty
+                  .toLowerCase()
+                  .contains(searchQuery!.toLowerCase()))
+          .toList();
     }
 
     // Filtrar por especialidade
     if (selectedSpecialty != null) {
-      filtered = filtered.where((doctor) => doctor.specialty == selectedSpecialty).toList();
+      filtered = filtered
+          .where((doctor) => doctor.specialty == selectedSpecialty)
+          .toList();
     }
 
     // Filtrar por rating mínimo
     if (minRating != null) {
-      filtered = filtered.where((doctor) => doctor.rating >= minRating!).toList();
+      filtered =
+          filtered.where((doctor) => doctor.rating >= minRating!).toList();
     }
 
     // Filtrar por preço máximo
     if (maxPrice != null) {
-      filtered = filtered.where((doctor) => doctor.consultationPrice <= maxPrice!).toList();
+      filtered = filtered
+          .where((doctor) => doctor.consultationPrice <= maxPrice!)
+          .toList();
     }
 
     // Ordenar
@@ -95,13 +104,16 @@ abstract class _DoctorStore with Store {
         filtered.sort((a, b) => b.rating.compareTo(a.rating));
         break;
       case 'price_low':
-        filtered.sort((a, b) => a.consultationPrice.compareTo(b.consultationPrice));
+        filtered
+            .sort((a, b) => a.consultationPrice.compareTo(b.consultationPrice));
         break;
       case 'price_high':
-        filtered.sort((a, b) => b.consultationPrice.compareTo(a.consultationPrice));
+        filtered
+            .sort((a, b) => b.consultationPrice.compareTo(a.consultationPrice));
         break;
       case 'experience':
-        filtered.sort((a, b) => b.yearsOfExperience.compareTo(a.yearsOfExperience));
+        filtered
+            .sort((a, b) => b.yearsOfExperience.compareTo(a.yearsOfExperience));
         break;
       case 'name':
         filtered.sort((a, b) => a.name.compareTo(b.name));
@@ -232,7 +244,8 @@ abstract class _DoctorStore with Store {
   }
 
   @action
-  Future<void> rateDoctor(String doctorId, double rating, String comment) async {
+  Future<void> rateDoctor(
+      String doctorId, double rating, String comment) async {
     try {
       await _doctorService.rateDoctor(doctorId, rating, comment);
       // Recarregar avaliações
@@ -297,4 +310,4 @@ abstract class _DoctorStore with Store {
   void clearError() {
     error = null;
   }
-} 
+}

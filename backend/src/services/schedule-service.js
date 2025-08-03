@@ -216,6 +216,28 @@ class ScheduleService {
     const createScheduleDTO = new CreateScheduleDTO(data);
     return createScheduleDTO.validate();
   }
+
+  async confirmSchedule(id, userId, userType) {
+    // Verificar se agendamento existe
+    const schedule = await this.repository.findById(id);
+    if (!schedule) {
+      throw new NotFoundException('Schedule not found');
+    }
+
+    // Verificar permissões
+    if (userType === 'DOCTOR' && schedule.doctorId !== userId) {
+      throw new ForbiddenException('You can only confirm your own schedules');
+    }
+
+    // Verificar se já está confirmado
+    if (schedule.isConfirmed) {
+      throw new ValidationException('Schedule is already confirmed');
+    }
+
+    // Confirmar agendamento
+    const confirmedSchedule = await this.repository.confirmSchedule(id);
+    return ScheduleResponseDTO.fromEntity(confirmedSchedule);
+  }
 }
 
 module.exports = ScheduleService;

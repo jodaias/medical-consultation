@@ -297,6 +297,12 @@ class PrescriptionService {
       return ['Invalid prescription data'];
     }
   }
+
+  // Prescrições recentes do paciente
+  async getPatientRecentPrescriptions(patientId) {
+    const prescriptions = await this.prescriptionRepository.getPatientRecentPrescriptions(patientId);
+    return prescriptions.map(prescription => PrescriptionResponseDTO.fromEntity(prescription));
+  }
 }
 
 module.exports = PrescriptionService;

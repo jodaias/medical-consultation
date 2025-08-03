@@ -14,13 +14,15 @@ const authenticateToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('🔍 authenticateToken - decoded:', decoded);
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: decoded.id },
       include: {
         doctorProfile: true,
         patientProfile: true
       }
     });
+    console.log('🔍 authenticateToken - user:', user);
 
     if (!user || !user.isActive) {
       return res.status(401).json({ error: 'Invalid or inactive user' });
@@ -29,6 +31,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.log('🔍 authenticateToken - Erro:', error);
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -66,7 +69,7 @@ const authenticateSocket = async (socket, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: decoded.id },
       include: {
         doctorProfile: true,
         patientProfile: true

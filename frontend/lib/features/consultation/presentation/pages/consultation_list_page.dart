@@ -19,13 +19,14 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
   final ConsultationStore _consultationStore = getIt<ConsultationStore>();
   final AuthStore _authStore = getIt<AuthStore>();
 
-  String _selectedFilter = 'all';
+  String _selectedFilter = AppConstants.allStatus;
   final List<String> _filters = [
-    'all',
-    'scheduled',
-    'in_progress',
-    'completed',
-    'cancelled',
+    AppConstants.allStatus,
+    AppConstants.scheduledStatus,
+    AppConstants.inProgressStatus,
+    AppConstants.completedStatus,
+    AppConstants.cancelledStatus,
+    AppConstants.noShowStatus,
   ];
 
   @override
@@ -38,7 +39,8 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
     await _consultationStore.loadConsultations(
       userId: _authStore.userId,
       userType: _authStore.userType,
-      status: _selectedFilter == 'all' ? null : _selectedFilter,
+      status:
+          _selectedFilter == AppConstants.allStatus ? null : _selectedFilter,
     );
   }
 
@@ -136,16 +138,18 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
 
   String _getFilterLabel(String filter) {
     switch (filter) {
-      case 'all':
+      case AppConstants.allStatus:
         return 'Todas';
-      case 'scheduled':
+      case AppConstants.scheduledStatus:
         return 'Agendadas';
-      case 'in_progress':
+      case AppConstants.inProgressStatus:
         return 'Em andamento';
-      case 'completed':
+      case AppConstants.completedStatus:
         return 'Concluídas';
-      case 'cancelled':
+      case AppConstants.cancelledStatus:
         return 'Canceladas';
+      case AppConstants.noShowStatus:
+        return 'Não compareceu';
       default:
         return 'Todas';
     }

@@ -14,9 +14,7 @@ class SchedulingService {
     DateTime? endDate,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'doctorId': doctorId,
-      };
+      final queryParams = <String, dynamic>{};
 
       if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
@@ -25,12 +23,17 @@ class SchedulingService {
         queryParams['endDate'] = endDate.toIso8601String();
       }
 
-      final response = await _apiService.get('/scheduling/time-slots',
+      final response = await _apiService.get(
+          '/schedules/doctors/$doctorId/available-slots',
           queryParameters: queryParams);
 
-      return (response.data as List)
-          .map((json) => TimeSlotModel.fromJson(json))
-          .toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> slotsData = response.data['data']['slots'];
+        return slotsData.map((json) => TimeSlotModel.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar horários disponíveis');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar horários disponíveis: $e');
     }
@@ -51,9 +54,14 @@ class SchedulingService {
         if (symptoms != null) 'symptoms': symptoms,
       };
 
-      final response =
-          await _apiService.post('/scheduling/appointments', data: data);
-      return AppointmentModel.fromJson(response.data);
+      // Usar consultations para agendar consulta, não schedules
+      final response = await _apiService.post('/consultations', data: data);
+
+      if (response.data['success'] == true) {
+        return AppointmentModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao agendar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao agendar consulta: $e');
     }
@@ -62,9 +70,15 @@ class SchedulingService {
   // Confirmar agendamento (médico)
   Future<AppointmentModel> confirmAppointment(String appointmentId) async {
     try {
-      final response = await _apiService
-          .put('/scheduling/appointments/$appointmentId/confirm');
-      return AppointmentModel.fromJson(response.data);
+      final response =
+          await _apiService.put('/schedules/$appointmentId/confirm');
+
+      if (response.data['success'] == true) {
+        return AppointmentModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao confirmar agendamento');
+      }
     } catch (e) {
       throw Exception('Erro ao confirmar agendamento: $e');
     }
@@ -76,8 +90,13 @@ class SchedulingService {
       final data = <String, dynamic>{};
       if (reason != null) data['reason'] = reason;
 
-      await _apiService.put('/scheduling/appointments/$appointmentId/cancel',
-          data: data);
+      final response = await _apiService
+          .put('/consultations/$appointmentId/cancel', data: data);
+
+      if (response.data['success'] != true) {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao cancelar agendamento');
+      }
     } catch (e) {
       throw Exception('Erro ao cancelar agendamento: $e');
     }
@@ -92,16 +111,25 @@ class SchedulingService {
     try {
       final queryParams = <String, dynamic>{};
       if (status != null) queryParams['status'] = status;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
+      }
+
       if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
 
-      final response = await _apiService.get('/scheduling/appointments',
-          queryParameters: queryParams);
+      final response =
+          await _apiService.get('/schedules', queryParameters: queryParams);
 
-      return (response.data as List)
-          .map((json) => AppointmentModel.fromJson(json))
-          .toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> appointmentsData =
+            response.data['data']['schedules'];
+        return appointmentsData
+            .map((json) => AppointmentModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar agendamentos');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar agendamentos: $e');
     }
@@ -115,20 +143,27 @@ class SchedulingService {
     DateTime? endDate,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'doctorId': doctorId,
-      };
+      final queryParams = <String, dynamic>{};
       if (status != null) queryParams['status'] = status;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
+      }
+
       if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
 
-      final response = await _apiService.get('/scheduling/doctor/appointments',
+      final response = await _apiService.get('/schedules/doctors/$doctorId',
           queryParameters: queryParams);
 
-      return (response.data as List)
-          .map((json) => AppointmentModel.fromJson(json))
-          .toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> appointmentsData =
+            response.data['data']['schedules'];
+        return appointmentsData
+            .map((json) => AppointmentModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(response.data['message'] ??
+            'Erro ao buscar agendamentos do médico');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar agendamentos do médico: $e');
     }
@@ -137,9 +172,14 @@ class SchedulingService {
   // Buscar detalhes de um agendamento
   Future<AppointmentModel> getAppointmentDetails(String appointmentId) async {
     try {
-      final response =
-          await _apiService.get('/scheduling/appointments/$appointmentId');
-      return AppointmentModel.fromJson(response.data);
+      final response = await _apiService.get('/schedules/$appointmentId');
+
+      if (response.data['success'] == true) {
+        return AppointmentModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ??
+            'Erro ao buscar detalhes do agendamento');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar detalhes do agendamento: $e');
     }
@@ -151,9 +191,15 @@ class SchedulingService {
     Map<String, dynamic> data,
   ) async {
     try {
-      final response = await _apiService
-          .put('/scheduling/appointments/$appointmentId', data: data);
-      return AppointmentModel.fromJson(response.data);
+      final response =
+          await _apiService.put('/schedules/$appointmentId', data: data);
+
+      if (response.data['success'] == true) {
+        return AppointmentModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao atualizar agendamento');
+      }
     } catch (e) {
       throw Exception('Erro ao atualizar agendamento: $e');
     }
@@ -165,15 +211,19 @@ class SchedulingService {
     required DateTime scheduledAt,
   }) async {
     try {
-      final queryParams = {
-        'doctorId': doctorId,
+      final data = {
         'scheduledAt': scheduledAt.toIso8601String(),
       };
 
-      final response = await _apiService.get('/scheduling/check-availability',
-          queryParameters: queryParams);
+      final response = await _apiService
+          .post('/schedules/doctors/$doctorId/check-availability', data: data);
 
-      return response.data['available'] ?? false;
+      if (response.data['success'] == true) {
+        return response.data['data']['available'] ?? false;
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao verificar disponibilidade');
+      }
     } catch (e) {
       throw Exception('Erro ao verificar disponibilidade: $e');
     }
@@ -186,14 +236,21 @@ class SchedulingService {
   }) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
+      }
+
       if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
 
-      final response = await _apiService.get('/scheduling/stats',
+      final response = await _apiService.get('/schedules/stats',
           queryParameters: queryParams);
 
-      return response.data;
+      if (response.data['success'] == true) {
+        return response.data['data'];
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar estatísticas');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar estatísticas: $e');
     }

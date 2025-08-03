@@ -8,14 +8,14 @@ part of 'consultation_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$ConsultationStore on _ConsultationStore, Store {
+mixin _$ConsultationStore on ConsultationStoreBase, Store {
   Computed<List<ConsultationModel>>? _$scheduledConsultationsComputed;
 
   @override
   List<ConsultationModel> get scheduledConsultations =>
       (_$scheduledConsultationsComputed ??= Computed<List<ConsultationModel>>(
               () => super.scheduledConsultations,
-              name: '_ConsultationStore.scheduledConsultations'))
+              name: 'ConsultationStoreBase.scheduledConsultations'))
           .value;
   Computed<List<ConsultationModel>>? _$inProgressConsultationsComputed;
 
@@ -23,7 +23,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   List<ConsultationModel> get inProgressConsultations =>
       (_$inProgressConsultationsComputed ??= Computed<List<ConsultationModel>>(
               () => super.inProgressConsultations,
-              name: '_ConsultationStore.inProgressConsultations'))
+              name: 'ConsultationStoreBase.inProgressConsultations'))
           .value;
   Computed<List<ConsultationModel>>? _$completedConsultationsComputed;
 
@@ -31,7 +31,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   List<ConsultationModel> get completedConsultations =>
       (_$completedConsultationsComputed ??= Computed<List<ConsultationModel>>(
               () => super.completedConsultations,
-              name: '_ConsultationStore.completedConsultations'))
+              name: 'ConsultationStoreBase.completedConsultations'))
           .value;
   Computed<List<ConsultationModel>>? _$todayConsultationsComputed;
 
@@ -39,7 +39,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   List<ConsultationModel> get todayConsultations =>
       (_$todayConsultationsComputed ??= Computed<List<ConsultationModel>>(
               () => super.todayConsultations,
-              name: '_ConsultationStore.todayConsultations'))
+              name: 'ConsultationStoreBase.todayConsultations'))
           .value;
   Computed<List<ConsultationModel>>? _$upcomingConsultationsComputed;
 
@@ -47,25 +47,25 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   List<ConsultationModel> get upcomingConsultations =>
       (_$upcomingConsultationsComputed ??= Computed<List<ConsultationModel>>(
               () => super.upcomingConsultations,
-              name: '_ConsultationStore.upcomingConsultations'))
+              name: 'ConsultationStoreBase.upcomingConsultations'))
           .value;
   Computed<int>? _$totalConsultationsComputed;
 
   @override
   int get totalConsultations => (_$totalConsultationsComputed ??= Computed<int>(
           () => super.totalConsultations,
-          name: '_ConsultationStore.totalConsultations'))
+          name: 'ConsultationStoreBase.totalConsultations'))
       .value;
   Computed<int>? _$pendingConsultationsComputed;
 
   @override
   int get pendingConsultations => (_$pendingConsultationsComputed ??=
           Computed<int>(() => super.pendingConsultations,
-              name: '_ConsultationStore.pendingConsultations'))
+              name: 'ConsultationStoreBase.pendingConsultations'))
       .value;
 
   late final _$consultationsAtom =
-      Atom(name: '_ConsultationStore.consultations', context: context);
+      Atom(name: 'ConsultationStoreBase.consultations', context: context);
 
   @override
   ObservableList<ConsultationModel> get consultations {
@@ -80,8 +80,8 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
     });
   }
 
-  late final _$selectedConsultationAtom =
-      Atom(name: '_ConsultationStore.selectedConsultation', context: context);
+  late final _$selectedConsultationAtom = Atom(
+      name: 'ConsultationStoreBase.selectedConsultation', context: context);
 
   @override
   ConsultationModel? get selectedConsultation {
@@ -98,7 +98,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_ConsultationStore.isLoading', context: context);
+      Atom(name: 'ConsultationStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -114,7 +114,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$errorMessageAtom =
-      Atom(name: '_ConsultationStore.errorMessage', context: context);
+      Atom(name: 'ConsultationStoreBase.errorMessage', context: context);
 
   @override
   String? get errorMessage {
@@ -130,7 +130,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$selectedStatusAtom =
-      Atom(name: '_ConsultationStore.selectedStatus', context: context);
+      Atom(name: 'ConsultationStoreBase.selectedStatus', context: context);
 
   @override
   String get selectedStatus {
@@ -146,7 +146,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$selectedDateAtom =
-      Atom(name: '_ConsultationStore.selectedDate', context: context);
+      Atom(name: 'ConsultationStoreBase.selectedDate', context: context);
 
   @override
   DateTime get selectedDate {
@@ -162,7 +162,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$availableSlotsAtom =
-      Atom(name: '_ConsultationStore.availableSlots', context: context);
+      Atom(name: 'ConsultationStoreBase.availableSlots', context: context);
 
   @override
   List<DateTime> get availableSlots {
@@ -178,7 +178,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$availableDoctorsAtom =
-      Atom(name: '_ConsultationStore.availableDoctors', context: context);
+      Atom(name: 'ConsultationStoreBase.availableDoctors', context: context);
 
   @override
   List<Map<String, dynamic>> get availableDoctors {
@@ -194,7 +194,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$statsAtom =
-      Atom(name: '_ConsultationStore.stats', context: context);
+      Atom(name: 'ConsultationStoreBase.stats', context: context);
 
   @override
   Map<String, dynamic> get stats {
@@ -210,7 +210,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$loadConsultationsAsyncAction =
-      AsyncAction('_ConsultationStore.loadConsultations', context: context);
+      AsyncAction('ConsultationStoreBase.loadConsultations', context: context);
 
   @override
   Future<void> loadConsultations(
@@ -220,7 +220,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$loadConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.loadConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.loadConsultation', context: context);
 
   @override
   Future<void> loadConsultation(String consultationId) {
@@ -228,8 +228,9 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
         .run(() => super.loadConsultation(consultationId));
   }
 
-  late final _$scheduleConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.scheduleConsultation', context: context);
+  late final _$scheduleConsultationAsyncAction = AsyncAction(
+      'ConsultationStoreBase.scheduleConsultation',
+      context: context);
 
   @override
   Future<bool> scheduleConsultation(
@@ -246,7 +247,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$updateConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.updateConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.updateConsultation', context: context);
 
   @override
   Future<bool> updateConsultation(
@@ -266,7 +267,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$cancelConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.cancelConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.cancelConsultation', context: context);
 
   @override
   Future<bool> cancelConsultation(String consultationId) {
@@ -275,7 +276,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$startConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.startConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.startConsultation', context: context);
 
   @override
   Future<bool> startConsultation(String consultationId) {
@@ -284,7 +285,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$endConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.endConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.endConsultation', context: context);
 
   @override
   Future<bool> endConsultation(String consultationId) {
@@ -293,7 +294,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$rateConsultationAsyncAction =
-      AsyncAction('_ConsultationStore.rateConsultation', context: context);
+      AsyncAction('ConsultationStoreBase.rateConsultation', context: context);
 
   @override
   Future<bool> rateConsultation(
@@ -305,7 +306,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$loadAvailableSlotsAsyncAction =
-      AsyncAction('_ConsultationStore.loadAvailableSlots', context: context);
+      AsyncAction('ConsultationStoreBase.loadAvailableSlots', context: context);
 
   @override
   Future<void> loadAvailableSlots(
@@ -314,8 +315,9 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
         .run(() => super.loadAvailableSlots(doctorId: doctorId, date: date));
   }
 
-  late final _$loadAvailableDoctorsAsyncAction =
-      AsyncAction('_ConsultationStore.loadAvailableDoctors', context: context);
+  late final _$loadAvailableDoctorsAsyncAction = AsyncAction(
+      'ConsultationStoreBase.loadAvailableDoctors',
+      context: context);
 
   @override
   Future<void> loadAvailableDoctors({String? specialty, DateTime? date}) {
@@ -324,7 +326,7 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
   }
 
   late final _$loadStatsAsyncAction =
-      AsyncAction('_ConsultationStore.loadStats', context: context);
+      AsyncAction('ConsultationStoreBase.loadStats', context: context);
 
   @override
   Future<void> loadStats(
@@ -339,61 +341,61 @@ mixin _$ConsultationStore on _ConsultationStore, Store {
         endDate: endDate));
   }
 
-  late final _$_ConsultationStoreActionController =
-      ActionController(name: '_ConsultationStore', context: context);
+  late final _$ConsultationStoreBaseActionController =
+      ActionController(name: 'ConsultationStoreBase', context: context);
 
   @override
   void setSelectedStatus(String status) {
-    final _$actionInfo = _$_ConsultationStoreActionController.startAction(
-        name: '_ConsultationStore.setSelectedStatus');
+    final _$actionInfo = _$ConsultationStoreBaseActionController.startAction(
+        name: 'ConsultationStoreBase.setSelectedStatus');
     try {
       return super.setSelectedStatus(status);
     } finally {
-      _$_ConsultationStoreActionController.endAction(_$actionInfo);
+      _$ConsultationStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedDate(DateTime date) {
-    final _$actionInfo = _$_ConsultationStoreActionController.startAction(
-        name: '_ConsultationStore.setSelectedDate');
+    final _$actionInfo = _$ConsultationStoreBaseActionController.startAction(
+        name: 'ConsultationStoreBase.setSelectedDate');
     try {
       return super.setSelectedDate(date);
     } finally {
-      _$_ConsultationStoreActionController.endAction(_$actionInfo);
+      _$ConsultationStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setSelectedConsultation(ConsultationModel? consultation) {
-    final _$actionInfo = _$_ConsultationStoreActionController.startAction(
-        name: '_ConsultationStore.setSelectedConsultation');
+    final _$actionInfo = _$ConsultationStoreBaseActionController.startAction(
+        name: 'ConsultationStoreBase.setSelectedConsultation');
     try {
       return super.setSelectedConsultation(consultation);
     } finally {
-      _$_ConsultationStoreActionController.endAction(_$actionInfo);
+      _$ConsultationStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearError() {
-    final _$actionInfo = _$_ConsultationStoreActionController.startAction(
-        name: '_ConsultationStore.clearError');
+    final _$actionInfo = _$ConsultationStoreBaseActionController.startAction(
+        name: 'ConsultationStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_ConsultationStoreActionController.endAction(_$actionInfo);
+      _$ConsultationStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void clearConsultations() {
-    final _$actionInfo = _$_ConsultationStoreActionController.startAction(
-        name: '_ConsultationStore.clearConsultations');
+    final _$actionInfo = _$ConsultationStoreBaseActionController.startAction(
+        name: 'ConsultationStoreBase.clearConsultations');
     try {
       return super.clearConsultations();
     } finally {
-      _$_ConsultationStoreActionController.endAction(_$actionInfo);
+      _$ConsultationStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

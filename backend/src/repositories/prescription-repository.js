@@ -260,55 +260,82 @@ class PrescriptionRepository {
   }
 
   async findByPatient(patientId, filters = {}) {
-    try {
-      const where = { patientId };
+    const where = { patientId };
 
-      if (filters.isActive !== undefined) {
-        where.isActive = filters.isActive;
-      }
-
-      if (filters.validUntil) {
-        where.validUntil = {
-          gte: new Date(filters.validUntil)
-        };
-      }
-
-      const page = filters.page || 1;
-      const limit = filters.limit || 10;
-      const skip = (page - 1) * limit;
-
-      const [prescriptions, total] = await Promise.all([
-        this.prisma.prescription.findMany({
-          where,
-          include: {
-            consultation: {
-              include: {
-                doctor: true,
-                patient: true
-              }
-            },
-            doctor: true,
-            patient: true
-          },
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit
-        }),
-        this.prisma.prescription.count({ where })
-      ]);
-
-      return {
-        prescriptions,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit)
-        }
-      };
-    } catch (error) {
-      throw new Error('Error finding prescriptions by patient');
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
     }
+
+    if (filters.validUntil) {
+      where.validUntil = { gte: new Date(filters.validUntil) };
+    }
+
+    const prescriptions = await this.prisma.prescription.findMany({
+      where,
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
+          }
+        },
+        consultation: {
+          select: {
+            id: true,
+            scheduledAt: true,
+            status: true
+          }
+        }
+      }
+    });
+
+    return prescriptions;
+  }
+
+  // Prescrições recentes do paciente
+  async getPatientRecentPrescriptions(patientId) {
+    const prescriptions = await this.prisma.prescription.findMany({
+      where: {
+        patientId: patientId,
+        isActive: true
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true
+              }
+            }
+          }
+        },
+        consultation: {
+          select: {
+            id: true,
+            scheduledAt: true,
+            status: true
+          }
+        }
+      }
+    });
+
+    return prescriptions;
   }
 
   async getPrescriptionStats(doctorId = null, patientId = null) {

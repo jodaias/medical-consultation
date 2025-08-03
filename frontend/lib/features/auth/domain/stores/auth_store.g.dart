@@ -8,22 +8,23 @@ part of 'auth_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$AuthStore on _AuthStore, Store {
+mixin _$AuthStore on AuthStoreBase, Store {
   Computed<bool>? _$isPatientComputed;
 
   @override
-  bool get isPatient => (_$isPatientComputed ??=
-          Computed<bool>(() => super.isPatient, name: '_AuthStore.isPatient'))
-      .value;
+  bool get isPatient =>
+      (_$isPatientComputed ??= Computed<bool>(() => super.isPatient,
+              name: 'AuthStoreBase.isPatient'))
+          .value;
   Computed<bool>? _$isDoctorComputed;
 
   @override
   bool get isDoctor => (_$isDoctorComputed ??=
-          Computed<bool>(() => super.isDoctor, name: '_AuthStore.isDoctor'))
+          Computed<bool>(() => super.isDoctor, name: 'AuthStoreBase.isDoctor'))
       .value;
 
   late final _$isAuthenticatedAtom =
-      Atom(name: '_AuthStore.isAuthenticated', context: context);
+      Atom(name: 'AuthStoreBase.isAuthenticated', context: context);
 
   @override
   bool get isAuthenticated {
@@ -39,7 +40,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_AuthStore.isLoading', context: context);
+      Atom(name: 'AuthStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -55,7 +56,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$userTypeAtom =
-      Atom(name: '_AuthStore.userType', context: context);
+      Atom(name: 'AuthStoreBase.userType', context: context);
 
   @override
   String? get userType {
@@ -70,7 +71,8 @@ mixin _$AuthStore on _AuthStore, Store {
     });
   }
 
-  late final _$userIdAtom = Atom(name: '_AuthStore.userId', context: context);
+  late final _$userIdAtom =
+      Atom(name: 'AuthStoreBase.userId', context: context);
 
   @override
   String? get userId {
@@ -86,7 +88,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$userNameAtom =
-      Atom(name: '_AuthStore.userName', context: context);
+      Atom(name: 'AuthStoreBase.userName', context: context);
 
   @override
   String? get userName {
@@ -102,7 +104,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$userEmailAtom =
-      Atom(name: '_AuthStore.userEmail', context: context);
+      Atom(name: 'AuthStoreBase.userEmail', context: context);
 
   @override
   String? get userEmail {
@@ -118,7 +120,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$errorMessageAtom =
-      Atom(name: '_AuthStore.errorMessage', context: context);
+      Atom(name: 'AuthStoreBase.errorMessage', context: context);
 
   @override
   String? get errorMessage {
@@ -134,7 +136,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$loginAsyncAction =
-      AsyncAction('_AuthStore.login', context: context);
+      AsyncAction('AuthStoreBase.login', context: context);
 
   @override
   Future<bool> login(String email, String password) {
@@ -142,25 +144,34 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$registerAsyncAction =
-      AsyncAction('_AuthStore.register', context: context);
+      AsyncAction('AuthStoreBase.register', context: context);
 
   @override
-  Future<bool> register(
-      {required String name,
-      required String email,
-      required String phone,
-      required String password,
-      required String userType}) {
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+    required String userType,
+    String? bio,
+    String? crm,
+    double? hourlyRate,
+    String? specialty,
+  }) {
     return _$registerAsyncAction.run(() => super.register(
         name: name,
         email: email,
         phone: phone,
         password: password,
-        userType: userType));
+        userType: userType,
+        bio: bio,
+        crm: crm,
+        hourlyRate: hourlyRate,
+        specialty: specialty));
   }
 
   late final _$logoutAsyncAction =
-      AsyncAction('_AuthStore.logout', context: context);
+      AsyncAction('AuthStoreBase.logout', context: context);
 
   @override
   Future<void> logout() {
@@ -168,7 +179,7 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$checkAuthStatusAsyncAction =
-      AsyncAction('_AuthStore.checkAuthStatus', context: context);
+      AsyncAction('AuthStoreBase.checkAuthStatus', context: context);
 
   @override
   Future<void> checkAuthStatus() {
@@ -176,24 +187,24 @@ mixin _$AuthStore on _AuthStore, Store {
   }
 
   late final _$resetPasswordAsyncAction =
-      AsyncAction('_AuthStore.resetPassword', context: context);
+      AsyncAction('AuthStoreBase.resetPassword', context: context);
 
   @override
   Future<bool> resetPassword(String email) {
     return _$resetPasswordAsyncAction.run(() => super.resetPassword(email));
   }
 
-  late final _$_AuthStoreActionController =
-      ActionController(name: '_AuthStore', context: context);
+  late final _$AuthStoreBaseActionController =
+      ActionController(name: 'AuthStoreBase', context: context);
 
   @override
   void clearError() {
-    final _$actionInfo =
-        _$_AuthStoreActionController.startAction(name: '_AuthStore.clearError');
+    final _$actionInfo = _$AuthStoreBaseActionController.startAction(
+        name: 'AuthStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_AuthStoreActionController.endAction(_$actionInfo);
+      _$AuthStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

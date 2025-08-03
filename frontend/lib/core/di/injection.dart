@@ -20,6 +20,9 @@ import 'package:medical_consultation_app/features/doctor/data/services/doctor_se
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 import 'package:medical_consultation_app/features/scheduling/data/services/scheduling_service.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
+import 'package:medical_consultation_app/features/patient/domain/stores/patient_store.dart';
+import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
+import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_dashboard_store.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -78,4 +81,9 @@ Future<void> configureDependencies() async {
       () => DoctorStore(getIt<DoctorService>()));
   getIt.registerLazySingleton<SchedulingStore>(
       () => SchedulingStore(getIt<SchedulingService>()));
+  getIt.registerLazySingleton<PatientStore>(() => PatientStore());
+  getIt.registerLazySingleton<PatientDashboardStore>(
+      () => PatientDashboardStore());
+  getIt.registerLazySingleton<DoctorDashboardStore>(
+      () => DoctorDashboardStore());
 }

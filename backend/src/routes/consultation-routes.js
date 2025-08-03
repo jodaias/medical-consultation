@@ -37,6 +37,9 @@ router.put('/:id/cancel', authenticateToken, consultationController.cancelConsul
 // GET /api/consultations/patient/:patientId - Buscar consultas por paciente
 router.get('/patient/:patientId', authenticateToken, consultationController.findByPatient);
 
+// GET /api/consultations/doctors/available - Buscar médicos disponíveis
+router.get('/doctors/available', authenticateToken, consultationController.getAvailableDoctors);
+
 // GET /api/consultations/doctors/:doctorId - Buscar consultas por médico
 router.get('/doctors/:doctorId', authenticateToken, consultationController.findByDoctor);
 
@@ -48,5 +51,23 @@ router.get('/upcoming', authenticateToken, consultationController.getUpcoming);
 
 // POST /api/consultations/validate - Validar dados de consulta
 router.post('/validate', authenticateToken, consultationController.validate);
+
+// POST /api/consultations/:id/rate - Avaliar consulta
+router.post('/:id/rate', authenticateToken, consultationController.rateConsultation);
+
+// POST /api/consultations/:id/no-show - Marcar como no-show
+router.post('/:id/no-show', authenticateToken, consultationController.markAsNoShow);
+
+// PUT /api/consultations/:id/reschedule - Reagendar consulta
+router.put('/:id/reschedule', authenticateToken, consultationController.rescheduleConsultation);
+
+// GET /api/consultations/doctors/:doctorId/upcoming - Consultas próximas do médico
+router.get('/doctors/:doctorId/upcoming', authenticateToken, consultationController.getDoctorUpcomingConsultations);
+
+// GET /api/consultations/patients/:patientId/recent - Consultas recentes do paciente
+router.get('/patients/:patientId/recent', authenticateToken, consultationController.getPatientRecentConsultations);
+
+// GET /api/consultations/patients/:patientId/upcoming - Próximas consultas do paciente
+router.get('/patients/:patientId/upcoming', authenticateToken, consultationController.getPatientUpcomingConsultations);
 
 module.exports = router;

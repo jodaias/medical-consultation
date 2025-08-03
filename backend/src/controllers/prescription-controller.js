@@ -117,18 +117,27 @@ class PrescriptionController extends BaseController {
   findByPatient = this.handleAsync(async (req, res) => {
     try {
       const { patientId } = req.params;
-      const filters = {
-        isActive: req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined,
-        validUntil: req.query.validUntil,
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10
-      };
+      const prescriptions = await this.prescriptionService.findByPatient(patientId);
+      return this.sendSuccess(res, prescriptions, 'Prescriptions retrieved successfully');
+    } catch (error) {
+      return this.sendError(res, error, error.statusCode || 400);
+    }
+  });
 
+  // Prescrições recentes do paciente
+  getPatientRecentPrescriptions = this.handleAsync(async (req, res) => {
+    try {
+      const { patientId } = req.params;
       const userId = req.user.id;
       const userType = req.user.userType;
 
-      const result = await this.prescriptionService.findByPatient(patientId, filters, userId, userType);
-      return this.sendSuccess(res, result, 'Patient prescriptions retrieved successfully');
+      // Verificar permissões
+      if (userType === 'PATIENT' && patientId !== userId) {
+        return this.sendError(res, new Error('You can only view your own prescriptions'), 403);
+      }
+
+      const prescriptions = await this.prescriptionService.getPatientRecentPrescriptions(patientId);
+      return this.sendSuccess(res, prescriptions, 'Patient recent prescriptions retrieved successfully');
     } catch (error) {
       return this.sendError(res, error, error.statusCode || 400);
     }

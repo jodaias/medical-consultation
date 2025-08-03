@@ -271,6 +271,86 @@ class ConsultationService {
     const createConsultationDTO = new CreateConsultationDTO(data);
     return createConsultationDTO.validate();
   }
+
+  // Avaliar consulta
+  async rateConsultation(id, rating, review, userId, userType) {
+    // Verificar se consulta existe e usuário tem permissão
+    const consultation = await this.repository.findById(id);
+
+    if (userType === 'PATIENT' && consultation.patientId !== userId) {
+      throw new ForbiddenException('You can only rate your own consultations');
+    }
+
+    if (userType === 'DOCTOR' && consultation.doctorId !== userId) {
+      throw new ForbiddenException('You can only rate consultations you are assigned to');
+    }
+
+    // Verificar se consulta foi finalizada
+    if (consultation.status !== 'COMPLETED') {
+      throw new ValidationException('Only completed consultations can be rated');
+    }
+
+    // Verificar se já foi avaliada
+    const existingRating = await this.repository.findRatingByConsultation(id, userId);
+    if (existingRating) {
+      throw new ValidationException('Consultation already rated');
+    }
+
+    const result = await this.repository.rateConsultation(id, rating, review, userId);
+    return result;
+  }
+
+  // Buscar médicos disponíveis
+  async getAvailableDoctors(specialty, date, userId, userType) {
+    const doctors = await this.userRepository.getAvailableDoctors(specialty, date);
+    return doctors;
+  }
+
+  // Marcar como no-show
+  async markAsNoShow(id, userId, userType) {
+    // Verificar se consulta existe e usuário tem permissão
+    const consultation = await this.repository.findById(id);
+
+    if (userType === 'PATIENT' && consultation.patientId !== userId) {
+      throw new ForbiddenException('You can only mark your own consultations as no-show');
+    }
+
+    if (userType === 'DOCTOR' && consultation.doctorId !== userId) {
+      throw new ForbiddenException('You can only mark consultations you are assigned to as no-show');
+    }
+
+    // Verificar se consulta pode ser marcada como no-show
+    if (consultation.status === 'COMPLETED' || consultation.status === 'CANCELLED') {
+      throw new ValidationException('Cannot mark completed or cancelled consultations as no-show');
+    }
+
+    const result = await this.repository.markAsNoShow(id);
+    return ConsultationResponseDTO.fromEntity(result);
+  }
+
+  // Reagendar consulta
+  async rescheduleConsultation(id, newScheduledAt, userId, userType) {
+    const consultation = await this.repository.rescheduleConsultation(id, newScheduledAt);
+    return ConsultationResponseDTO.fromEntity(consultation);
+  }
+
+  // Consultas próximas do médico
+  async getDoctorUpcomingConsultations(doctorId) {
+    const consultations = await this.repository.getDoctorUpcomingConsultations(doctorId);
+    return consultations.map(consultation => ConsultationResponseDTO.fromEntity(consultation));
+  }
+
+  // Consultas recentes do paciente
+  async getPatientRecentConsultations(patientId) {
+    const consultations = await this.repository.getPatientRecentConsultations(patientId);
+    return consultations.map(consultation => ConsultationResponseDTO.fromEntity(consultation));
+  }
+
+  // Próximas consultas do paciente
+  async getPatientUpcomingConsultations(patientId) {
+    const consultations = await this.repository.getPatientUpcomingConsultations(patientId);
+    return consultations.map(consultation => ConsultationResponseDTO.fromEntity(consultation));
+  }
 }
 
 module.exports = ConsultationService;

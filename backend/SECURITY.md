@@ -11,9 +11,12 @@ Este documento descreve as medidas de segurança implementadas na API de Consult
 #### **JWT (JSON Web Tokens)**
 
 - **Algoritmo**: HS256 (HMAC SHA-256)
-- **Expiração**: 7 dias (configurável)
+- **Access Token**: 2 horas (curto para segurança)
+- **Refresh Token**: 7 dias (longo para conveniência)
+- **Secrets separados**: JWT_SECRET e JWT_REFRESH_SECRET
 - **Claims de segurança**: iat, exp, issuer, audience
 - **Verificação rigorosa**: Algoritmo específico na verificação
+- **Renovação automática**: Sistema de refresh tokens
 
 #### **Bcrypt com Salt + Pepper**
 
@@ -44,7 +47,7 @@ Este documento descreve as medidas de segurança implementadas na API de Consult
 #### **Rate Limiting**
 
 - **Login**: Máximo 5 tentativas em 15 minutos
-- **Registro**: Máximo 3 tentativas em 1 hora
+- **Registro**: Máximo 4 tentativas em 1 hora
 - **API geral**: Máximo 1000 requisições em 15 minutos
 - **Uploads**: Máximo 10 uploads em 1 hora
 
@@ -83,7 +86,24 @@ Este documento descreve as medidas de segurança implementadas na API de Consult
 - **Bloqueios de conta**
 - **Atividade suspeita**
 
-### **6. Arquitetura Segura**
+### **6. Sistema de Refresh Tokens**
+
+#### **Segurança Aprimorada**
+
+- **Tokens de acesso curtos**: Reduzem risco de comprometimento
+- **Refresh tokens longos**: Mantêm conveniência do usuário
+- **Secrets separados**: Isolamento de riscos
+- **Renovação automática**: Transparente para o usuário
+- **Logout automático**: Se refresh token expirar
+
+#### **Fluxo de Segurança**
+
+1. **Login**: Usuário recebe access token (2h) + refresh token (7d)
+2. **Requisições**: Access token autentica requisições
+3. **Token expirado**: Frontend automaticamente renova
+4. **Refresh expirado**: Usuário é deslogado
+
+### **7. Arquitetura Segura**
 
 #### **Princípios SOLID**
 
@@ -103,9 +123,13 @@ Este documento descreve as medidas de segurança implementadas na API de Consult
 ### **Variáveis de Ambiente Obrigatórias**
 
 ```env
-# JWT
+# JWT - Access Tokens
 JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=2h
+
+# JWT - Refresh Tokens
+JWT_REFRESH_SECRET=your-super-secret-refresh-jwt-key-here
+JWT_REFRESH_EXPIRES_IN=7d
 
 # Bcrypt
 BCRYPT_ROUNDS=14
@@ -144,6 +168,9 @@ LOG_LEVEL=info
 - **Tentativas de registro suspeitas**
 - **Rate limiting atingido**
 - **Erros de validação**
+- **Tokens expirados**
+- **Refresh tokens utilizados**
+- **Renovações de token automáticas**
 
 ### **Alertas Recomendados**
 
@@ -151,6 +178,9 @@ LOG_LEVEL=info
 - **Contas bloqueadas por mais de 1 hora**
 - **Múltiplos registros do mesmo IP**
 - **Padrões de acesso suspeitos**
+- **Múltiplas renovações de token em curto período**
+- **Refresh tokens expirados frequentemente**
+- **Tentativas de uso de refresh tokens inválidos**
 
 ## **🔄 Atualizações de Segurança**
 
@@ -160,6 +190,9 @@ LOG_LEVEL=info
 - **Revisar logs de segurança** semanalmente
 - **Testar rate limiting** mensalmente
 - **Backup de dados** diariamente
+- **Rotacionar JWT secrets** trimestralmente
+- **Monitorar padrões de refresh tokens** semanalmente
+- **Auditar tokens expirados** mensalmente
 
 ### **Auditoria de Segurança**
 
@@ -167,6 +200,9 @@ LOG_LEVEL=info
 - **Revisão de código** mensalmente
 - **Análise de vulnerabilidades** mensalmente
 - **Treinamento da equipe** semestralmente
+- **Teste de refresh tokens** mensalmente
+- **Validação de secrets JWT** trimestralmente
+- **Simulação de expiração de tokens** mensalmente
 
 ## **🚨 Resposta a Incidentes**
 
@@ -185,6 +221,61 @@ LOG_LEVEL=info
 - **Suporte técnico**: support@company.com
 - **Compliance**: compliance@company.com
 
+## **🔄 Sistema de Refresh Tokens - Detalhes de Segurança**
+
+### **Vantagens de Segurança**
+
+#### **1. Redução de Risco**
+
+- **Tokens de acesso curtos**: Minimizam janela de comprometimento
+- **Secrets separados**: Isolamento de riscos entre access e refresh
+- **Renovação automática**: Transparente para o usuário
+
+#### **2. Controle de Acesso**
+
+- **Access tokens**: Controle fino de sessões
+- **Refresh tokens**: Controle de longa duração
+- **Revogação seletiva**: Pode revogar apenas access tokens
+
+#### **3. Monitoramento Avançado**
+
+- **Padrões de renovação**: Detecta uso anômalo
+- **Tokens expirados**: Rastreia tentativas de uso
+- **Refresh inválidos**: Identifica tentativas de ataque
+
+### **Implementação Segura**
+
+#### **Backend**
+
+```javascript
+// Geração de tokens separados
+const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "2h" });
+const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+
+// Validação rigorosa
+const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET, {
+  algorithms: ["HS256"],
+});
+```
+
+#### **Frontend**
+
+```javascript
+// Interceptor automático
+if (error.status === 401) {
+  const newToken = await refreshToken();
+  retryOriginalRequest();
+}
+```
+
+### **Boas Práticas**
+
+- ✅ **Secrets diferentes**: Nunca use o mesmo secret
+- ✅ **Durações apropriadas**: 2h para access, 7d para refresh
+- ✅ **Validação rigorosa**: Algoritmo específico na verificação
+- ✅ **Logs detalhados**: Rastrear todas as renovações
+- ✅ **Monitoramento**: Alertas para padrões suspeitos
+
 ## **📚 Recursos Adicionais**
 
 ### **Documentação**
@@ -192,6 +283,7 @@ LOG_LEVEL=info
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [JWT Security](https://jwt.io/introduction)
+- [Refresh Token Best Practices](https://auth0.com/blog/refresh-tokens-what-are-they-and-when-to-use-them/)
 
 ### **Ferramentas de Teste**
 

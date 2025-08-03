@@ -26,14 +26,17 @@ DATABASE_URL="postgresql://username:password@localhost:5432/medical_consultation
 ### **🔐 Autenticação JWT**
 
 ```env
-# Chave secreta para assinar tokens JWT
+# Chave secreta para assinar tokens JWT de acesso
 JWT_SECRET=your-super-secret-jwt-key-here
 
-# Tempo de expiração do token de acesso
-JWT_EXPIRES_IN=7d
+# Chave secreta para assinar tokens JWT de refresh
+JWT_REFRESH_SECRET=your-super-secret-refresh-jwt-key-here
 
-# Tempo de expiração do token de refresh
-JWT_REFRESH_EXPIRES_IN=30d
+# Tempo de expiração do token de acesso (recomendado: 2h)
+JWT_EXPIRES_IN=2h
+
+# Tempo de expiração do token de refresh (recomendado: 7d)
+JWT_REFRESH_EXPIRES_IN=7d
 ```
 
 ### **🔒 Segurança Bcrypt**
@@ -126,6 +129,8 @@ PORT=3001
 DATABASE_URL="postgresql://postgres:password@localhost:5432/medical_consultation_dev"
 SECURITY_LOGGING=true
 SECURITY_BACKUP=false
+CORS_ORIGIN=http://localhost:3000
+SOCKET_CORS_ORIGIN=http://localhost:3000
 ```
 
 ### **Produção**
@@ -143,11 +148,17 @@ LOCKOUT_DURATION=15
 
 ## **🔑 Geração de Chaves Seguras**
 
-### **JWT Secret**
+### **JWT Secrets**
 
 ```bash
-# Gerar chave JWT segura
+# Gerar chave JWT de acesso segura
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Gerar chave JWT de refresh segura
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Ou usar o script fornecido
+node generate-secrets.js
 ```
 
 ### **Password Pepper**
@@ -163,6 +174,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 - `DATABASE_URL`
 - `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
 - `BCRYPT_ROUNDS`
 - `PASSWORD_PEPPER`
 
@@ -179,24 +191,56 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - `UPLOAD_PATH`
 - `MAX_FILE_SIZE`
 
+## **🔄 Sistema de Refresh Tokens**
+
+### **Como Funciona**
+
+O sistema implementa um mecanismo de refresh tokens para melhorar a segurança e experiência do usuário:
+
+1. **Login/Registro**: Usuário recebe access token (2h) + refresh token (7d)
+2. **Requisições**: Access token é usado para autenticar requisições
+3. **Token Expirado**: Frontend automaticamente usa refresh token para obter novo access token
+4. **Refresh Expirado**: Usuário é redirecionado para login
+
+### **Benefícios**
+
+- ✅ **Segurança**: Tokens de acesso curtos reduzem risco de comprometimento
+- ✅ **UX**: Usuário não precisa fazer login novamente quando token expira
+- ✅ **Controle**: Secrets separados permitem políticas diferentes
+- ✅ **Robustez**: Sistema funciona mesmo com tokens expirados
+
+### **Configuração**
+
+```env
+# Tokens de acesso (curtos para segurança)
+JWT_SECRET=seu-access-token-secret
+JWT_EXPIRES_IN=2h
+
+# Tokens de refresh (longos para conveniência)
+JWT_REFRESH_SECRET=seu-refresh-token-secret
+JWT_REFRESH_EXPIRES_IN=7d
+```
+
 ## **🚨 Segurança**
 
 ### **⚠️ IMPORTANTE**
 
 1. **NUNCA** commite o arquivo `.env` no repositório
 2. **SEMPRE** use valores únicos e seguros em produção
-3. **ROTACIONE** as chaves JWT e pepper regularmente
+3. **ROTACIONE** as chaves JWT (access e refresh) e pepper regularmente
 4. **MONITORE** os logs de segurança
 5. **BACKUP** as configurações de segurança
 
 ### **🔐 Boas Práticas**
 
-- Use pelo menos 64 caracteres para `JWT_SECRET`
+- Use pelo menos 64 caracteres para `JWT_SECRET` e `JWT_REFRESH_SECRET`
+- Use secrets diferentes para access e refresh tokens
 - Use pelo menos 32 caracteres para `PASSWORD_PEPPER`
 - Configure `BCRYPT_ROUNDS` entre 12-14
 - Use HTTPS em produção
 - Configure CORS adequadamente
 - Monitore tentativas de login falhadas
+- Configure tokens de acesso curtos (2h) e refresh tokens longos (7d)
 
 ---
 

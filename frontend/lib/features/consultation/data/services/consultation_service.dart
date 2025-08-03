@@ -19,10 +19,15 @@ class ConsultationService {
       final response =
           await _apiService.get('/consultations', queryParameters: queryParams);
 
-      final List<dynamic> consultationsData = response.data['consultations'];
-      return consultationsData
-          .map((json) => ConsultationModel.fromJson(json))
-          .toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> consultationsData =
+            response.data['data']['consultations'];
+        return consultationsData
+            .map((json) => ConsultationModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao buscar consultas');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar consultas: $e');
     }
@@ -32,7 +37,12 @@ class ConsultationService {
   Future<ConsultationModel> getConsultation(String consultationId) async {
     try {
       final response = await _apiService.get('/consultations/$consultationId');
-      return ConsultationModel.fromJson(response.data);
+
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao buscar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar consulta: $e');
     }
@@ -53,7 +63,11 @@ class ConsultationService {
         'symptoms': symptoms,
       });
 
-      return ConsultationModel.fromJson(response.data);
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao agendar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao agendar consulta: $e');
     }
@@ -70,8 +84,9 @@ class ConsultationService {
   }) async {
     try {
       final Map<String, dynamic> data = {};
-      if (scheduledAt != null)
+      if (scheduledAt != null) {
         data['scheduledAt'] = scheduledAt.toIso8601String();
+      }
       if (notes != null) data['notes'] = notes;
       if (symptoms != null) data['symptoms'] = symptoms;
       if (diagnosis != null) data['diagnosis'] = diagnosis;
@@ -79,7 +94,13 @@ class ConsultationService {
 
       final response =
           await _apiService.put('/consultations/$consultationId', data: data);
-      return ConsultationModel.fromJson(response.data);
+
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao atualizar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao atualizar consulta: $e');
     }
@@ -88,7 +109,13 @@ class ConsultationService {
   // Cancelar consulta
   Future<void> cancelConsultation(String consultationId) async {
     try {
-      await _apiService.put('/consultations/$consultationId/cancel');
+      final response =
+          await _apiService.put('/consultations/$consultationId/cancel');
+
+      if (response.data['success'] != true) {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao cancelar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao cancelar consulta: $e');
     }
@@ -98,8 +125,13 @@ class ConsultationService {
   Future<ConsultationModel> startConsultation(String consultationId) async {
     try {
       final response =
-          await _apiService.put('/consultations/$consultationId/start');
-      return ConsultationModel.fromJson(response.data);
+          await _apiService.post('/consultations/$consultationId/start');
+
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data['message'] ?? 'Erro ao iniciar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao iniciar consulta: $e');
     }
@@ -109,8 +141,14 @@ class ConsultationService {
   Future<ConsultationModel> endConsultation(String consultationId) async {
     try {
       final response =
-          await _apiService.put('/consultations/$consultationId/end');
-      return ConsultationModel.fromJson(response.data);
+          await _apiService.post('/consultations/$consultationId/end');
+
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao finalizar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao finalizar consulta: $e');
     }
@@ -123,10 +161,19 @@ class ConsultationService {
     String? review,
   }) async {
     try {
-      await _apiService.post('/consultations/$consultationId/rate', data: {
+      final data = {
         'rating': rating,
-        'review': review,
-      });
+        if (review != null) 'review': review,
+      };
+
+      final response = await _apiService.post(
+        '/consultations/$consultationId/rate',
+        data: data,
+      );
+
+      if (response.data['success'] != true) {
+        throw Exception(response.data['message'] ?? 'Erro ao avaliar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao avaliar consulta: $e');
     }
@@ -139,13 +186,17 @@ class ConsultationService {
   }) async {
     try {
       final response = await _apiService
-          .get('/consultations/available-slots', queryParameters: {
-        'doctorId': doctorId,
+          .get('/schedules/doctor/$doctorId/available-slots', queryParameters: {
         'date': date.toIso8601String(),
       });
 
-      final List<dynamic> slotsData = response.data['slots'];
-      return slotsData.map((slot) => DateTime.parse(slot)).toList();
+      if (response.data['success'] == true) {
+        final List<dynamic> slotsData = response.data['data']['slots'];
+        return slotsData.map((slot) => DateTime.parse(slot)).toList();
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar horários disponíveis');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar horários disponíveis: $e');
     }
@@ -157,15 +208,24 @@ class ConsultationService {
     DateTime? date,
   }) async {
     try {
-      final Map<String, dynamic> queryParams = {};
+      final queryParams = <String, dynamic>{};
       if (specialty != null) queryParams['specialty'] = specialty;
       if (date != null) queryParams['date'] = date.toIso8601String();
 
-      final response = await _apiService.get('/consultations/available-doctors',
-          queryParameters: queryParams);
+      final response = await _apiService.get(
+        '/consultations/doctors/available',
+        queryParameters: queryParams,
+      );
 
-      final List<dynamic> doctorsData = response.data['doctors'];
-      return doctorsData.cast<Map<String, dynamic>>();
+      if (response.data['success'] == true) {
+        final List<dynamic> doctorsData = response.data['data'];
+        return doctorsData
+            .map((json) => Map<String, dynamic>.from(json))
+            .toList();
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar médicos disponíveis');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar médicos disponíveis: $e');
     }
@@ -182,26 +242,38 @@ class ConsultationService {
       final Map<String, dynamic> queryParams = {};
       if (userId != null) queryParams['userId'] = userId;
       if (userType != null) queryParams['userType'] = userType;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
+      }
+
       if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
 
       final response = await _apiService.get('/consultations/stats',
           queryParameters: queryParams);
-      return response.data;
+
+      if (response.data['success'] == true) {
+        return response.data['data'];
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao buscar estatísticas');
+      }
     } catch (e) {
       throw Exception('Erro ao buscar estatísticas: $e');
     }
   }
 
   // Marcar como não compareceu
-  Future<ConsultationModel> markAsNoShow(String consultationId) async {
+  Future<void> markAsNoShow(String consultationId) async {
     try {
       final response =
-          await _apiService.put('/consultations/$consultationId/no-show');
-      return ConsultationModel.fromJson(response.data);
+          await _apiService.post('/consultations/$consultationId/no-show');
+
+      if (response.data['success'] != true) {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao marcar como no-show');
+      }
     } catch (e) {
-      throw Exception('Erro ao marcar como não compareceu: $e');
+      throw Exception('Erro ao marcar como no-show: $e');
     }
   }
 
@@ -211,12 +283,21 @@ class ConsultationService {
     required DateTime newScheduledAt,
   }) async {
     try {
-      final response = await _apiService
-          .put('/consultations/$consultationId/reschedule', data: {
-        'scheduledAt': newScheduledAt.toIso8601String(),
-      });
+      final data = {
+        'newScheduledAt': newScheduledAt.toIso8601String(),
+      };
 
-      return ConsultationModel.fromJson(response.data);
+      final response = await _apiService.put(
+        '/consultations/$consultationId/reschedule',
+        data: data,
+      );
+
+      if (response.data['success'] == true) {
+        return ConsultationModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Erro ao reagendar consulta');
+      }
     } catch (e) {
       throw Exception('Erro ao reagendar consulta: $e');
     }

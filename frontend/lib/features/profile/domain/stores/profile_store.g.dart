@@ -8,65 +8,66 @@ part of 'profile_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$ProfileStore on _ProfileStore, Store {
+mixin _$ProfileStore on ProfileStoreBase, Store {
   Computed<bool>? _$hasProfileComputed;
 
   @override
   bool get hasProfile =>
       (_$hasProfileComputed ??= Computed<bool>(() => super.hasProfile,
-              name: '_ProfileStore.hasProfile'))
+              name: 'ProfileStoreBase.hasProfile'))
           .value;
   Computed<bool>? _$isDoctorComputed;
 
   @override
-  bool get isDoctor => (_$isDoctorComputed ??=
-          Computed<bool>(() => super.isDoctor, name: '_ProfileStore.isDoctor'))
-      .value;
+  bool get isDoctor =>
+      (_$isDoctorComputed ??= Computed<bool>(() => super.isDoctor,
+              name: 'ProfileStoreBase.isDoctor'))
+          .value;
   Computed<bool>? _$isPatientComputed;
 
   @override
   bool get isPatient =>
       (_$isPatientComputed ??= Computed<bool>(() => super.isPatient,
-              name: '_ProfileStore.isPatient'))
+              name: 'ProfileStoreBase.isPatient'))
           .value;
   Computed<String>? _$displayNameComputed;
 
   @override
   String get displayName =>
       (_$displayNameComputed ??= Computed<String>(() => super.displayName,
-              name: '_ProfileStore.displayName'))
+              name: 'ProfileStoreBase.displayName'))
           .value;
   Computed<String>? _$displayEmailComputed;
 
   @override
   String get displayEmail =>
       (_$displayEmailComputed ??= Computed<String>(() => super.displayEmail,
-              name: '_ProfileStore.displayEmail'))
+              name: 'ProfileStoreBase.displayEmail'))
           .value;
   Computed<String?>? _$avatarUrlComputed;
 
   @override
   String? get avatarUrl =>
       (_$avatarUrlComputed ??= Computed<String?>(() => super.avatarUrl,
-              name: '_ProfileStore.avatarUrl'))
+              name: 'ProfileStoreBase.avatarUrl'))
           .value;
   Computed<bool>? _$hasMedicalInfoComputed;
 
   @override
   bool get hasMedicalInfo =>
       (_$hasMedicalInfoComputed ??= Computed<bool>(() => super.hasMedicalInfo,
-              name: '_ProfileStore.hasMedicalInfo'))
+              name: 'ProfileStoreBase.hasMedicalInfo'))
           .value;
   Computed<bool>? _$hasEmergencyInfoComputed;
 
   @override
   bool get hasEmergencyInfo => (_$hasEmergencyInfoComputed ??= Computed<bool>(
           () => super.hasEmergencyInfo,
-          name: '_ProfileStore.hasEmergencyInfo'))
+          name: 'ProfileStoreBase.hasEmergencyInfo'))
       .value;
 
   late final _$profileAtom =
-      Atom(name: '_ProfileStore.profile', context: context);
+      Atom(name: 'ProfileStoreBase.profile', context: context);
 
   @override
   ProfileModel? get profile {
@@ -82,7 +83,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$isLoadingAtom =
-      Atom(name: '_ProfileStore.isLoading', context: context);
+      Atom(name: 'ProfileStoreBase.isLoading', context: context);
 
   @override
   bool get isLoading {
@@ -98,7 +99,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$errorMessageAtom =
-      Atom(name: '_ProfileStore.errorMessage', context: context);
+      Atom(name: 'ProfileStoreBase.errorMessage', context: context);
 
   @override
   String? get errorMessage {
@@ -114,7 +115,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$notificationSettingsAtom =
-      Atom(name: '_ProfileStore.notificationSettings', context: context);
+      Atom(name: 'ProfileStoreBase.notificationSettings', context: context);
 
   @override
   Map<String, dynamic> get notificationSettings {
@@ -131,7 +132,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$privacySettingsAtom =
-      Atom(name: '_ProfileStore.privacySettings', context: context);
+      Atom(name: 'ProfileStoreBase.privacySettings', context: context);
 
   @override
   Map<String, dynamic> get privacySettings {
@@ -147,7 +148,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$activityHistoryAtom =
-      Atom(name: '_ProfileStore.activityHistory', context: context);
+      Atom(name: 'ProfileStoreBase.activityHistory', context: context);
 
   @override
   List<Map<String, dynamic>> get activityHistory {
@@ -163,7 +164,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$userStatsAtom =
-      Atom(name: '_ProfileStore.userStats', context: context);
+      Atom(name: 'ProfileStoreBase.userStats', context: context);
 
   @override
   Map<String, dynamic> get userStats {
@@ -179,7 +180,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$isUpdatingAtom =
-      Atom(name: '_ProfileStore.isUpdating', context: context);
+      Atom(name: 'ProfileStoreBase.isUpdating', context: context);
 
   @override
   bool get isUpdating {
@@ -195,7 +196,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$isUploadingAvatarAtom =
-      Atom(name: '_ProfileStore.isUploadingAvatar', context: context);
+      Atom(name: 'ProfileStoreBase.isUploadingAvatar', context: context);
 
   @override
   bool get isUploadingAvatar {
@@ -211,7 +212,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$loadProfileAsyncAction =
-      AsyncAction('_ProfileStore.loadProfile', context: context);
+      AsyncAction('ProfileStoreBase.loadProfile', context: context);
 
   @override
   Future<void> loadProfile() {
@@ -219,7 +220,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$updateProfileAsyncAction =
-      AsyncAction('_ProfileStore.updateProfile', context: context);
+      AsyncAction('ProfileStoreBase.updateProfile', context: context);
 
   @override
   Future<void> updateProfile(Map<String, dynamic> data) {
@@ -227,7 +228,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$updateMedicalInfoAsyncAction =
-      AsyncAction('_ProfileStore.updateMedicalInfo', context: context);
+      AsyncAction('ProfileStoreBase.updateMedicalInfo', context: context);
 
   @override
   Future<void> updateMedicalInfo(Map<String, dynamic> data) {
@@ -236,7 +237,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$updateProfessionalInfoAsyncAction =
-      AsyncAction('_ProfileStore.updateProfessionalInfo', context: context);
+      AsyncAction('ProfileStoreBase.updateProfessionalInfo', context: context);
 
   @override
   Future<void> updateProfessionalInfo(Map<String, dynamic> data) {
@@ -245,7 +246,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$uploadAvatarAsyncAction =
-      AsyncAction('_ProfileStore.uploadAvatar', context: context);
+      AsyncAction('ProfileStoreBase.uploadAvatar', context: context);
 
   @override
   Future<void> uploadAvatar(String filePath) {
@@ -253,15 +254,16 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$deleteAvatarAsyncAction =
-      AsyncAction('_ProfileStore.deleteAvatar', context: context);
+      AsyncAction('ProfileStoreBase.deleteAvatar', context: context);
 
   @override
   Future<void> deleteAvatar() {
     return _$deleteAvatarAsyncAction.run(() => super.deleteAvatar());
   }
 
-  late final _$loadNotificationSettingsAsyncAction =
-      AsyncAction('_ProfileStore.loadNotificationSettings', context: context);
+  late final _$loadNotificationSettingsAsyncAction = AsyncAction(
+      'ProfileStoreBase.loadNotificationSettings',
+      context: context);
 
   @override
   Future<void> loadNotificationSettings() {
@@ -269,8 +271,9 @@ mixin _$ProfileStore on _ProfileStore, Store {
         .run(() => super.loadNotificationSettings());
   }
 
-  late final _$updateNotificationSettingsAsyncAction =
-      AsyncAction('_ProfileStore.updateNotificationSettings', context: context);
+  late final _$updateNotificationSettingsAsyncAction = AsyncAction(
+      'ProfileStoreBase.updateNotificationSettings',
+      context: context);
 
   @override
   Future<void> updateNotificationSettings(Map<String, dynamic> settings) {
@@ -279,7 +282,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$loadPrivacySettingsAsyncAction =
-      AsyncAction('_ProfileStore.loadPrivacySettings', context: context);
+      AsyncAction('ProfileStoreBase.loadPrivacySettings', context: context);
 
   @override
   Future<void> loadPrivacySettings() {
@@ -288,7 +291,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$updatePrivacySettingsAsyncAction =
-      AsyncAction('_ProfileStore.updatePrivacySettings', context: context);
+      AsyncAction('ProfileStoreBase.updatePrivacySettings', context: context);
 
   @override
   Future<void> updatePrivacySettings(Map<String, dynamic> settings) {
@@ -297,7 +300,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$changePasswordAsyncAction =
-      AsyncAction('_ProfileStore.changePassword', context: context);
+      AsyncAction('ProfileStoreBase.changePassword', context: context);
 
   @override
   Future<void> changePassword(String currentPassword, String newPassword) {
@@ -306,7 +309,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$requestAccountDeletionAsyncAction =
-      AsyncAction('_ProfileStore.requestAccountDeletion', context: context);
+      AsyncAction('ProfileStoreBase.requestAccountDeletion', context: context);
 
   @override
   Future<void> requestAccountDeletion(String reason) {
@@ -315,7 +318,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$loadActivityHistoryAsyncAction =
-      AsyncAction('_ProfileStore.loadActivityHistory', context: context);
+      AsyncAction('ProfileStoreBase.loadActivityHistory', context: context);
 
   @override
   Future<void> loadActivityHistory({int? limit, int? offset}) {
@@ -324,7 +327,7 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$loadUserStatsAsyncAction =
-      AsyncAction('_ProfileStore.loadUserStats', context: context);
+      AsyncAction('ProfileStoreBase.loadUserStats', context: context);
 
   @override
   Future<void> loadUserStats() {
@@ -332,35 +335,35 @@ mixin _$ProfileStore on _ProfileStore, Store {
   }
 
   late final _$exportUserDataAsyncAction =
-      AsyncAction('_ProfileStore.exportUserData', context: context);
+      AsyncAction('ProfileStoreBase.exportUserData', context: context);
 
   @override
   Future<Map<String, dynamic>> exportUserData() {
     return _$exportUserDataAsyncAction.run(() => super.exportUserData());
   }
 
-  late final _$_ProfileStoreActionController =
-      ActionController(name: '_ProfileStore', context: context);
+  late final _$ProfileStoreBaseActionController =
+      ActionController(name: 'ProfileStoreBase', context: context);
 
   @override
   void clearError() {
-    final _$actionInfo = _$_ProfileStoreActionController.startAction(
-        name: '_ProfileStore.clearError');
+    final _$actionInfo = _$ProfileStoreBaseActionController.startAction(
+        name: 'ProfileStoreBase.clearError');
     try {
       return super.clearError();
     } finally {
-      _$_ProfileStoreActionController.endAction(_$actionInfo);
+      _$ProfileStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void reset() {
-    final _$actionInfo = _$_ProfileStoreActionController.startAction(
-        name: '_ProfileStore.reset');
+    final _$actionInfo = _$ProfileStoreBaseActionController.startAction(
+        name: 'ProfileStoreBase.reset');
     try {
       return super.reset();
     } finally {
-      _$_ProfileStoreActionController.endAction(_$actionInfo);
+      _$ProfileStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 

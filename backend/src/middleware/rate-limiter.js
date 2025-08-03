@@ -53,7 +53,7 @@ const authRateLimiter = createRateLimiter({
 // Rate limiter para registro (prevenir spam)
 const registerRateLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 3, // máximo 3 registros por hora
+  max: 4, // máximo 4 registros por hora
   message: 'Too many registration attempts. Please try again later.',
   keyGenerator: (req) => {
     // Usar IP para identificar tentativas de registro

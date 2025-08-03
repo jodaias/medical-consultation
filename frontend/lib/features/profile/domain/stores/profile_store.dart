@@ -6,9 +6,9 @@ import 'package:medical_consultation_app/features/profile/data/services/profile_
 part 'profile_store.g.dart';
 
 @injectable
-class ProfileStore = _ProfileStore with _$ProfileStore;
+class ProfileStore = ProfileStoreBase with _$ProfileStore;
 
-abstract class _ProfileStore with Store {
+abstract class ProfileStoreBase with Store {
   final ProfileService _profileService = ProfileService();
 
   @observable

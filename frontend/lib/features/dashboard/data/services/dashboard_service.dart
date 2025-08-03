@@ -15,7 +15,7 @@ class DashboardService {
 
     final response =
         await _apiService.get('/dashboard/stats', queryParameters: queryParams);
-    return DashboardStatsModel.fromJson(response.data);
+    return DashboardStatsModel.fromJson(response.data['data']);
   }
 
   // Buscar notificações
@@ -27,9 +27,8 @@ class DashboardService {
 
     final response = await _apiService.get('/dashboard/notifications',
         queryParameters: queryParams);
-    return (response.data as List)
-        .map((json) => NotificationModel.fromJson(json))
-        .toList();
+    final data = response.data['data'] as List;
+    return data.map((json) => NotificationModel.fromJson(json)).toList();
   }
 
   // Marcar notificação como lida
@@ -56,7 +55,7 @@ class DashboardService {
 
     final response = await _apiService.get('/dashboard/charts',
         queryParameters: queryParams);
-    return response.data;
+    return response.data['data'];
   }
 
   // Buscar relatórios
@@ -68,7 +67,7 @@ class DashboardService {
 
     final response = await _apiService.get('/dashboard/reports',
         queryParameters: queryParams);
-    return response.data;
+    return response.data['data'];
   }
 
   // Exportar dados do dashboard
@@ -80,18 +79,19 @@ class DashboardService {
 
     final response = await _apiService.get('/dashboard/export',
         queryParameters: queryParams);
-    return response.data;
+    return response.data['data'];
   }
 
   // Buscar métricas em tempo real
   Future<Map<String, dynamic>> getRealTimeMetrics() async {
     final response = await _apiService.get('/dashboard/realtime');
-    return response.data;
+    return response.data['data'];
   }
 
   // Buscar alertas e insights
   Future<List<Map<String, dynamic>>> getAlertsAndInsights() async {
     final response = await _apiService.get('/dashboard/alerts');
-    return List<Map<String, dynamic>>.from(response.data);
+    final data = response.data['data'] as List;
+    return List<Map<String, dynamic>>.from(data);
   }
 }

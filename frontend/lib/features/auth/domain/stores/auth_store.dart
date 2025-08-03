@@ -8,13 +8,13 @@ import 'package:medical_consultation_app/core/services/storage_service.dart';
 part 'auth_store.g.dart';
 
 @injectable
-class AuthStore = _AuthStore with _$AuthStore;
+class AuthStore = AuthStoreBase with _$AuthStore;
 
-abstract class _AuthStore with Store {
+abstract class AuthStoreBase with Store {
   final AuthService _authService = AuthService();
   late final StorageService _storageService;
 
-  _AuthStore() {
+  AuthStoreBase() {
     _storageService = GetIt.instance<StorageService>();
   }
 
@@ -55,15 +55,19 @@ abstract class _AuthStore with Store {
 
       // Extrair dados da resposta
       isAuthenticated = true;
-      userType = response['user']['userType'];
-      userId = response['user']['id'];
-      userName = response['user']['name'];
-      userEmail = response['user']['email'];
+
+      final data = response['data'];
+      final userData = data['user'];
+      userType = userData['userType'];
+      userId = userData['id'];
+      userName = userData['name'];
+      userEmail = userData['email'];
 
       // Salvar dados no storage
-      await _storageService.saveToken(response['token']);
-      await _storageService.saveUserData(response['user']);
-      await _storageService.saveUserType(response['user']['userType']);
+      await _storageService.saveToken(data['token']);
+      await _storageService.saveRefreshToken(data['refreshToken']);
+      await _storageService.saveUserData(userData);
+      await _storageService.saveUserType(userData['userType']);
       await _storageService.setAuthenticated(true);
 
       return true;
@@ -82,6 +86,10 @@ abstract class _AuthStore with Store {
     required String phone,
     required String password,
     required String userType,
+    String? specialty,
+    String? crm,
+    String? bio,
+    double? hourlyRate,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -93,20 +101,27 @@ abstract class _AuthStore with Store {
         phone: phone,
         password: password,
         userType: userType,
+        specialty: specialty,
+        crm: crm,
+        bio: bio,
+        hourlyRate: hourlyRate,
       );
 
       // Extrair dados da resposta
+      final data = response['data'];
+      final userData = data['user'];
       isAuthenticated = true;
-      this.userType = response['user']['userType'];
-      userId = response['user']['id'];
-      userName = response['user']['name'];
-      userEmail = response['user']['email'];
+      this.userType = userData['userType'];
+      userId = userData['id'];
+      userName = userData['name'];
+      userEmail = userData['email'];
 
       // Salvar dados no storage
-      await _storageService.saveToken(response['token']);
-      await _storageService.saveUserData(response['user']);
-      await _storageService.saveUserType(response['user']['userType']);
-      await _storageService.saveUserId(response['user']['id']);
+      await _storageService.saveToken(data['token']);
+      await _storageService.saveRefreshToken(data['refreshToken']);
+      await _storageService.saveUserData(userData);
+      await _storageService.saveUserType(userData['userType']);
+      await _storageService.saveUserId(userData['id']);
       await _storageService.setAuthenticated(true);
 
       return true;
