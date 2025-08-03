@@ -131,7 +131,7 @@ class FileUploadService {
       // Verificar tamanho do arquivo
       final fileSize = await file.length();
       if (fileSize > maxFileSize) {
-        print('Arquivo muito grande: ${fileSize} bytes');
+        print('Arquivo muito grande: $fileSize bytes');
         return false;
       }
 

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/doctor_model.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/specialty_model.dart';

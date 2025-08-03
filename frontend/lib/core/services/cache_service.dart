@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medical_consultation_app/core/di/injection.dart';
 
 class CacheService {
   static const String _consultationsKey = 'consultations_cache';

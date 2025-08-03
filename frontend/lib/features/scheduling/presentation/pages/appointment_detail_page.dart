@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
-import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
 
 class AppointmentDetailPage extends StatefulWidget {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
-import 'package:medical_consultation_app/core/utils/constants.dart';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({super.key});
@@ -150,11 +148,10 @@ class _PatientListPageState extends State<PatientListPage> {
   List<Map<String, dynamic>> _getFilteredPatients() {
     switch (selectedFilter) {
       case 'recent':
-        return patients.where((p) => 
-          DateTime.parse(p['lastConsultation']).isAfter(
-            DateTime.now().subtract(const Duration(days: 30))
-          )
-        ).toList();
+        return patients
+            .where((p) => DateTime.parse(p['lastConsultation'])
+                .isAfter(DateTime.now().subtract(const Duration(days: 30))))
+            .toList();
       case 'active':
         return patients.where((p) => p['status'] == 'active').toList();
       case 'completed':
@@ -346,8 +343,10 @@ class _PatientListPageState extends State<PatientListPage> {
                   ),
                   const SizedBox(height: 24),
                   _buildDetailRow('Telefone', patient['phone']),
-                  _buildDetailRow('Última consulta', _formatDate(patient['lastConsultation'])),
-                  _buildDetailRow('Total de consultas', '${patient['totalConsultations']}'),
+                  _buildDetailRow('Última consulta',
+                      _formatDate(patient['lastConsultation'])),
+                  _buildDetailRow(
+                      'Total de consultas', '${patient['totalConsultations']}'),
                   const SizedBox(height: 24),
                   Row(
                     children: [
@@ -417,4 +416,4 @@ class _PatientListPageState extends State<PatientListPage> {
       ),
     );
   }
-} 
+}

@@ -605,7 +605,7 @@ class _ChatPageState extends State<ChatPage> {
     } else if (difference.inHours > 0) {
       return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
     } else {
-      return '${time.minute.toString().padLeft(2, '0')}';
+      return time.minute.toString().padLeft(2, '0');
     }
   }
 

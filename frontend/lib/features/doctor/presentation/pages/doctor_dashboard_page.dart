@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';

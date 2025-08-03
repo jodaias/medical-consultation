@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:medical_consultation_app/core/services/api_service.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';

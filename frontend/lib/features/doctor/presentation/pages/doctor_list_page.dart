@@ -94,18 +94,20 @@ class _DoctorListPageState extends State<DoctorListPage> {
       builder: (context) {
         return Container(
           height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+          margin: const EdgeInsets.symmetric(
+              horizontal: AppConstants.defaultPadding),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              _buildFilterChip('Todos', null, _doctorStore.selectedSpecialty == null),
-              ..._doctorStore.specialties.take(5).map((specialty) => 
-                _buildFilterChip(
-                  specialty.name,
-                  specialty.id,
-                  _doctorStore.selectedSpecialty == specialty.id,
-                ),
-              ),
+              _buildFilterChip(
+                  'Todos', null, _doctorStore.selectedSpecialty == null),
+              ..._doctorStore.specialties.take(5).map(
+                    (specialty) => _buildFilterChip(
+                      specialty.name,
+                      specialty.id,
+                      _doctorStore.selectedSpecialty == specialty.id,
+                    ),
+                  ),
             ],
           ),
         );
@@ -365,14 +367,14 @@ class _DoctorListPageState extends State<DoctorListPage> {
             min: 0,
             max: 5,
             divisions: 10,
-            label: '${(_doctorStore.minRating ?? 0).toStringAsFixed(1)}',
+            label: (_doctorStore.minRating ?? 0).toStringAsFixed(1),
             onChanged: (value) => _doctorStore.setMinRating(value),
           ),
         ),
         SizedBox(
           width: 60,
           child: Text(
-            '${(_doctorStore.minRating ?? 0).toStringAsFixed(1)}',
+            (_doctorStore.minRating ?? 0).toStringAsFixed(1),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -403,4 +405,4 @@ class _DoctorListPageState extends State<DoctorListPage> {
       ],
     );
   }
-} 
+}

@@ -3,7 +3,6 @@ import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/core/router/app_router.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
-import 'package:medical_consultation_app/core/services/notification_service.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
 import 'package:medical_consultation_app/core/services/payment_service.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';

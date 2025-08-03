@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
-import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/specialty_model.dart';
 
 class SpecialtyFilter extends StatelessWidget {
@@ -33,15 +32,15 @@ class SpecialtyFilter extends StatelessWidget {
         ),
         // Especialidades
         ...specialties.map((specialty) => FilterChip(
-          label: Text(specialty.name),
-          selected: selectedSpecialty == specialty.id,
-          onSelected: (selected) {
-            onSpecialtyChanged(selected ? specialty.id : null);
-          },
-          selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-          checkmarkColor: AppTheme.primaryColor,
-        )),
+              label: Text(specialty.name),
+              selected: selectedSpecialty == specialty.id,
+              onSelected: (selected) {
+                onSpecialtyChanged(selected ? specialty.id : null);
+              },
+              selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+              checkmarkColor: AppTheme.primaryColor,
+            )),
       ],
     );
   }
-} 
+}

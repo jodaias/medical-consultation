@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 
 class DoctorSearchBar extends StatefulWidget {
@@ -85,4 +84,4 @@ class _DoctorSearchBarState extends State<DoctorSearchBar> {
       ),
     );
   }
-} 
+}

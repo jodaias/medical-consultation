@@ -59,7 +59,7 @@ class AuthService {
       throw _handleDioError(e);
     } catch (e) {
       print('❌ AuthService.register erro geral: $e');
-      throw e;
+      rethrow;
     }
   }
 

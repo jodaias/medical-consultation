@@ -138,8 +138,9 @@ class ReportService {
         'endDate': endDate.toIso8601String(),
       };
 
-      if (medicationType != null)
+      if (medicationType != null) {
         queryParams['medicationType'] = medicationType;
+      }
 
       final response = await _apiService.get('/reports/prescriptions',
           queryParameters: queryParams);
