@@ -4,6 +4,7 @@ import 'package:medical_consultation_app/features/auth/presentation/pages/login_
 import 'package:medical_consultation_app/features/auth/presentation/pages/register_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:medical_consultation_app/features/chat/presentation/pages/chat_page.dart';
+import 'package:medical_consultation_app/features/doctor/presentation/pages/favorite_doctors_page.dart';
 import 'package:medical_consultation_app/features/patient/presentation/pages/patient_home_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_home_page.dart';
 import 'package:medical_consultation_app/features/consultation/presentation/pages/schedule_consultation_page.dart';
@@ -109,8 +110,7 @@ class AppRouter {
         ),
         GoRoute(
           path: '/doctors/favorites',
-          builder: (context, state) =>
-              const DoctorListPage(), // TODO: Implementar página de favoritos
+          builder: (context, state) => const FavoriteDoctorsPage(),
         ),
         GoRoute(
           path: '/appointments',
@@ -177,16 +177,20 @@ class WelcomePage extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        width: 150,
+                        height: 150,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withAlpha(50),
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset(
-                          'assets/logo.png',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.contain,
+                        padding: const EdgeInsets.all(16),
+                        child: Center(
+                          child: ClipOval(
+                            child: Image.asset(
+                              'images/logo.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

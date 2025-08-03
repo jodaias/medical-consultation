@@ -31,7 +31,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
     Future.delayed(const Duration(seconds: 3), () {
       // ignore: use_build_context_synchronously
-      context.go('/');
+      context.go('/welcome');
     });
   }
 
@@ -62,9 +62,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Image.asset(
-              'assets/images/logo.png',
-              width: 120,
-              height: 120,
+              'images/logo.png',
+              width: 200,
+              height: 200,
             ),
           ),
         ),
