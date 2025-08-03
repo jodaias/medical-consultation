@@ -15,6 +15,7 @@ const reportRoutes = require('./routes/report-routes');
 const prescriptionRoutes = require('./routes/prescription-routes');
 const ratingRoutes = require('./routes/rating-routes');
 const dashboardRoutes = require('./routes/dashboard-routes');
+const healthRoutes = require('./routes/health-routes');
 
 const { authenticateSocket } = require('./middleware/auth');
 const { handleSocketConnection } = require('./services/socket-service');
@@ -22,14 +23,6 @@ const errorHandler = require('./middleware/error-handler');
 
 const app = express();
 const server = createServer(app);
-
-// Socket.io setup
-const io = new Server(server, {
-  cors: {
-    origin: process.env.SOCKET_CORS_ORIGIN || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -39,14 +32,40 @@ const limiter = rateLimit({
 });
 
 // CORS Configuration
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000'];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+  origin: function (origin, callback) {
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 86400 // 24 hours
 };
+
+// Socket.io setup
+const socketAllowedOrigins = process.env.SOCKET_CORS_ORIGINS
+  ? process.env.SOCKET_CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000'];
+
+const io = new Server(server, {
+  cors: {
+    origin: socketAllowedOrigins,
+    methods: ["GET", "POST"]
+  }
+});
 
 // Middleware
 app.use(helmet());
@@ -59,15 +78,6 @@ app.use(express.urlencoded({ extended: true }));
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
-
 // API Routes
 app.use('/api/users', userRoutes);
 app.use('/api/consultations', consultationRoutes);
@@ -77,6 +87,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/health', healthRoutes);
 
 // Socket.io authentication and connection handling
 io.use(authenticateSocket);
@@ -97,7 +108,7 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
 });
 
 module.exports = { app, server, io };
