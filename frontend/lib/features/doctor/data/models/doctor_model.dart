@@ -98,4 +98,4 @@ class DoctorModel {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-} 
+}

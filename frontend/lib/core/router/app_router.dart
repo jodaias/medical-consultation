@@ -20,6 +20,7 @@ import 'package:medical_consultation_app/features/scheduling/presentation/pages/
 import 'package:medical_consultation_app/features/scheduling/presentation/pages/appointment_detail_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/patient_list_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_dashboard_page.dart';
+import 'package:medical_consultation_app/features/shared/splash/presentation/splash_page.dart';
 
 class AppRouter {
   late final GoRouter router;
@@ -30,6 +31,10 @@ class AppRouter {
       routes: [
         GoRoute(
           path: '/',
+          builder: (context, state) => const SplashPage(),
+        ),
+        GoRoute(
+          path: '/welcome',
           builder: (context, state) => const WelcomePage(),
         ),
         GoRoute(
@@ -177,10 +182,11 @@ class WelcomePage extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.medical_services,
-                          size: 48,
-                          color: Colors.white,
+                        child: Image.asset(
+                          'assets/logo.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(height: 16),
