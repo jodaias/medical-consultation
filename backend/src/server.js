@@ -79,6 +79,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // API Routes
+app.use('/', healthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/messages', messageRoutes);
@@ -87,7 +88,6 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/health', healthRoutes);
 
 // Socket.io authentication and connection handling
 io.use(authenticateSocket);
