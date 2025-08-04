@@ -138,6 +138,7 @@ const userController = new UserController();
  *             required:
  *               - name
  *               - email
+ *               - phone
  *               - password
  *               - userType
  *             properties:
@@ -146,16 +147,22 @@ const userController = new UserController();
  *               email:
  *                 type: string
  *                 format: email
+ *               phone:
+ *                 type: int
  *               password:
  *                 type: string
  *                 format: password
  *               userType:
  *                 type: string
- *                 enum: [patient, doctor]
+ *                 enum: [PATIENT, DOCTOR]
  *               specialty:
  *                 type: string
  *               crm:
  *                 type: string
+ *               bio:
+ *                 type: string
+ *               hourlyRate:
+ *                 type: decimal
  *     responses:
  *       201:
  *         description: Usuário registrado com sucesso

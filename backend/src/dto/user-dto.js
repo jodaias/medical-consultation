@@ -149,10 +149,10 @@ class UserResponseDTO {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
 
-    this.specialty = user.doctorProfile.specialty;
-    this.crm = user.doctorProfile.crm;
-    this.bio = user.doctorProfile.bio;
-    this.hourlyRate = user.doctorProfile.hourlyRate;
+    this.specialty = user.doctorProfile?.specialty;
+    this.crm = user.doctorProfile?.crm;
+    this.bio = user.doctorProfile?.bio;
+    this.hourlyRate = user.doctorProfile?.hourlyRate;
   }
 
   static fromEntity(user) {
