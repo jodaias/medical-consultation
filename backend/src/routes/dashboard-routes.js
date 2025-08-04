@@ -1,295 +1,286 @@
 const express = require('express');
+const DashboardController = require('../controllers/dashboard-controller');
 const { authenticateToken } = require('../middleware/auth');
 const { apiRateLimiter } = require('../middleware/rate-limiter');
 
 const router = express.Router();
+const dashboardController = new DashboardController();
 
 /**
- * Rotas do Dashboard
+ * @swagger
+ * tags:
+ *   name: Dashboard
+ *   description: API para obtenção de dados do dashboard
  */
 
-// GET /api/dashboard/stats - Estatísticas do dashboard
-router.get('/stats', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const userType = req.user.userType;
-    const { period } = req.query;
+/**
+ * @swagger
+ * /api/dashboard/stats:
+ *   get:
+ *     summary: Obtém estatísticas gerais para o dashboard
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: ID do usuário (médico ou paciente)
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [doctor, patient, admin]
+ *         description: Função do usuário
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *         description: Período para as estatísticas
+ *     responses:
+ *       200:
+ *         description: Estatísticas do dashboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     consultations:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         completed:
+ *                           type: integer
+ *                         scheduled:
+ *                           type: integer
+ *                         canceled:
+ *                           type: integer
+ *                     ratings:
+ *                       type: object
+ *                       properties:
+ *                         average:
+ *                           type: number
+ *                           format: float
+ *                         count:
+ *                           type: integer
+ *                     revenue:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: number
+ *                           format: float
+ *                         thisMonth:
+ *                           type: number
+ *                           format: float
+ *                         lastMonth:
+ *                           type: number
+ *                           format: float
+ *                     patients:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         new:
+ *                           type: integer
+ *                     messages:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         unread:
+ *                           type: integer
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/stats', authenticateToken, apiRateLimiter, dashboardController.getStats);
 
-    // Mock data para estatísticas
-    const stats = {
-      totalConsultations: 25,
-      completedConsultations: 20,
-      pendingConsultations: 5,
-      totalRevenue: 1500.00,
-      averageRating: 4.8,
-      newPatients: 8,
-      period: period || 'month'
-    };
+/**
+ * @swagger
+ * /api/dashboard/alerts:
+ *   get:
+ *     summary: Obtém alertas e insights para o dashboard
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: ID do usuário (médico ou paciente)
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [doctor, patient, admin]
+ *         description: Função do usuário
+ *     responses:
+ *       200:
+ *         description: Alertas e insights do dashboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                         enum: [alert, insight, notification]
+ *                       priority:
+ *                         type: string
+ *                         enum: [low, medium, high]
+ *                       message:
+ *                         type: string
+ *                       data:
+ *                         type: object
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/alerts', authenticateToken, apiRateLimiter, dashboardController.getAlerts);
 
-    res.json({
-      success: true,
-      data: stats,
-      message: 'Dashboard statistics retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving dashboard statistics',
-      error: error.message
-    });
-  }
-});
+/**
+ * @swagger
+ * /api/dashboard/notifications:
+ *   get:
+ *     summary: Obtém notificações para o usuário
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do usuário
+ *       - in: query
+ *         name: read
+ *         schema:
+ *           type: boolean
+ *         description: Filtrar por status de leitura
+ *     responses:
+ *       200:
+ *         description: Notificações do usuário
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       userId:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                         enum: [system, consultation, message, prescription]
+ *                       read:
+ *                         type: boolean
+ *                       data:
+ *                         type: object
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/notifications', authenticateToken, apiRateLimiter, dashboardController.getNotifications);
 
-// GET /api/dashboard/alerts - Alertas e insights
-router.get('/alerts', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const userType = req.user.userType;
+/**
+ * @swagger
+ * /api/dashboard/notifications/{id}/read:
+ *   put:
+ *     summary: Marca notificação como lida
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID da notificação
+ *     responses:
+ *       200:
+ *         description: Notificação marcada como lida
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Não autorizado
+ *       404:
+ *         description: Notificação não encontrada
+ */
+router.put('/notifications/:id/read', authenticateToken, apiRateLimiter, dashboardController.markNotificationAsRead);
 
-    // Mock data para alertas
-    const alerts = [
-      {
-        id: '1',
-        type: 'info',
-        title: 'Nova consulta agendada',
-        message: 'Você tem uma nova consulta agendada para amanhã às 14:00',
-        createdAt: new Date().toISOString(),
-        isRead: false
-      },
-      {
-        id: '2',
-        type: 'warning',
-        title: 'Consulta cancelada',
-        message: 'Uma consulta foi cancelada pelo paciente',
-        createdAt: new Date().toISOString(),
-        isRead: true
-      },
-      {
-        id: '3',
-        type: 'success',
-        title: 'Avaliação recebida',
-        message: 'Você recebeu uma nova avaliação de 5 estrelas',
-        createdAt: new Date().toISOString(),
-        isRead: false
-      }
-    ];
-
-    res.json({
-      success: true,
-      data: alerts,
-      message: 'Alerts retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving alerts',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/dashboard/notifications - Notificações
-router.get('/notifications', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const { limit = 10, offset = 0 } = req.query;
-
-    // Mock data para notificações
-    const notifications = [
-      {
-        id: '1',
-        title: 'Nova mensagem',
-        message: 'Você recebeu uma nova mensagem do paciente',
-        type: 'message',
-        isRead: false,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Consulta confirmada',
-        message: 'Sua consulta foi confirmada pelo médico',
-        type: 'consultation',
-        isRead: true,
-        createdAt: new Date().toISOString()
-      }
-    ];
-
-    res.json({
-      success: true,
-      data: notifications.slice(offset, offset + limit),
-      message: 'Notifications retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving notifications',
-      error: error.message
-    });
-  }
-});
-
-// PUT /api/dashboard/notifications/:id/read - Marcar notificação como lida
-router.put('/notifications/:id/read', authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    res.json({
-      success: true,
-      message: 'Notification marked as read'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error marking notification as read',
-      error: error.message
-    });
-  }
-});
-
-// PUT /api/dashboard/notifications/read-all - Marcar todas como lidas
-router.put('/notifications/read-all', authenticateToken, async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: 'All notifications marked as read'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error marking all notifications as read',
-      error: error.message
-    });
-  }
-});
-
-// DELETE /api/dashboard/notifications/:id - Deletar notificação
-router.delete('/notifications/:id', authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    res.json({
-      success: true,
-      message: 'Notification deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting notification',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/dashboard/charts - Dados para gráficos
-router.get('/charts', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const { chartType, period } = req.query;
-
-    // Mock data para gráficos
-    const chartData = {
-      consultations: {
-        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-        data: [12, 19, 15, 25, 22, 30]
-      },
-      revenue: {
-        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-        data: [1200, 1900, 1500, 2500, 2200, 3000]
-      }
-    };
-
-    res.json({
-      success: true,
-      data: chartData,
-      message: 'Chart data retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving chart data',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/dashboard/reports - Relatórios
-router.get('/reports', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const { reportType, period } = req.query;
-
-    // Mock data para relatórios
-    const reports = {
-      consultations: {
-        total: 150,
-        completed: 120,
-        cancelled: 10,
-        pending: 20
-      },
-      revenue: {
-        total: 15000.00,
-        average: 125.00,
-        growth: 15.5
-      }
-    };
-
-    res.json({
-      success: true,
-      data: reports,
-      message: 'Reports retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving reports',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/dashboard/export - Exportar dados
-router.get('/export', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    const { format, period } = req.query;
-
-    res.json({
-      success: true,
-      data: {
-        downloadUrl: '/api/dashboard/export/download',
-        format: format || 'pdf',
-        period: period || 'month'
-      },
-      message: 'Export data prepared successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error preparing export data',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/dashboard/realtime - Métricas em tempo real
-router.get('/realtime', authenticateToken, apiRateLimiter, async (req, res) => {
-  try {
-    // Mock data para métricas em tempo real
-    const realtimeData = {
-      activeUsers: 45,
-      currentConsultations: 8,
-      pendingMessages: 12,
-      systemStatus: 'online'
-    };
-
-    res.json({
-      success: true,
-      data: realtimeData,
-      message: 'Real-time metrics retrieved successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving real-time metrics',
-      error: error.message
-    });
-  }
-});
+/**
+ * @swagger
+ * /api/dashboard/notifications/read-all:
+ *   put:
+ *     summary: Marca todas as notificações do usuário como lidas
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Todas as notificações marcadas como lidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *       401:
+ *         description: Não autorizado
+ */
+router.put('/notifications/read-all', authenticateToken, apiRateLimiter, dashboardController.markAllNotificationsAsRead);
 
 module.exports = router;

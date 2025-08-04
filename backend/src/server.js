@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const swagger = require('./swagger');
 require('dotenv').config();
 
 const userRoutes = require('./routes/user-routes');
@@ -89,6 +90,9 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Swagger Documentation
+app.use('/api-docs', swagger.serve, swagger.setup);
+
 // Socket.io authentication and connection handling
 io.use(authenticateSocket);
 io.on('connection', (socket) => {
@@ -108,7 +112,7 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
 });
 
 module.exports = { app, server, io };
