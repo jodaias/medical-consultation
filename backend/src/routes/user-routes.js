@@ -148,7 +148,7 @@ const userController = new UserController();
  *                 type: string
  *                 format: email
  *               phone:
- *                 type: int
+ *                 type: number
  *               password:
  *                 type: string
  *                 format: password
@@ -162,7 +162,7 @@ const userController = new UserController();
  *               bio:
  *                 type: string
  *               hourlyRate:
- *                 type: decimal
+ *                 type: number
  *     responses:
  *       201:
  *         description: Usuário registrado com sucesso
