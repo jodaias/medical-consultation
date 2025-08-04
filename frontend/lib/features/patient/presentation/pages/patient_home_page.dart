@@ -117,7 +117,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Olá, ${authStore.userName ?? 'Usuário'}!',
+                    'Olá, ${(authStore.userName?.split(' ')[0]) ?? 'Usuário'}!',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
