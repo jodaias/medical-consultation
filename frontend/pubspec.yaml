@@ -100,9 +100,9 @@ flutter_native_splash:
 
 flutter:
   uses-material-design: true
-
   assets:
-    - assets/images/
+    - assets/images/logo.png
+    - assets/images/default_doctor.png
     - assets/animations/
     - assets/icons/
 
