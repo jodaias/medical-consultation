@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/core/router/app_router.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/services/notification_service.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
 import 'package:medical_consultation_app/core/services/payment_service.dart';
@@ -37,10 +38,10 @@ Future<void> configureDependencies() async {
   await storageService.initialize();
   getIt.registerLazySingleton<StorageService>(() => storageService);
 
-  // Initialize Notification Service => deixar comentado por enquanto não configura o firebase
-  // final notificationService = NotificationService(storageService, apiService);
-  // await notificationService.initialize();
-  // getIt.registerLazySingleton<NotificationService>(() => notificationService);
+  // Initialize Notification Service
+  final notificationService = NotificationService(storageService, apiService);
+  await notificationService.initialize();
+  getIt.registerLazySingleton<NotificationService>(() => notificationService);
 
   // Initialize File Upload Service
   final fileUploadService = FileUploadService(apiService, storageService);

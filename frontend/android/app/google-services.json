@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "565832427919",
+    "project_id": "medical-consultation-5b148",
+    "storage_bucket": "medical-consultation-5b148.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:565832427919:android:f15b4443cec5a7332483fa",
+        "android_client_info": {
+          "package_name": "com.app.medical_consultation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgylLFw7-xTr-8u7ytO3ulnXbdJLaMXUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

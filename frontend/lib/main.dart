@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -7,9 +8,19 @@ import 'package:medical_consultation_app/core/router/app_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
+import 'package:medical_consultation_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+// Inicializar Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // Se já foi inicializado, não faz nada
+  }
 
   // Initialize Hive
   await Hive.initFlutter();
