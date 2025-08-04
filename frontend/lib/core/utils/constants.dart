@@ -27,8 +27,8 @@ class AppConstants {
   static const double smallBorderRadius = 8.0;
 
   // Image Constants
-  static const String defaultAvatar = 'assets/images/default_avatar.png';
-  static const String appLogo = 'assets/images/app_logo.png';
+  static const String defaultDoctor = 'assets/images/default_doctor.png';
+  static const String appLogo = 'assets/images/logo.png';
 
   // Validation Messages
   static const String requiredField = 'Este campo é obrigatório';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class AppointmentDetailPage extends StatefulWidget {
   final String appointmentId;
@@ -419,9 +420,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     if (confirmed == true) {
       final success = await _schedulingStore.cancelAppointment(appointmentId);
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Agendamento cancelado com sucesso')),
-        );
+        ToastUtils.showSuccessToast('Agendamento cancelado com sucesso');
         Navigator.pop(context);
       }
     }
@@ -430,9 +429,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   Future<void> _confirmAppointment(String appointmentId) async {
     final success = await _schedulingStore.confirmAppointment(appointmentId);
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Agendamento confirmado com sucesso')),
-      );
+      ToastUtils.showSuccessToast('Agendamento confirmado com sucesso');
       Navigator.pop(context);
     }
   }

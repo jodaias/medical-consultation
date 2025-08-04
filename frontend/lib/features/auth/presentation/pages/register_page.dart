@@ -10,6 +10,7 @@ import 'package:medical_consultation_app/core/utils/currency_formatter.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -597,12 +598,7 @@ class _RegisterPageState extends State<RegisterPage> {
         print('Tipo de usuário: $_selectedUserType');
 
         if (mounted && success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Conta criada com sucesso!'),
-              backgroundColor: AppTheme.successColor,
-            ),
-          );
+          ToastUtils.showSuccessToast('Conta criada com sucesso!');
 
           // Navegar para a tela principal baseada no tipo de usuário
           if (_selectedUserType == AppConstants.doctorType) {
@@ -617,13 +613,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text('Erro ao criar conta: ${_authStore.errorMessage ?? e}'),
-              backgroundColor: AppTheme.errorColor,
-            ),
-          );
+          ToastUtils.showErrorToast('Erro ao criar conta: ${_authStore.errorMessage ?? e}');
         }
       } finally {
         if (mounted) {

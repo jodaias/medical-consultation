@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -143,16 +144,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _profileStore.updateProfile(data);
 
       if (_profileStore.errorMessage == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil atualizado com sucesso!')),
-        );
+        ToastUtils.showSuccessToast('Perfil atualizado com sucesso!');
         context.pop();
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  _profileStore.errorMessage ?? 'Erro ao atualizar perfil')),
-        );
+        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar perfil');
       }
     }
   }
@@ -184,16 +179,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _profileStore.updateMedicalInfo(data);
 
       if (_profileStore.errorMessage == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Informações médicas atualizadas com sucesso!')),
-        );
+        ToastUtils.showSuccessToast('Informações médicas atualizadas com sucesso!');
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(_profileStore.errorMessage ??
-                  'Erro ao atualizar informações médicas')),
-        );
+        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar informações médicas');
       }
     }
   }
@@ -211,17 +199,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _profileStore.updateProfessionalInfo(data);
 
       if (_profileStore.errorMessage == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('Informações profissionais atualizadas com sucesso!')),
-        );
+        ToastUtils.showSuccessToast('Informações profissionais atualizadas com sucesso!');
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(_profileStore.errorMessage ??
-                  'Erro ao atualizar informações profissionais')),
-        );
+        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar informações profissionais');
       }
     }
   }

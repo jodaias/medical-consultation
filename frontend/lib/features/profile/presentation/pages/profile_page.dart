@@ -6,6 +6,7 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -41,16 +42,12 @@ class _ProfilePageState extends State<ProfilePage> {
       if (image != null) {
         await _profileStore.uploadAvatar(image.path);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Avatar atualizado com sucesso!')),
-          );
+          ToastUtils.showSuccessToast('Avatar atualizado com sucesso!');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao atualizar avatar: $e')),
-        );
+        ToastUtils.showErrorToast('Erro ao atualizar avatar: $e');
       }
     }
   }
@@ -80,10 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Navigator.pop(context);
                   await _profileStore.deleteAvatar();
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Avatar removido com sucesso!')),
-                    );
+                    ToastUtils.showSuccessToast('Avatar removido com sucesso!');
                   }
                 },
               ),

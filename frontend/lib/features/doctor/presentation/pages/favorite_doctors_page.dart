@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/doctor_model.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 
@@ -79,7 +80,7 @@ class _DoctorCard extends StatelessWidget {
                 radius: 30,
                 backgroundImage: doctor.avatar != null
                     ? NetworkImage(doctor.avatar!)
-                    : const AssetImage('assets/images/default_doctor.png')
+                    : const AssetImage(AppConstants.defaultDoctor)
                         as ImageProvider,
               ),
               const SizedBox(width: 16),

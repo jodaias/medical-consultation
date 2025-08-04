@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   const NotificationSettingsPage({super.key});
@@ -60,15 +61,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     await _profileStore.updateNotificationSettings(settings);
 
     if (_profileStore.errorMessage == null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configurações salvas com sucesso!')),
-      );
+      ToastUtils.showSuccessToast('Configurações salvas com sucesso!');
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                _profileStore.errorMessage ?? 'Erro ao salvar configurações')),
-      );
+      ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao salvar configurações');
     }
   }
 

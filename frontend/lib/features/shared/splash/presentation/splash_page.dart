@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
+import 'package:medical_consultation_app/core/utils/constants.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -62,7 +63,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Image.asset(
-              'images/logo.png',
+              AppConstants.appLogo,
               width: 200,
               height: 200,
             ),

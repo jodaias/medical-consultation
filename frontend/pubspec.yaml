@@ -87,9 +87,6 @@ dev_dependencies:
   # Linting
   flutter_lints: ^6.0.0
 
-flutter:
-  uses-material-design: true
-
 flutter_icons:
   android: true
   ios: false
@@ -100,6 +97,9 @@ flutter_native_splash:
   image: assets/images/logo.png
   android: true
   ios: false
+
+flutter:
+  uses-material-design: true
 
   assets:
     - assets/images/

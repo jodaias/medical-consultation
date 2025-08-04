@@ -4,6 +4,7 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class FilePickerWidget extends StatelessWidget {
   final Function(String) onFileSelected;
@@ -276,22 +277,10 @@ class FilePickerWidget extends StatelessWidget {
   }
 
   void _showSuccessSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.successColor,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ToastUtils.showSuccessToast(message);
   }
 
   void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ToastUtils.showErrorToast(message);
   }
 }

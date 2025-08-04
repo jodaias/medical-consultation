@@ -6,6 +6,7 @@ import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/consultation/domain/stores/consultation_store.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 
 class ScheduleConsultationPage extends StatefulWidget {
   const ScheduleConsultationPage({super.key});
@@ -81,12 +82,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
 
     if (success) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consulta agendada com sucesso!'),
-            backgroundColor: AppTheme.successColor,
-          ),
-        );
+        ToastUtils.showSuccessToast('Consulta agendada com sucesso!');
         context.go('/patient');
       }
     } else {
@@ -96,12 +92,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
-      ),
-    );
+    ToastUtils.showErrorToast(message);
   }
 
   @override

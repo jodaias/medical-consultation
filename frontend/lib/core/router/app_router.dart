@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/login_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/register_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/forgot_password_page.dart';
@@ -187,7 +188,7 @@ class WelcomePage extends StatelessWidget {
                         child: Center(
                           child: ClipOval(
                             child: Image.asset(
-                              'images/logo.png',
+                              AppConstants.appLogo,
                               fit: BoxFit.contain,
                             ),
                           ),
