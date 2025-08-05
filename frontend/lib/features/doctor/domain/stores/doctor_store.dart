@@ -145,6 +145,11 @@ abstract class DoctorStoreBase with Store {
 
   // Actions
   @action
+  void setLoading(bool value) {
+    isLoading = value;
+  }
+
+  @action
   Future<void> loadDoctors({bool refresh = false}) async {
     try {
       isLoading = true;

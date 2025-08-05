@@ -147,27 +147,26 @@ mixin _$AuthStore on AuthStoreBase, Store {
       AsyncAction('AuthStoreBase.register', context: context);
 
   @override
-  Future<bool> register({
-    required String name,
-    required String email,
-    required String phone,
-    required String password,
-    required String userType,
-    String? bio,
-    String? crm,
-    double? hourlyRate,
-    String? specialty,
-  }) {
+  Future<bool> register(
+      {required String name,
+      required String email,
+      required String phone,
+      required String password,
+      required String userType,
+      String? specialty,
+      String? crm,
+      String? bio,
+      double? hourlyRate}) {
     return _$registerAsyncAction.run(() => super.register(
         name: name,
         email: email,
         phone: phone,
         password: password,
         userType: userType,
-        bio: bio,
+        specialty: specialty,
         crm: crm,
-        hourlyRate: hourlyRate,
-        specialty: specialty));
+        bio: bio,
+        hourlyRate: hourlyRate));
   }
 
   late final _$logoutAsyncAction =

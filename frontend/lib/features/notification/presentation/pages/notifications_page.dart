@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
-import 'package:medical_consultation_app/features/dashboard/domain/stores/dashboard_store.dart';
-import 'package:medical_consultation_app/features/dashboard/data/models/notification_model.dart';
+import 'package:medical_consultation_app/features/notification/domain/stores/notifications_store.dart';
+import 'package:medical_consultation_app/features/notification/data/models/notification_model.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final DashboardStore _dashboardStore = getIt<DashboardStore>();
+  final _notificationsStore = getIt<NotificationsStore>();
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _loadNotifications() async {
-    await _dashboardStore.loadNotifications();
+    await _notificationsStore.loadNotifications();
   }
 
   @override
@@ -35,7 +35,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         actions: [
           Observer(
             builder: (_) {
-              if (_dashboardStore.unreadNotificationsCount > 0) {
+              if (_notificationsStore.unreadNotificationsCount > 0) {
                 return TextButton(
                   onPressed: _markAllAsRead,
                   child: const Text('Marcar Todas'),
@@ -48,15 +48,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_dashboardStore.isLoading) {
+          if (_notificationsStore.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (_dashboardStore.errorMessage != null) {
+          if (_notificationsStore.errorMessage != null) {
             return _buildErrorWidget();
           }
 
-          if (_dashboardStore.notifications.isEmpty) {
+          if (_notificationsStore.notifications.isEmpty) {
             return _buildEmptyWidget();
           }
 
@@ -64,9 +64,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
             onRefresh: _loadNotifications,
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _dashboardStore.notifications.length,
+              itemCount: _notificationsStore.notifications.length,
               itemBuilder: (context, index) {
-                final notification = _dashboardStore.notifications[index];
+                final notification = _notificationsStore.notifications[index];
                 return _buildNotificationCard(notification);
               },
             ),
@@ -188,7 +188,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           const SizedBox(height: 8),
           Observer(
             builder: (_) => Text(
-              _dashboardStore.errorMessage ?? 'Erro desconhecido',
+              _notificationsStore.errorMessage ?? 'Erro desconhecido',
               style: TextStyle(color: AppTheme.textSecondaryColor),
               textAlign: TextAlign.center,
             ),
@@ -235,7 +235,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   void _onNotificationTap(NotificationModel notification) {
     if (!notification.isRead) {
-      _dashboardStore.markNotificationAsRead(notification.id);
+      _notificationsStore.markNotificationAsRead(notification.id);
     }
 
     if (notification.consultationId != null) {
@@ -246,7 +246,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void _onMenuAction(String action, NotificationModel notification) {
     switch (action) {
       case 'mark_read':
-        _dashboardStore.markNotificationAsRead(notification.id);
+        _notificationsStore.markNotificationAsRead(notification.id);
         break;
       case 'delete':
         _showDeleteDialog(notification);
@@ -255,7 +255,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   void _markAllAsRead() {
-    _dashboardStore.markAllNotificationsAsRead();
+    _notificationsStore.markAllNotificationsAsRead();
   }
 
   void _showDeleteDialog(NotificationModel notification) {
@@ -273,7 +273,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _dashboardStore.deleteNotification(notification.id);
+              _notificationsStore.deleteNotification(notification.id);
             },
             child: const Text('Deletar'),
           ),

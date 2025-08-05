@@ -1,3 +1,4 @@
+import 'package:medical_consultation_app/features/shared/dashboard/models/dashboard_stats_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/stores/base_store.dart';
@@ -16,6 +17,12 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
 
   // Observables
   @observable
+  String selectedPeriod = 'month';
+
+  @observable
+  DashboardStatsModel? stats;
+
+  @observable
   int totalConsultations = 0;
 
   @observable
@@ -23,6 +30,12 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
 
   @observable
   double totalSpent = 0.0;
+
+  @observable
+  Map<String, dynamic> realTimeMetrics = {};
+
+  @observable
+  List<Map<String, dynamic>> alertsAndInsights = [];
 
   @observable
   ObservableList<Map<String, dynamic>> recentConsultations =
@@ -81,6 +94,21 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
   }
 
   @action
+  Future<void> loadDashboardStats({String? period}) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      if (period != null) selectedPeriod = period;
+
+      stats = await _dashboardService.getDashboardStats(period: selectedPeriod);
+    } catch (e) {
+      errorMessage = 'Erro ao carregar estatísticas: $e';
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  @action
   Future<void> loadRecentConsultations() async {
     try {
       final patientId = _authStore.userId;
@@ -112,6 +140,24 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
   }
 
   @action
+  Future<void> loadRealTimeMetrics() async {
+    try {
+      realTimeMetrics = await _dashboardService.getRealTimeMetrics();
+    } catch (e) {
+      errorMessage = 'Erro ao carregar métricas em tempo real: $e';
+    }
+  }
+
+  @action
+  Future<void> loadAlertsAndInsights() async {
+    try {
+      alertsAndInsights = await _dashboardService.getAlertsAndInsights();
+    } catch (e) {
+      errorMessage = 'Erro ao carregar alertas e insights: $e';
+    }
+  }
+
+  @action
   Future<void> loadRecentPrescriptions() async {
     try {
       final patientId = _authStore.userId;
@@ -130,6 +176,12 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
   @action
   Future<void> refreshData() async {
     await loadDashboardData();
+  }
+
+  @action
+  void setPeriod(String period) {
+    selectedPeriod = period;
+    loadDashboardStats();
   }
 
   @override

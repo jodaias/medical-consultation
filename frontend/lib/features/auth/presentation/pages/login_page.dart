@@ -20,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   final AuthStore _authStore = getIt<AuthStore>();
 
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _isLoading = false;
   bool _obscurePassword = true;
   String _password = '';
   bool _showPasswordRequirements = false;
@@ -158,10 +157,8 @@ class _LoginPageState extends State<LoginPage> {
                 // Botão de login
                 Observer(
                   builder: (_) => ElevatedButton(
-                    onPressed: (_isLoading || _authStore.isLoading)
-                        ? null
-                        : _handleLogin,
-                    child: (_isLoading || _authStore.isLoading)
+                    onPressed: _authStore.isLoading ? null : _handleLogin,
+                    child: _authStore.isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
@@ -207,10 +204,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleLogin() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      setState(() {
-        _isLoading = true;
-      });
-
       try {
         final formData = _formKey.currentState!.value;
         final email = formData['email'];
@@ -233,12 +226,6 @@ class _LoginPageState extends State<LoginPage> {
         if (mounted) {
           ToastUtils.showErrorToast(
               'Erro ao fazer login: ${_authStore.errorMessage ?? e}');
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
         }
       }
     }

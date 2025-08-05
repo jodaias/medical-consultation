@@ -3,22 +3,23 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
-import 'package:medical_consultation_app/features/dashboard/data/models/dashboard_stats_model.dart';
-import 'package:medical_consultation_app/features/dashboard/data/models/notification_model.dart';
-import 'package:medical_consultation_app/features/dashboard/domain/stores/dashboard_store.dart';
+import 'package:medical_consultation_app/features/notification/data/models/notification_model.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/notification/domain/stores/notifications_store.dart';
+import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
+import 'package:medical_consultation_app/features/shared/dashboard/models/dashboard_stats_model.dart';
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class PatientDashboardPage extends StatefulWidget {
+  const PatientDashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<PatientDashboardPage> createState() => _PatientDashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
-  final DashboardStore _dashboardStore = getIt<DashboardStore>();
-  final AuthStore _authStore = getIt<AuthStore>();
+class _PatientDashboardPageState extends State<PatientDashboardPage> {
+  final _dashboardStore = getIt<PatientDashboardStore>();
+  final _notifitcationsStore = getIt<NotificationsStore>();
 
   @override
   void initState() {
@@ -27,7 +28,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _loadDashboardData() async {
-    await _dashboardStore.refreshDashboard();
+    await _dashboardStore.refreshData();
   }
 
   @override
@@ -409,7 +410,7 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 16),
             Observer(
               builder: (_) {
-                final notifications = _dashboardStore.recentNotifications;
+                final notifications = _notifitcationsStore.recentNotifications;
                 if (notifications.isEmpty) {
                   return const Center(
                     child: Padding(
@@ -621,7 +622,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _onNotificationTap(NotificationModel notification) {
-    _dashboardStore.markNotificationAsRead(notification.id);
+    _notifitcationsStore.markNotificationAsRead(notification.id);
 
     if (notification.consultationId != null) {
       context.push('/consultation/${notification.consultationId}');

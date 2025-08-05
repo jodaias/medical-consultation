@@ -12,10 +12,11 @@ import 'package:medical_consultation_app/features/auth/data/services/auth_servic
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/features/chat/domain/stores/chat_store.dart';
 import 'package:medical_consultation_app/features/consultation/domain/stores/consultation_store.dart';
+import 'package:medical_consultation_app/features/patient/data/services/patient_dashboard_service.dart';
 import 'package:medical_consultation_app/features/profile/data/services/profile_service.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
-import 'package:medical_consultation_app/features/dashboard/data/services/dashboard_service.dart';
-import 'package:medical_consultation_app/features/dashboard/domain/stores/dashboard_store.dart';
+import 'package:medical_consultation_app/features/notification/data/services/notifications_service.dart';
+import 'package:medical_consultation_app/features/notification/domain/stores/notifications_store.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_service.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 import 'package:medical_consultation_app/features/scheduling/data/services/scheduling_service.dart';
@@ -62,11 +63,14 @@ Future<void> configureDependencies() async {
   // Register services
   getIt.registerLazySingleton<AuthService>(() => AuthService());
   getIt.registerLazySingleton<ProfileService>(() => ProfileService());
-  getIt.registerLazySingleton<DashboardService>(() => DashboardService());
+  getIt.registerLazySingleton<PatientDashboardService>(
+      () => PatientDashboardService());
   getIt.registerLazySingleton<DoctorService>(
       () => DoctorService(getIt<ApiService>()));
   getIt.registerLazySingleton<SchedulingService>(
       () => SchedulingService(getIt<ApiService>()));
+  getIt.registerLazySingleton<NotificationsService>(
+      () => NotificationsService(getIt<ApiService>()));
 
   // Register router
   getIt.registerLazySingleton<AppRouter>(() => AppRouter());
@@ -76,7 +80,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<ChatStore>(() => ChatStore());
   getIt.registerLazySingleton<ConsultationStore>(() => ConsultationStore());
   getIt.registerLazySingleton<ProfileStore>(() => ProfileStore());
-  getIt.registerLazySingleton<DashboardStore>(() => DashboardStore());
+  getIt.registerLazySingleton<NotificationsStore>(() => NotificationsStore());
   getIt.registerLazySingleton<DoctorStore>(
       () => DoctorStore(getIt<DoctorService>()));
   getIt.registerLazySingleton<SchedulingStore>(

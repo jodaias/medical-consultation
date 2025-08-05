@@ -14,8 +14,8 @@ import 'package:medical_consultation_app/features/consultation/presentation/page
 import 'package:medical_consultation_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:medical_consultation_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:medical_consultation_app/features/profile/presentation/pages/notification_settings_page.dart';
-import 'package:medical_consultation_app/features/dashboard/presentation/pages/dashboard_page.dart';
-import 'package:medical_consultation_app/features/dashboard/presentation/pages/notifications_page.dart';
+import 'package:medical_consultation_app/features/patient/presentation/pages/patient_dashboard_page.dart';
+import 'package:medical_consultation_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_list_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_detail_page.dart';
 import 'package:medical_consultation_app/features/scheduling/presentation/pages/appointment_list_page.dart';
@@ -92,10 +92,6 @@ class AppRouter {
           builder: (context, state) => const NotificationSettingsPage(),
         ),
         GoRoute(
-          path: '/dashboard',
-          builder: (context, state) => const DashboardPage(),
-        ),
-        GoRoute(
           path: '/dashboard/notifications',
           builder: (context, state) => const NotificationsPage(),
         ),
@@ -128,8 +124,12 @@ class AppRouter {
           builder: (context, state) => const PatientListPage(),
         ),
         GoRoute(
-          path: '/dashboard',
+          path: '/doctor/dashboard',
           builder: (context, state) => const DoctorDashboardPage(),
+        ),
+        GoRoute(
+          path: '/patient/dashboard',
+          builder: (context, state) => const PatientDashboardPage(),
         ),
       ],
     );

@@ -3,10 +3,13 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // API Configuration
-  static const String baseUrl =
-      'https://medical-consultation-api.onrender.com/api';
-  static const String socketUrl =
-      'https://medical-consultation-api.onrender.com';
+  // static const String baseUrl =
+  //     'https://medical-consultation-api.onrender.com/api';
+  // static const String socketUrl =
+  //     'https://medical-consultation-api.onrender.com';
+
+  static const String baseUrl = 'http://localhost:3001/api';
+  static const String socketUrl = 'http://localhost:3001';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';

@@ -22,7 +22,6 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormBuilderState>();
   final AuthStore _authStore = getIt<AuthStore>();
-  bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String _selectedUserType = AppConstants.patientType;
@@ -391,10 +390,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 // Botão de registro
                 Observer(
                   builder: (_) => ElevatedButton(
-                    onPressed: (_isLoading || _authStore.isLoading)
-                        ? null
-                        : _handleRegister,
-                    child: (_isLoading || _authStore.isLoading)
+                    onPressed: _authStore.isLoading ? null : _handleRegister,
+                    child: _authStore.isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
@@ -543,10 +540,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _handleRegister() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      setState(() {
-        _isLoading = true;
-      });
-
       try {
         final formData = _formKey.currentState!.value;
 
@@ -581,7 +574,6 @@ class _RegisterPageState extends State<RegisterPage> {
         }
 
         // Chamar AuthStore para registro
-        print('Iniciando registro...');
         final success = await _authStore.register(
           name: registerData['name'],
           email: registerData['email'],
@@ -594,32 +586,28 @@ class _RegisterPageState extends State<RegisterPage> {
           hourlyRate: registerData['hourlyRate'],
         );
 
-        print('Resultado do registro: $success');
-        print('Tipo de usuário: $_selectedUserType');
-
-        if (mounted && success) {
-          ToastUtils.showSuccessToast('Conta criada com sucesso!');
-
-          // Navegar para a tela principal baseada no tipo de usuário
-          if (_selectedUserType == AppConstants.doctorType) {
-            print('Navegando para /doctor');
-            context.go('/doctor');
-          } else {
-            print('Navegando para /patient');
-            context.go('/patient');
+        if (mounted) {
+          if (!success && _authStore.errorMessage != null) {
+            ToastUtils.showErrorToast(
+                'Registro falhou: ${_authStore.errorMessage ?? 'Erro desconhecido'}');
+            return;
           }
-        } else {
-          print('Registro falhou ou mounted = false');
+
+          if (success) {
+            ToastUtils.showSuccessToast('Conta criada com sucesso!');
+
+            // Navegar para a tela principal baseada no tipo de usuário
+            if (_selectedUserType == AppConstants.doctorType) {
+              context.go('/doctor');
+            } else {
+              context.go('/patient');
+            }
+          }
         }
       } catch (e) {
         if (mounted) {
-          ToastUtils.showErrorToast('Erro ao criar conta: ${_authStore.errorMessage ?? e}');
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+          ToastUtils.showErrorToast(
+              'Erro ao criar conta: ${_authStore.errorMessage ?? e}');
         }
       }
     }

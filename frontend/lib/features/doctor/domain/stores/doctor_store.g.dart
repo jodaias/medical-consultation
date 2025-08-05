@@ -376,6 +376,17 @@ mixin _$DoctorStore on DoctorStoreBase, Store {
       ActionController(name: 'DoctorStoreBase', context: context);
 
   @override
+  void setLoading(bool value) {
+    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
+        name: 'DoctorStoreBase.setLoading');
+    try {
+      return super.setLoading(value);
+    } finally {
+      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setSearchQuery(String? query) {
     final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
         name: 'DoctorStoreBase.setSearchQuery');

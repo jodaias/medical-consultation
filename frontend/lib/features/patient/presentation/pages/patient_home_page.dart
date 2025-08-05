@@ -176,7 +176,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.analytics,
               color: AppTheme.getCardSecondary(),
               onTap: () {
-                context.push('/dashboard');
+                context.push('/patient/dashboard');
               },
             ),
             _buildMenuCard(

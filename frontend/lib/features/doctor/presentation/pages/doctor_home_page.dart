@@ -287,7 +287,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               icon: Icons.analytics,
               color: AppTheme.getCardWarning(),
               onTap: () {
-                context.push('/dashboard');
+                context.push('/doctor/dashboard');
               },
             ),
             _buildMenuCard(

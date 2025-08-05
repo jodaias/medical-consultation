@@ -31,6 +31,38 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
               name: 'PatientDashboardStoreBase.hasRecentPrescriptions'))
       .value;
 
+  late final _$selectedPeriodAtom =
+      Atom(name: 'PatientDashboardStoreBase.selectedPeriod', context: context);
+
+  @override
+  String get selectedPeriod {
+    _$selectedPeriodAtom.reportRead();
+    return super.selectedPeriod;
+  }
+
+  @override
+  set selectedPeriod(String value) {
+    _$selectedPeriodAtom.reportWrite(value, super.selectedPeriod, () {
+      super.selectedPeriod = value;
+    });
+  }
+
+  late final _$statsAtom =
+      Atom(name: 'PatientDashboardStoreBase.stats', context: context);
+
+  @override
+  DashboardStatsModel? get stats {
+    _$statsAtom.reportRead();
+    return super.stats;
+  }
+
+  @override
+  set stats(DashboardStatsModel? value) {
+    _$statsAtom.reportWrite(value, super.stats, () {
+      super.stats = value;
+    });
+  }
+
   late final _$totalConsultationsAtom = Atom(
       name: 'PatientDashboardStoreBase.totalConsultations', context: context);
 
@@ -78,6 +110,38 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
   set totalSpent(double value) {
     _$totalSpentAtom.reportWrite(value, super.totalSpent, () {
       super.totalSpent = value;
+    });
+  }
+
+  late final _$realTimeMetricsAtom =
+      Atom(name: 'PatientDashboardStoreBase.realTimeMetrics', context: context);
+
+  @override
+  Map<String, dynamic> get realTimeMetrics {
+    _$realTimeMetricsAtom.reportRead();
+    return super.realTimeMetrics;
+  }
+
+  @override
+  set realTimeMetrics(Map<String, dynamic> value) {
+    _$realTimeMetricsAtom.reportWrite(value, super.realTimeMetrics, () {
+      super.realTimeMetrics = value;
+    });
+  }
+
+  late final _$alertsAndInsightsAtom = Atom(
+      name: 'PatientDashboardStoreBase.alertsAndInsights', context: context);
+
+  @override
+  List<Map<String, dynamic>> get alertsAndInsights {
+    _$alertsAndInsightsAtom.reportRead();
+    return super.alertsAndInsights;
+  }
+
+  @override
+  set alertsAndInsights(List<Map<String, dynamic>> value) {
+    _$alertsAndInsightsAtom.reportWrite(value, super.alertsAndInsights, () {
+      super.alertsAndInsights = value;
     });
   }
 
@@ -138,6 +202,16 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
     return _$loadDashboardDataAsyncAction.run(() => super.loadDashboardData());
   }
 
+  late final _$loadDashboardStatsAsyncAction = AsyncAction(
+      'PatientDashboardStoreBase.loadDashboardStats',
+      context: context);
+
+  @override
+  Future<void> loadDashboardStats({String? period}) {
+    return _$loadDashboardStatsAsyncAction
+        .run(() => super.loadDashboardStats(period: period));
+  }
+
   late final _$loadRecentConsultationsAsyncAction = AsyncAction(
       'PatientDashboardStoreBase.loadRecentConsultations',
       context: context);
@@ -156,6 +230,26 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
   Future<void> loadFavoriteDoctors() {
     return _$loadFavoriteDoctorsAsyncAction
         .run(() => super.loadFavoriteDoctors());
+  }
+
+  late final _$loadRealTimeMetricsAsyncAction = AsyncAction(
+      'PatientDashboardStoreBase.loadRealTimeMetrics',
+      context: context);
+
+  @override
+  Future<void> loadRealTimeMetrics() {
+    return _$loadRealTimeMetricsAsyncAction
+        .run(() => super.loadRealTimeMetrics());
+  }
+
+  late final _$loadAlertsAndInsightsAsyncAction = AsyncAction(
+      'PatientDashboardStoreBase.loadAlertsAndInsights',
+      context: context);
+
+  @override
+  Future<void> loadAlertsAndInsights() {
+    return _$loadAlertsAndInsightsAsyncAction
+        .run(() => super.loadAlertsAndInsights());
   }
 
   late final _$loadRecentPrescriptionsAsyncAction = AsyncAction(
@@ -180,6 +274,17 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
       ActionController(name: 'PatientDashboardStoreBase', context: context);
 
   @override
+  void setPeriod(String period) {
+    final _$actionInfo = _$PatientDashboardStoreBaseActionController
+        .startAction(name: 'PatientDashboardStoreBase.setPeriod');
+    try {
+      return super.setPeriod(period);
+    } finally {
+      _$PatientDashboardStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void clearError() {
     final _$actionInfo = _$PatientDashboardStoreBaseActionController
         .startAction(name: 'PatientDashboardStoreBase.clearError');
@@ -193,9 +298,13 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
   @override
   String toString() {
     return '''
+selectedPeriod: ${selectedPeriod},
+stats: ${stats},
 totalConsultations: ${totalConsultations},
 upcomingConsultations: ${upcomingConsultations},
 totalSpent: ${totalSpent},
+realTimeMetrics: ${realTimeMetrics},
+alertsAndInsights: ${alertsAndInsights},
 recentConsultations: ${recentConsultations},
 favoriteDoctors: ${favoriteDoctors},
 recentPrescriptions: ${recentPrescriptions},

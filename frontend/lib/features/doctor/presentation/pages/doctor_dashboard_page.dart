@@ -3,7 +3,8 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
-import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
+import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class DoctorDashboardPage extends StatefulWidget {
@@ -15,10 +16,9 @@ class DoctorDashboardPage extends StatefulWidget {
 
 class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
   final ReportService _reportService = getIt<ReportService>();
-  final AuthStore _authStore = getIt<AuthStore>();
+  final DoctorStore _doctorStore = getIt<DoctorStore>();
 
   Map<String, dynamic>? _dashboardData;
-  bool _isLoading = true;
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
   DateTime _endDate = DateTime.now();
 
@@ -29,21 +29,17 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
   }
 
   Future<void> _loadDashboardData() async {
-    setState(() => _isLoading = true);
-
+    _doctorStore.setLoading(true);
     try {
       final data = await _reportService.getDoctorDashboard(
         startDate: _startDate,
         endDate: _endDate,
       );
-
-      setState(() {
-        _dashboardData = data;
-        _isLoading = false;
-      });
+      _dashboardData = data;
     } catch (e) {
-      setState(() => _isLoading = false);
       _showErrorSnackBar('Erro ao carregar dashboard: $e');
+    } finally {
+      _doctorStore.setLoading(false);
     }
   }
 
@@ -61,27 +57,33 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _dashboardData == null
-              ? _buildErrorWidget()
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDateFilter(),
-                      const SizedBox(height: 16),
-                      _buildStatsCards(),
-                      const SizedBox(height: 24),
-                      _buildConsultationsChart(),
-                      const SizedBox(height: 24),
-                      _buildRevenueChart(),
-                      const SizedBox(height: 24),
-                      _buildRecentActivity(),
-                    ],
-                  ),
-                ),
+      body: Observer(
+        builder: (_) {
+          if (_doctorStore.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (_dashboardData == null) {
+            return _buildErrorWidget();
+          } else {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDateFilter(),
+                  const SizedBox(height: 16),
+                  _buildStatsCards(),
+                  const SizedBox(height: 24),
+                  _buildConsultationsChart(),
+                  const SizedBox(height: 24),
+                  _buildRevenueChart(),
+                  const SizedBox(height: 24),
+                  _buildRecentActivity(),
+                ],
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 
