@@ -403,20 +403,38 @@ class UserRepository {
 
   // Buscar médicos disponíveis
   async getAvailableDoctors(specialty, date) {
-    const where = {
+    // Busca todos os médicos ativos e verificados
+    const doctorWhere = {
       userType: 'DOCTOR',
       isVerified: true,
-      isActive: true
+      isActive: true,
+      doctorProfile: specialty ? { specialty } : undefined
     };
 
-    if (specialty) {
-      where.doctorProfile = {
-        specialty: specialty
-      };
+    // Se data for informada, busca todos os médicos sem conflito de horário em uma única consulta
+    if (date) {
+      // Busca todos os médicos com conflito no horário
+      const conflictedDoctors = await this.prisma.consultation.findMany({
+        where: {
+          scheduledAt: {
+            gte: new Date(date),
+            lt: new Date(new Date(date).getTime() + 30 * 60 * 1000)
+          },
+          status: {
+            in: ['SCHEDULED', 'IN_PROGRESS']
+          }
+        },
+        select: {
+          doctorId: true
+        }
+      });
+      const conflictedIds = conflictedDoctors.map(c => c.doctorId);
+
+      doctorWhere.id = { notIn: conflictedIds };
     }
 
     const doctors = await this.prisma.user.findMany({
-      where,
+      where: doctorWhere,
       include: {
         doctorProfile: {
           select: {
@@ -439,30 +457,6 @@ class UserRepository {
         }
       }
     });
-
-    // Filtrar por disponibilidade se data for fornecida
-    if (date) {
-      const availableDoctors = [];
-      for (const doctor of doctors) {
-        const hasConflict = await this.prisma.consultation.findFirst({
-          where: {
-            doctorId: doctor.id,
-            scheduledAt: {
-              gte: new Date(date),
-              lt: new Date(new Date(date).getTime() + 30 * 60 * 1000) // 30 min
-            },
-            status: {
-              in: ['SCHEDULED', 'IN_PROGRESS']
-            }
-          }
-        });
-
-        if (!hasConflict) {
-          availableDoctors.push(doctor);
-        }
-      }
-      return availableDoctors;
-    }
 
     return doctors;
   }
@@ -502,7 +496,7 @@ class UserRepository {
         where: { doctorId: doctorId },
         _avg: { rating: true }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           doctorId: doctorId,
           status: 'COMPLETED',
@@ -510,16 +504,29 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       })
     ]);
 
+    // Soma manual dos valores de consulta
+    const monthlyRevenueValue = monthlyRevenue.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
     return {
       specialty: doctor?.doctorProfile?.specialty || 'Não informado',
       todayConsultations: todayConsultations,
       totalPatients: totalPatients,
-      averageRating: averageRating._avg.rating || 0.0,
-      monthlyRevenue: monthlyRevenue._sum.consultationFee || 0.0
+      averageRating: averageRating._avg?.rating || 0.0,
+      monthlyRevenue: monthlyRevenueValue
     };
   }
 
@@ -531,7 +538,7 @@ class UserRepository {
       const [
         totalConsultations,
         upcomingConsultations,
-        totalSpent,
+        completedConsultations,
         recentConsultations,
         favoriteDoctors,
         recentPrescriptions
@@ -546,12 +553,20 @@ class UserRepository {
             scheduledAt: { gte: new Date() }
           }
         }),
-        this.prisma.consultation.aggregate({
+        this.prisma.consultation.findMany({
           where: {
             patientId: patientId,
             status: 'COMPLETED'
           },
-          _sum: { consultationFee: true }
+          include: {
+            doctor: {
+              select: {
+                doctorProfile: {
+                  select: { consultationFee: true }
+                }
+              }
+            }
+          }
         }),
         this.prisma.consultation.findMany({
           where: { patientId: patientId },
@@ -577,7 +592,11 @@ class UserRepository {
                 doctorProfile: {
                   select: { specialty: true }
                 },
-                rating: true
+                receivedRatings: {
+                  select: {
+                    rating: true
+                  }
+                }
               }
             }
           }
@@ -589,12 +608,23 @@ class UserRepository {
         })
       ]);
 
+      // Soma manual dos valores de consulta
+      const totalSpent = completedConsultations.reduce((acc, c) => {
+        const fee = c.doctor?.doctorProfile?.consultationFee;
+        return acc + (fee ? Number(fee) : 0);
+      }, 0);
+
       const result = {
         totalConsultations: totalConsultations,
         upcomingConsultations: upcomingConsultations,
-        totalSpent: totalSpent._sum.consultationFee || 0.0,
+        totalSpent: totalSpent,
         recentConsultations: recentConsultations,
-        favoriteDoctors: favoriteDoctors.map(f => f.doctor),
+        favoriteDoctors: favoriteDoctors.map(f => ({
+          ...f.doctor,
+          averageRating: f.doctor.receivedRatings.length
+            ? (f.doctor.receivedRatings.reduce((acc, r) => acc + r.rating, 0) / f.doctor.receivedRatings.length)
+            : null
+        })),
         recentPrescriptions: recentPrescriptions
       };
 
@@ -648,9 +678,9 @@ class UserRepository {
     return {
       totalConsultations: totalConsultations,
       completedConsultations: completedConsultations,
-      averageRating: averageRating._avg.rating || 0.0,
+      averageRating: averageRating._avg?.rating || 0.0,
       totalPatients: totalPatients,
-      monthlyRevenue: monthlyRevenue._sum.consultationFee || 0.0
+      monthlyRevenue: monthlyRevenue._sum?.consultationFee || 0.0
     };
   }
 
@@ -684,7 +714,7 @@ class UserRepository {
       totalRevenue,
       revenueByMonth
     ] = await Promise.all([
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           doctorId: doctorId,
           status: 'COMPLETED',
@@ -692,9 +722,17 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           doctorId: doctorId,
           status: 'COMPLETED',
@@ -702,17 +740,32 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), 0, 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           doctorId: doctorId,
           status: 'COMPLETED'
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.groupBy({
-        by: ['scheduledAt'],
+      this.prisma.consultation.findMany({
         where: {
           doctorId: doctorId,
           status: 'COMPLETED',
@@ -720,15 +773,37 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), 0, 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       })
     ]);
 
+    // Soma manual dos valores de consulta
+    const monthlyRevenueValue = monthlyRevenue.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    const yearlyRevenueValue = yearlyRevenue.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    const totalRevenueValue = totalRevenue.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    // Para revenueByMonth, pode ser necessário adaptar para somar por mês
     return {
-      monthlyRevenue: monthlyRevenue._sum.consultationFee || 0.0,
-      yearlyRevenue: yearlyRevenue._sum.consultationFee || 0.0,
-      totalRevenue: totalRevenue._sum.consultationFee || 0.0,
-      revenueByMonth: revenueByMonth
+      monthlyRevenue: monthlyRevenueValue,
+      yearlyRevenue: yearlyRevenueValue,
+      totalRevenue: totalRevenueValue,
+      revenueByMonth: revenueByMonth // Adaptação futura se necessário
     };
   }
 
@@ -745,7 +820,11 @@ class UserRepository {
             doctorProfile: {
               select: { specialty: true }
             },
-            rating: true,
+            receivedRatings: {
+              select: {
+                rating: true
+              }
+            },
             isActive: true,
             isVerified: true
           }
@@ -796,20 +875,33 @@ class UserRepository {
         where: { patientId: patientId },
         orderBy: { createdAt: 'desc' }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           patientId: patientId,
           status: 'COMPLETED'
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       })
     ]);
 
+    // Soma manual dos valores de consulta
+    const totalSpentValue = totalSpent.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
     return {
       consultations: consultations,
       prescriptions: prescriptions,
       ratings: ratings,
-      totalSpent: totalSpent._sum.consultationFee || 0.0
+      totalSpent: totalSpentValue
     };
   }
 
@@ -821,14 +913,22 @@ class UserRepository {
       yearlySpent,
       expensesByMonth
     ] = await Promise.all([
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           patientId: patientId,
           status: 'COMPLETED'
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           patientId: patientId,
           status: 'COMPLETED',
@@ -836,9 +936,17 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.aggregate({
+      this.prisma.consultation.findMany({
         where: {
           patientId: patientId,
           status: 'COMPLETED',
@@ -846,10 +954,17 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), 0, 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       }),
-      this.prisma.consultation.groupBy({
-        by: ['scheduledAt'],
+      this.prisma.consultation.findMany({
         where: {
           patientId: patientId,
           status: 'COMPLETED',
@@ -857,15 +972,37 @@ class UserRepository {
             gte: new Date(new Date().getFullYear(), 0, 1)
           }
         },
-        _sum: { consultationFee: true }
+        include: {
+          doctor: {
+            select: {
+              doctorProfile: {
+                select: { consultationFee: true }
+              }
+            }
+          }
+        }
       })
     ]);
 
+    // Soma manual dos valores de consulta
+    const totalSpentValue = totalSpent.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    const monthlySpentValue = monthlySpent.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    const yearlySpentValue = yearlySpent.reduce((acc, c) => {
+      const fee = c.doctor?.doctorProfile?.consultationFee;
+      return acc + (fee ? Number(fee) : 0);
+    }, 0);
+    // Para expensesByMonth, pode ser necessário adaptar para somar por mês
     return {
-      totalSpent: totalSpent._sum.consultationFee || 0.0,
-      monthlySpent: monthlySpent._sum.consultationFee || 0.0,
-      yearlySpent: yearlySpent._sum.consultationFee || 0.0,
-      expensesByMonth: expensesByMonth
+      totalSpent: totalSpentValue,
+      monthlySpent: monthlySpentValue,
+      yearlySpent: yearlySpentValue,
+      expensesByMonth: expensesByMonth // Adaptação futura se necessário
     };
   }
 }

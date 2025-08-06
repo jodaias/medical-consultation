@@ -338,8 +338,8 @@ class ScheduleRepository {
     return {
       totalSchedules,
       availableSchedules,
-      totalHours: totalHours._sum.consultationDuration || 0,
-      averageDuration: Math.round(averageDuration._avg.consultationDuration || 0),
+      totalHours: totalHours._sum?.consultationDuration || 0,
+      averageDuration: Math.round(averageDuration._avg?.consultationDuration || 0),
       availabilityRate: totalSchedules > 0 ? (availableSchedules / totalSchedules) * 100 : 0
     };
   }

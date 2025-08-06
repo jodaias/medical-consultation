@@ -410,9 +410,9 @@ class RatingRepository {
 
       return {
         totalRatings,
-        averageRating: averageRating._avg.rating || 0,
+        averageRating: averageRating._avg?.rating || 0,
         ratingDistribution: ratingDistribution.reduce((acc, item) => {
-          acc[item.rating] = item._count.rating;
+          acc[item.rating] = item._count?.rating || 0;
           return acc;
         }, {}),
         ratingsThisMonth,

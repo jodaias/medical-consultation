@@ -470,7 +470,7 @@ router.get('/patient/:patientId', authenticateToken, prescriptionController.find
  *       404:
  *         description: Paciente não encontrado
  */
-router.get('/patient/:patientId/recent', authenticateToken, prescriptionController.getPatientRecentPrescriptions);
+router.get('/patients/:patientId/recent', authenticateToken, prescriptionController.getPatientRecentPrescriptions);
 
 /**
  * @swagger

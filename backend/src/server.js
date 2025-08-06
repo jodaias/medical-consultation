@@ -69,6 +69,7 @@ const io = new Server(server, {
 });
 
 // Middleware
+app.set('trust proxy', 'loopback');
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(morgan('combined'));
