@@ -47,8 +47,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recuperar Senha'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Observer(

@@ -49,8 +49,6 @@ class _PatientListPageState extends State<PatientListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meus Pacientes'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Column(
