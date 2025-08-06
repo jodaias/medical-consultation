@@ -19,9 +19,13 @@ class SchedulingService {
     if (endDate != null) {
       queryParams['endDate'] = endDate.toIso8601String();
     }
-    return await rest.getList<TimeSlotModel>(
+    return await rest.getModel<List<TimeSlotModel>>(
       '/schedules/doctors/$doctorId/available-slots',
-      (json) => TimeSlotModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => TimeSlotModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -78,9 +82,13 @@ class SchedulingService {
       queryParams['startDate'] = startDate.toIso8601String();
     }
     if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
-    return await rest.getList<AppointmentModel>(
+    return await rest.getModel<List<AppointmentModel>>(
       '/schedules',
-      (json) => AppointmentModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -98,9 +106,13 @@ class SchedulingService {
       queryParams['startDate'] = startDate.toIso8601String();
     }
     if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
-    return await rest.getList<AppointmentModel>(
+    return await rest.getModel<List<AppointmentModel>>(
       '/schedules/doctors/$doctorId',
-      (json) => AppointmentModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }

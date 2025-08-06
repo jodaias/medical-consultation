@@ -2,11 +2,10 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
-import 'package:get_it/get_it.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/data/services/auth_service.dart';
-import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
+import 'package:medical_consultation_app/core/services/notification_service.dart';
 
 part 'auth_store.g.dart';
 
@@ -45,7 +44,7 @@ abstract class AuthStoreBase with Store {
   bool get isDoctor => userType == AppConstants.doctorType;
 
   @action
-  Future<bool> login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
     try {
@@ -59,26 +58,27 @@ abstract class AuthStoreBase with Store {
         userName = userData['name'];
         userEmail = userData['email'];
         await _storageService.saveToken(data['token']);
+        await _storageService.saveUserId(userData['id']);
         await _storageService.saveRefreshToken(data['refreshToken']);
         await _storageService.saveUserData(userData);
         await _storageService.saveUserType(userData['userType']);
         await _storageService.setAuthenticated(true);
+        // Após login, registra token FCM
+        final notificationService = getIt<NotificationService>();
+        await notificationService.registerFCMTokenIfAuthenticated();
         requestStatus = RequestStatusEnum.success;
-        return true;
       } else {
         errorMessage = result.error?.toString() ?? 'Erro desconhecido';
         requestStatus = RequestStatusEnum.fail;
-        return false;
       }
     } catch (e) {
       errorMessage = e.toString();
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> register({
+  Future<void> register({
     required String name,
     required String email,
     required String phone,
@@ -117,17 +117,17 @@ abstract class AuthStoreBase with Store {
         await _storageService.saveUserType(userData['userType']);
         await _storageService.saveUserId(userData['id']);
         await _storageService.setAuthenticated(true);
+        // Após registro, registra token FCM
+        final notificationService = getIt<NotificationService>();
+        await notificationService.registerFCMTokenIfAuthenticated();
         requestStatus = RequestStatusEnum.success;
-        return true;
       } else {
         errorMessage = result.error?.toString() ?? 'Erro desconhecido';
         requestStatus = RequestStatusEnum.fail;
-        return false;
       }
     } catch (e) {
       errorMessage = e.toString();
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
@@ -196,23 +196,20 @@ abstract class AuthStoreBase with Store {
   }
 
   @action
-  Future<bool> resetPassword(String email) async {
+  Future<void> resetPassword(String email) async {
     requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
     try {
       final result = await _authService.forgotPassword(email);
       if (result.success) {
         requestStatus = RequestStatusEnum.success;
-        return true;
       } else {
         errorMessage = result.error?.toString() ?? 'Erro desconhecido';
         requestStatus = RequestStatusEnum.fail;
-        return false;
       }
     } catch (e) {
       errorMessage = e.toString();
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 }

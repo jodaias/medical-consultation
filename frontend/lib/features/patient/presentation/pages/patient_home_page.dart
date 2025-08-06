@@ -59,9 +59,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authStore.logout();
-              if (context.mounted) {
-                context.go('/login');
-              }
+              context.go('/login');
             },
           ),
         ],

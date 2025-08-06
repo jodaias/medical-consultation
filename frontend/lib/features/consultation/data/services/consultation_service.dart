@@ -15,9 +15,14 @@ class ConsultationService {
     if (status != null) queryParams['status'] = status;
     if (userId != null) queryParams['userId'] = userId;
     if (userType != null) queryParams['userType'] = userType;
-    return await rest.getList<ConsultationModel>(
+    return await rest.getModel<List<ConsultationModel>>(
       '/consultations',
-      (json) => ConsultationModel.fromJson(json!),
+      (json) =>
+          (json?['data']?['consultations'] as List<dynamic>?)
+              ?.map(
+                  (e) => ConsultationModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -123,9 +128,13 @@ class ConsultationService {
     required String doctorId,
     required DateTime date,
   }) async {
-    return await rest.getList<DateTime>(
+    return await rest.getModel<List<DateTime>>(
       '/schedules/doctor/$doctorId/available-slots',
-      (slot) => DateTime.parse(slot as String),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((slot) => DateTime.parse(slot as String))
+              .toList() ??
+          [],
     );
   }
 
@@ -137,9 +146,13 @@ class ConsultationService {
     final queryParams = <String, dynamic>{};
     if (specialty != null) queryParams['specialty'] = specialty;
     if (date != null) queryParams['date'] = date.toIso8601String();
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/consultations/doctors/available',
-      (json) => Map<String, dynamic>.from(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }

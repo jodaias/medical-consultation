@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -30,10 +31,31 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
     _animationController.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    _handleNavigation();
+  }
+
+  Future<void> _handleNavigation() async {
+    await Future.delayed(const Duration(seconds: 2));
+    // Verifica autenticação e tipo de usuário
+    final prefs = await SharedPreferences.getInstance();
+    final isAuthenticated = prefs.getBool('is_authenticated') ?? false;
+
+    if (isAuthenticated) {
+      final userType = prefs.getString('user_type');
+      if (userType == AppConstants.patientType) {
+        // ignore: use_build_context_synchronously
+        context.go('/patient');
+      } else if (userType == AppConstants.doctorType) {
+        // ignore: use_build_context_synchronously
+        context.go('/doctor');
+      } else {
+        // ignore: use_build_context_synchronously
+        context.go('/welcome');
+      }
+    } else {
       // ignore: use_build_context_synchronously
       context.go('/welcome');
-    });
+    }
   }
 
   @override

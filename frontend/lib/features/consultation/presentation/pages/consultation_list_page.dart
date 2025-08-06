@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:medical_consultation_app/features/consultation/domain/stores/consultation_store.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
@@ -37,12 +39,17 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
   }
 
   Future<void> _loadConsultations() async {
-    await _consultationStore.loadConsultations(
-      userId: _authStore.userId,
-      userType: _authStore.userType,
-      status:
-          _selectedFilter == AppConstants.allStatus ? null : _selectedFilter,
-    );
+    // Só busca do banco se não houver consultas carregadas
+    // ou se o filtro for 'Todas'.
+    if (_consultationStore.consultations.isEmpty &&
+        _selectedFilter == AppConstants.allStatus) {
+      await _consultationStore.loadConsultations(
+        userId: _authStore.userId,
+        userType: _authStore.userType,
+        status:
+            _selectedFilter == AppConstants.allStatus ? null : _selectedFilter,
+      );
+    }
   }
 
   void _onFilterChanged(String filter) {
@@ -231,11 +238,18 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
   }
 
   Widget _buildConsultationList() {
+    // Aplica filtro localmente se não for 'Todas'
+    final filteredConsultations = _selectedFilter == AppConstants.allStatus
+        ? _consultationStore.consultations
+        : _consultationStore.consultations
+            .where((c) => c.status == _selectedFilter)
+            .toList();
+
     return ListView.builder(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      itemCount: _consultationStore.consultations.length,
+      itemCount: filteredConsultations.length,
       itemBuilder: (context, index) {
-        final consultation = _consultationStore.consultations[index];
+        final consultation = filteredConsultations[index];
         return _buildConsultationCard(consultation);
       },
     );
@@ -441,16 +455,12 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
     );
 
     if (confirmed == true) {
-      final success =
-          await _consultationStore.startConsultation(consultation.id);
-      if (success && mounted) {
-        // TODO: trocar por flutter toast
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consulta iniciada com sucesso!'),
-            backgroundColor: AppTheme.successColor,
-          ),
+      await _consultationStore.startConsultation(consultation.id);
+      if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+        ToastUtils.showSuccessToast(
+          'Consulta iniciada com sucesso!',
         );
+        // ignore: use_build_context_synchronously
         context.push('/chat/${consultation.id}');
       }
     }
@@ -480,15 +490,10 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
     );
 
     if (confirmed == true) {
-      final success =
-          await _consultationStore.cancelConsultation(consultation.id);
-      if (success && mounted) {
-        // TODO: trocar por flutter toast
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consulta cancelada com sucesso!'),
-            backgroundColor: AppTheme.successColor,
-          ),
+      await _consultationStore.cancelConsultation(consultation.id);
+      if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+        ToastUtils.showSuccessToast(
+          'Consulta cancelada com sucesso!',
         );
       }
     }

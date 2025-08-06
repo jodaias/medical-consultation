@@ -144,10 +144,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       await _profileStore.updateProfile(data);
 
-      if (_profileStore.errorMessage == null && mounted) {
+      if (_profileStore.errorMessage == null) {
         ToastUtils.showSuccessToast('Perfil atualizado com sucesso!');
+        // ignore: use_build_context_synchronously
         context.pop();
-      } else if (mounted) {
+      } else {
         ToastUtils.showErrorToast(
             _profileStore.errorMessage ?? 'Erro ao atualizar perfil');
       }
@@ -180,10 +181,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       await _profileStore.updateMedicalInfo(data);
 
-      if (_profileStore.errorMessage == null && mounted) {
+      if (_profileStore.errorMessage == null) {
         ToastUtils.showSuccessToast(
             'Informações médicas atualizadas com sucesso!');
-      } else if (mounted) {
+      } else {
         ToastUtils.showErrorToast(_profileStore.errorMessage ??
             'Erro ao atualizar informações médicas');
       }
@@ -202,10 +203,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       await _profileStore.updateProfessionalInfo(data);
 
-      if (_profileStore.errorMessage == null && mounted) {
+      if (_profileStore.errorMessage == null) {
         ToastUtils.showSuccessToast(
             'Informações profissionais atualizadas com sucesso!');
-      } else if (mounted) {
+      } else {
         ToastUtils.showErrorToast(_profileStore.errorMessage ??
             'Erro ao atualizar informações profissionais');
       }

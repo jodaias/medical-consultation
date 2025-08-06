@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:medical_consultation_app/features/consultation/domain/stores/consultation_store.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
@@ -33,16 +35,12 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
   }
 
   void _onStartConsultation() async {
-    final success =
-        await _consultationStore.startConsultation(widget.consultationId);
-    if (success && mounted) {
-      // TODO: trocar por flutter toast
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Consulta iniciada com sucesso!'),
-          backgroundColor: AppTheme.successColor,
-        ),
+    await _consultationStore.startConsultation(widget.consultationId);
+    if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+      ToastUtils.showSuccessToast(
+        'Consulta iniciada com sucesso!',
       );
+      // ignore: use_build_context_synchronously
       context.push('/chat/${widget.consultationId}');
     }
   }
@@ -67,15 +65,10 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
     );
 
     if (confirmed == true) {
-      final success =
-          await _consultationStore.endConsultation(widget.consultationId);
-      if (success && mounted) {
-        // TODO: trocar por flutter toast
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consulta finalizada com sucesso!'),
-            backgroundColor: AppTheme.successColor,
-          ),
+      await _consultationStore.endConsultation(widget.consultationId);
+      if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+        ToastUtils.showSuccessToast(
+          'Consulta finalizada com sucesso!',
         );
         _loadConsultation();
       }
@@ -106,15 +99,12 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
     );
 
     if (confirmed == true) {
-      final success =
-          await _consultationStore.cancelConsultation(widget.consultationId);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consulta cancelada com sucesso!'),
-            backgroundColor: AppTheme.successColor,
-          ),
+      await _consultationStore.cancelConsultation(widget.consultationId);
+      if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+        ToastUtils.showSuccessToast(
+          'Consulta cancelada com sucesso!',
         );
+        // ignore: use_build_context_synchronously
         context.pop();
       }
     }
@@ -178,15 +168,10 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
                         rating: rating,
                         review: reviewController.text.trim(),
                       );
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Avaliação enviada com sucesso!'),
-                            backgroundColor: AppTheme.successColor,
-                          ),
-                        );
-                        _loadConsultation();
-                      }
+                      ToastUtils.showSuccessToast(
+                        'Avaliação enviada com sucesso!',
+                      );
+                      _loadConsultation();
                     }
                   : null,
               child: const Text('Enviar'),

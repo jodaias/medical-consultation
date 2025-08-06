@@ -24,6 +24,9 @@ abstract class ConsultationStoreBase with Store {
   RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
+  RequestStatusEnum doctorsRequestStatus = RequestStatusEnum.none;
+
+  @observable
   String? errorMessage;
 
   @observable
@@ -111,7 +114,7 @@ abstract class ConsultationStoreBase with Store {
   }
 
   @action
-  Future<bool> scheduleConsultation({
+  Future<void> scheduleConsultation({
     required String doctorId,
     required DateTime scheduledAt,
     String? notes,
@@ -129,16 +132,14 @@ abstract class ConsultationStoreBase with Store {
     if (result.success) {
       consultations.add(result.data);
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao agendar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> updateConsultation({
+  Future<void> updateConsultation({
     required String consultationId,
     DateTime? scheduledAt,
     String? notes,
@@ -167,16 +168,14 @@ abstract class ConsultationStoreBase with Store {
         selectedConsultation = updatedConsultation;
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao atualizar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> cancelConsultation(String consultationId) async {
+  Future<void> cancelConsultation(String consultationId) async {
     requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
@@ -190,16 +189,14 @@ abstract class ConsultationStoreBase with Store {
         );
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao cancelar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> startConsultation(String consultationId) async {
+  Future<void> startConsultation(String consultationId) async {
     requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
@@ -214,16 +211,14 @@ abstract class ConsultationStoreBase with Store {
         selectedConsultation = consultation;
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao iniciar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> endConsultation(String consultationId) async {
+  Future<void> endConsultation(String consultationId) async {
     requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
@@ -238,16 +233,14 @@ abstract class ConsultationStoreBase with Store {
         selectedConsultation = consultation;
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao finalizar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> rateConsultation({
+  Future<void> rateConsultation({
     required String consultationId,
     required double rating,
     String? review,
@@ -269,11 +262,9 @@ abstract class ConsultationStoreBase with Store {
         );
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       errorMessage = (result.error as String?) ?? 'Erro ao avaliar consulta';
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
@@ -305,7 +296,7 @@ abstract class ConsultationStoreBase with Store {
     String? specialty,
     DateTime? date,
   }) async {
-    requestStatus = RequestStatusEnum.loading;
+    doctorsRequestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
     final result = await _consultationService.getAvailableDoctors(
@@ -315,11 +306,29 @@ abstract class ConsultationStoreBase with Store {
     if (result.success) {
       availableDoctors.clear();
       availableDoctors.addAll(result.data);
-      requestStatus = RequestStatusEnum.success;
+      // Adiciona médicos de teste para facilitar testes no front
+      availableDoctors.addAll([
+        {
+          'id': 'doc_test_1',
+          'name': 'Teste Um',
+          'specialty': specialty ?? 'Clínico Geral',
+        },
+        {
+          'id': 'doc_test_2',
+          'name': 'Teste Dois',
+          'specialty': specialty ?? 'Pediatria',
+        },
+        {
+          'id': 'doc_test_3',
+          'name': 'Teste Três',
+          'specialty': specialty ?? 'Cardiologia',
+        },
+      ]);
+      doctorsRequestStatus = RequestStatusEnum.success;
     } else {
       errorMessage =
           (result.error as String?) ?? 'Erro ao buscar médicos disponíveis';
-      requestStatus = RequestStatusEnum.fail;
+      doctorsRequestStatus = RequestStatusEnum.fail;
     }
   }
 

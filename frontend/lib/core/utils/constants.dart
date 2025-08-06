@@ -13,6 +13,8 @@ class AppConstants {
   static const String baseUrl = 'http://192.168.10.123:3000';
   static const String socketUrl = 'http://192.168.10.123:3000';
 
+  static const bool isProduction = false;
+
   // Storage Keys
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';

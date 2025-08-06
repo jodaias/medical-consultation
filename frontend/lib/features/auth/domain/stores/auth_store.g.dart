@@ -139,7 +139,7 @@ mixin _$AuthStore on AuthStoreBase, Store {
       AsyncAction('AuthStoreBase.login', context: context);
 
   @override
-  Future<bool> login(String email, String password) {
+  Future<void> login(String email, String password) {
     return _$loginAsyncAction.run(() => super.login(email, password));
   }
 
@@ -147,7 +147,7 @@ mixin _$AuthStore on AuthStoreBase, Store {
       AsyncAction('AuthStoreBase.register', context: context);
 
   @override
-  Future<bool> register(
+  Future<void> register(
       {required String name,
       required String email,
       required String phone,
@@ -189,7 +189,7 @@ mixin _$AuthStore on AuthStoreBase, Store {
       AsyncAction('AuthStoreBase.resetPassword', context: context);
 
   @override
-  Future<bool> resetPassword(String email) {
+  Future<void> resetPassword(String email) {
     return _$resetPasswordAsyncAction.run(() => super.resetPassword(email));
   }
 

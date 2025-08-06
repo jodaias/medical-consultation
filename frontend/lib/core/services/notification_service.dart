@@ -78,18 +78,26 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // NÃO salva/envia token aqui; será feito após login/registro
+  }
 
-    // Obter token FCM
-    String? token = await _firebaseMessaging.getToken();
-    if (token != null) {
+  /// Chame este método após login/registro para salvar/enviar o token FCM
+  Future<void> registerFCMTokenIfAuthenticated() async {
+    final token = await _firebaseMessaging.getToken();
+    final userId = await _storageService.getUserId();
+    final isAuthenticated = await _storageService.isAuthenticated();
+    if (token != null && userId != null && isAuthenticated) {
       await _saveFCMToken(token);
       await sendTokenToServer(token);
     }
-
-    // Listener para mudanças no token
+    // Listener para mudanças no token (apenas se autenticado)
     _firebaseMessaging.onTokenRefresh.listen((newToken) async {
-      await _saveFCMToken(newToken);
-      await sendTokenToServer(newToken);
+      final userId = await _storageService.getUserId();
+      final isAuthenticated = await _storageService.isAuthenticated();
+      if (userId != null && isAuthenticated) {
+        await _saveFCMToken(newToken);
+        await sendTokenToServer(newToken);
+      }
     });
   }
 
@@ -225,12 +233,10 @@ class NotificationService {
   Future<RestResult<dynamic>> sendTokenToServer(String token) async {
     final userId = await _storageService.getUserId();
     if (userId != null) {
-      return await _apiService.postModel(
-        '/notifications/register-token',
+      return await _apiService.patchModel(
+        '/users/$userId/fcm-token',
         {
-          'userId': userId,
-          'token': token,
-          'platform': 'mobile',
+          'fcmToken': token,
         },
       );
     }

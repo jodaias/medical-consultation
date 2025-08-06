@@ -420,18 +420,20 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     );
 
     if (confirmed == true) {
-      final success = await _schedulingStore.cancelAppointment(appointmentId);
-      if (success && mounted) {
+      await _schedulingStore.cancelAppointment(appointmentId);
+      if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
         ToastUtils.showSuccessToast('Agendamento cancelado com sucesso');
+        // ignore: use_build_context_synchronously
         context.pop();
       }
     }
   }
 
   Future<void> _confirmAppointment(String appointmentId) async {
-    final success = await _schedulingStore.confirmAppointment(appointmentId);
-    if (success && mounted) {
+    await _schedulingStore.confirmAppointment(appointmentId);
+    if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
       ToastUtils.showSuccessToast('Agendamento confirmado com sucesso');
+      // ignore: use_build_context_synchronously
       context.pop();
     }
   }

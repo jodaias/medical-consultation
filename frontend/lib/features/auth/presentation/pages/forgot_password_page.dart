@@ -29,10 +29,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _resetPassword() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success =
-        await _authStore.resetPassword(_emailController.text.trim());
+    await _authStore.resetPassword(_emailController.text.trim());
 
-    if (success && mounted) {
+    if (_authStore.requestStatus == RequestStatusEnum.success) {
       setState(() {
         _isEmailSent = true;
       });

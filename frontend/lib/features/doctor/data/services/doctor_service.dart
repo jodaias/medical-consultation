@@ -27,9 +27,13 @@ class DoctorService {
     if (minRating != null) queryParams['minRating'] = minRating;
     if (maxPrice != null) queryParams['maxPrice'] = maxPrice;
     if (sortBy != null) queryParams['orderBy'] = sortBy;
-    return await rest.getList<DoctorModel>(
+    return await rest.getModel<List<DoctorModel>>(
       '/users',
-      (json) => DoctorModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => DoctorModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -44,9 +48,13 @@ class DoctorService {
 
   // Buscar especialidades
   Future<RestResult<List<SpecialtyModel>>> getSpecialties() async {
-    return await rest.getList<SpecialtyModel>(
+    return await rest.getModel<List<SpecialtyModel>>(
       '/users/specialties',
-      (json) => SpecialtyModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => SpecialtyModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -60,9 +68,13 @@ class DoctorService {
       'page': page,
       'limit': limit,
     };
-    return await rest.getList<RatingModel>(
+    return await rest.getModel<List<RatingModel>>(
       '/ratings/doctors/$doctorId',
-      (json) => RatingModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => RatingModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -90,17 +102,25 @@ class DoctorService {
 
   // Buscar médicos favoritos
   Future<RestResult<List<DoctorModel>>> getFavoriteDoctors() async {
-    return await rest.getList<DoctorModel>(
+    return await rest.getModel<List<DoctorModel>>(
       '/users/doctors/favorites',
-      (json) => DoctorModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => DoctorModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
   // Buscar médicos online
   Future<RestResult<List<DoctorModel>>> getOnlineDoctors() async {
-    return await rest.getList<DoctorModel>(
+    return await rest.getModel<List<DoctorModel>>(
       '/users/doctors/online',
-      (json) => DoctorModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => DoctorModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 

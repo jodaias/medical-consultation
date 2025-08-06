@@ -61,7 +61,8 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
     if (selectedDoctorId == null ||
         selectedDate == null ||
         selectedTime == null) {
-      _showErrorSnackBar('Por favor, preencha todos os campos obrigatórios');
+      ToastUtils.showErrorToast(
+          'Por favor, preencha todos os campos obrigatórios');
       return;
     }
 
@@ -74,26 +75,21 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
       int.parse(selectedTime!.split(':')[1]),
     );
 
-    final success = await _consultationStore.scheduleConsultation(
+    await _consultationStore.scheduleConsultation(
       doctorId: selectedDoctorId!,
       scheduledAt: scheduledAt,
       notes: _notesController.text.trim(),
       symptoms: _symptomsController.text.trim(),
     );
 
-    if (success) {
-      if (mounted) {
-        ToastUtils.showSuccessToast('Consulta agendada com sucesso!');
-        context.go('/patient');
-      }
+    if (_consultationStore.requestStatus == RequestStatusEnum.success) {
+      ToastUtils.showSuccessToast('Consulta agendada com sucesso!');
+      // ignore: use_build_context_synchronously
+      context.go('/patient');
     } else {
-      _showErrorSnackBar(
+      ToastUtils.showErrorToast(
           _consultationStore.errorMessage ?? 'Erro ao agendar consulta');
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ToastUtils.showErrorToast(message);
   }
 
   @override
@@ -227,50 +223,70 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
   }
 
   Widget _buildDoctorDropdown() {
-    return Container(
-      width: double.infinity,
-      padding:
-          const EdgeInsets.symmetric(horizontal: AppConstants.smallPadding),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.borderColor),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedDoctorId,
-          hint: const Text('Selecione um médico'),
-          isExpanded: true,
-          items: _consultationStore.availableDoctors.map((doctor) {
-            return DropdownMenuItem<String>(
-              value: doctor['id'] as String,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Dr. ${doctor['name']}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    doctor['specialty'] as String,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondaryColor,
+    return Observer(
+      builder: (context) {
+        final doctorsRequestStatus = _consultationStore.doctorsRequestStatus;
+        final availableDoctors = _consultationStore.availableDoctors;
+        return Container(
+          width: double.infinity,
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppConstants.smallPadding),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppTheme.borderColor),
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          ),
+          child: doctorsRequestStatus == RequestStatusEnum.loading
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
+                    SizedBox(width: 12),
+                    Text('Carregando médicos...'),
+                  ],
+                )
+              : DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedDoctorId,
+                    hint: const Text('Selecione um médico'),
+                    isExpanded: true,
+                    items: availableDoctors.map((doctor) {
+                      return DropdownMenuItem<String>(
+                        value: doctor['id'] as String,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Dr. ${doctor['name']}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              doctor['specialty'] as String,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedDoctorId = value;
+                        selectedDate = null;
+                        selectedTime = null;
+                      });
+                    },
                   ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedDoctorId = value;
-              selectedDate = null;
-              selectedTime = null;
-            });
-          },
-        ),
-      ),
+                ),
+        );
+      },
     );
   }
 

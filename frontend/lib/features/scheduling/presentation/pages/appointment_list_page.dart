@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
 import 'package:medical_consultation_app/features/scheduling/presentation/widgets/appointment_card.dart';
 import 'package:medical_consultation_app/features/scheduling/presentation/widgets/appointment_filters.dart';
@@ -250,18 +251,18 @@ class _AppointmentListPageState extends State<AppointmentListPage> {
     );
 
     if (confirmed == true) {
-      final success = await _schedulingStore.cancelAppointment(appointmentId);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Agendamento cancelado com sucesso')),
+      await _schedulingStore.cancelAppointment(appointmentId);
+      if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
+        ToastUtils.showSuccessToast(
+          'Agendamento cancelado com sucesso!',
         );
       }
     }
   }
 
   Future<void> _confirmAppointment(String appointmentId) async {
-    final success = await _schedulingStore.confirmAppointment(appointmentId);
-    if (success && mounted) {
+    await _schedulingStore.confirmAppointment(appointmentId);
+    if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Agendamento confirmado com sucesso')),
       );

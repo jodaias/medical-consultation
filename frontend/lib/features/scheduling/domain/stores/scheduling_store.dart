@@ -262,7 +262,7 @@ abstract class SchedulingStoreBase with Store {
   }
 
   @action
-  Future<bool> confirmAppointment(String appointmentId) async {
+  Future<void> confirmAppointment(String appointmentId) async {
     requestStatus = RequestStatusEnum.loading;
     error = null;
     final result = await _schedulingService.confirmAppointment(appointmentId);
@@ -273,16 +273,14 @@ abstract class SchedulingStoreBase with Store {
         appointments[index] = result.data;
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       error = result.error?.toString();
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 
   @action
-  Future<bool> cancelAppointment(String appointmentId, {String? reason}) async {
+  Future<void> cancelAppointment(String appointmentId, {String? reason}) async {
     requestStatus = RequestStatusEnum.loading;
     error = null;
     final result = await _schedulingService.cancelAppointment(appointmentId,
@@ -295,11 +293,9 @@ abstract class SchedulingStoreBase with Store {
         appointments[index] = appointment.copyWith(status: 'cancelled');
       }
       requestStatus = RequestStatusEnum.success;
-      return true;
     } else {
       error = result.error?.toString();
       requestStatus = RequestStatusEnum.fail;
-      return false;
     }
   }
 

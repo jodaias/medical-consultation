@@ -42,14 +42,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (image != null) {
         await _profileStore.uploadAvatar(image.path);
-        if (mounted) {
-          ToastUtils.showSuccessToast('Avatar atualizado com sucesso!');
-        }
+        ToastUtils.showSuccessToast('Avatar atualizado com sucesso!');
       }
     } catch (e) {
-      if (mounted) {
-        ToastUtils.showErrorToast('Erro ao atualizar avatar: $e');
-      }
+      ToastUtils.showErrorToast('Erro ao atualizar avatar: $e');
     }
   }
 
@@ -77,9 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () async {
                   context.pop();
                   await _profileStore.deleteAvatar();
-                  if (mounted) {
-                    ToastUtils.showSuccessToast('Avatar removido com sucesso!');
-                  }
+                  ToastUtils.showSuccessToast('Avatar removido com sucesso!');
                 },
               ),
           ],

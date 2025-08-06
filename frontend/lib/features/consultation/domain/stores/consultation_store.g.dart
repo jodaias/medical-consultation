@@ -113,6 +113,23 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
     });
   }
 
+  late final _$doctorsRequestStatusAtom = Atom(
+      name: 'ConsultationStoreBase.doctorsRequestStatus', context: context);
+
+  @override
+  RequestStatusEnum get doctorsRequestStatus {
+    _$doctorsRequestStatusAtom.reportRead();
+    return super.doctorsRequestStatus;
+  }
+
+  @override
+  set doctorsRequestStatus(RequestStatusEnum value) {
+    _$doctorsRequestStatusAtom.reportWrite(value, super.doctorsRequestStatus,
+        () {
+      super.doctorsRequestStatus = value;
+    });
+  }
+
   late final _$errorMessageAtom =
       Atom(name: 'ConsultationStoreBase.errorMessage', context: context);
 
@@ -233,7 +250,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       context: context);
 
   @override
-  Future<bool> scheduleConsultation(
+  Future<void> scheduleConsultation(
       {required String doctorId,
       required DateTime scheduledAt,
       String? notes,
@@ -250,7 +267,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       AsyncAction('ConsultationStoreBase.updateConsultation', context: context);
 
   @override
-  Future<bool> updateConsultation(
+  Future<void> updateConsultation(
       {required String consultationId,
       DateTime? scheduledAt,
       String? notes,
@@ -270,7 +287,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       AsyncAction('ConsultationStoreBase.cancelConsultation', context: context);
 
   @override
-  Future<bool> cancelConsultation(String consultationId) {
+  Future<void> cancelConsultation(String consultationId) {
     return _$cancelConsultationAsyncAction
         .run(() => super.cancelConsultation(consultationId));
   }
@@ -279,7 +296,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       AsyncAction('ConsultationStoreBase.startConsultation', context: context);
 
   @override
-  Future<bool> startConsultation(String consultationId) {
+  Future<void> startConsultation(String consultationId) {
     return _$startConsultationAsyncAction
         .run(() => super.startConsultation(consultationId));
   }
@@ -288,7 +305,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       AsyncAction('ConsultationStoreBase.endConsultation', context: context);
 
   @override
-  Future<bool> endConsultation(String consultationId) {
+  Future<void> endConsultation(String consultationId) {
     return _$endConsultationAsyncAction
         .run(() => super.endConsultation(consultationId));
   }
@@ -297,7 +314,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       AsyncAction('ConsultationStoreBase.rateConsultation', context: context);
 
   @override
-  Future<bool> rateConsultation(
+  Future<void> rateConsultation(
       {required String consultationId,
       required double rating,
       String? review}) {
@@ -405,6 +422,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
 consultations: ${consultations},
 selectedConsultation: ${selectedConsultation},
 requestStatus: ${requestStatus},
+doctorsRequestStatus: ${doctorsRequestStatus},
 errorMessage: ${errorMessage},
 selectedStatus: ${selectedStatus},
 selectedDate: ${selectedDate},

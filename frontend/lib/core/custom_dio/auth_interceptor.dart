@@ -7,11 +7,12 @@ import 'package:medical_consultation_app/features/auth/data/services/auth_servic
 
 class AuthInterceptor extends Interceptor {
   final Dio dio;
+  final AuthService authService;
+
   // final _cacheStore = getIt<CacheStore<TokenModel>>();
   final storageService = getIt<StorageService>();
-  final authService = getIt<AuthService>();
 
-  AuthInterceptor(this.dio);
+  AuthInterceptor(this.dio, this.authService);
 
   @override
   Future<void> onRequest(

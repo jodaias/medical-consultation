@@ -578,7 +578,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
 
         // Chamar AuthStore para registro
-        final success = await _authStore.register(
+        await _authStore.register(
           name: registerData['name'],
           email: registerData['email'],
           phone: registerData['phone'],
@@ -590,29 +590,24 @@ class _RegisterPageState extends State<RegisterPage> {
           hourlyRate: registerData['hourlyRate'],
         );
 
-        if (mounted) {
-          if (!success && _authStore.errorMessage != null) {
-            ToastUtils.showErrorToast(
-                'Registro falhou: ${_authStore.errorMessage ?? 'Erro desconhecido'}');
-            return;
-          }
+        if (_authStore.requestStatus == RequestStatusEnum.success) {
+          ToastUtils.showSuccessToast('Conta criada com sucesso!');
 
-          if (success) {
-            ToastUtils.showSuccessToast('Conta criada com sucesso!');
-
-            // Navegar para a tela principal baseada no tipo de usuário
-            if (_selectedUserType == AppConstants.doctorType) {
-              context.go('/doctor');
-            } else {
-              context.go('/patient');
-            }
+          // Navegar para a tela principal baseada no tipo de usuário
+          if (_selectedUserType == AppConstants.doctorType) {
+            // ignore: use_build_context_synchronously
+            context.go('/doctor');
+          } else {
+            // ignore: use_build_context_synchronously
+            context.go('/patient');
           }
+        } else {
+          ToastUtils.showErrorToast(
+              'Registro falhou: ${_authStore.errorMessage ?? 'Erro desconhecido'}');
         }
       } catch (e) {
-        if (mounted) {
-          ToastUtils.showErrorToast(
-              'Erro ao criar conta: ${_authStore.errorMessage ?? e}');
-        }
+        ToastUtils.showErrorToast(
+            'Erro ao criar conta: ${_authStore.errorMessage ?? e}');
       }
     }
   }

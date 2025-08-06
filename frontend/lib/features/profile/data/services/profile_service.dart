@@ -133,9 +133,13 @@ class ProfileService {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
-    return rest.getList<Map<String, dynamic>>(
+    return rest.getModel<List<Map<String, dynamic>>>(
       '/profile/activity',
-      (json) => Map<String, dynamic>.from(json ?? {}),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }

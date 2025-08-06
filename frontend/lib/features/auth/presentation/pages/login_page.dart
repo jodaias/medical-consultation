@@ -214,9 +214,9 @@ class _LoginPageState extends State<LoginPage> {
         final password = formData['password'];
 
         // Implementar login com AuthStore
-        final success = await _authStore.login(email, password);
+        await _authStore.login(email, password);
 
-        if (mounted && success) {
+        if (_authStore.requestStatus == RequestStatusEnum.success) {
           ToastUtils.showSuccessToast('Login realizado com sucesso!');
 
           // Navegar para a tela principal baseada no tipo de usuário
@@ -227,10 +227,8 @@ class _LoginPageState extends State<LoginPage> {
           }
         }
       } catch (e) {
-        if (mounted) {
-          ToastUtils.showErrorToast(
-              'Erro ao fazer login: ${_authStore.errorMessage ?? e}');
-        }
+        ToastUtils.showErrorToast(
+            'Erro ao fazer login: ${_authStore.errorMessage ?? e}');
       }
     }
   }

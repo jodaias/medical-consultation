@@ -58,9 +58,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authStore.logout();
-              if (context.mounted) {
-                context.go('/login');
-              }
+              context.go('/login');
             },
           ),
         ],

@@ -121,9 +121,13 @@ class ChatService {
   // Buscar mensagens (novo padrão)
   Future<RestResult<List<MessageModel>>> getMessages(
       String consultationId) async {
-    return await rest.getList<MessageModel>(
+    return await rest.getModel<List<MessageModel>>(
       'messages/consultation/$consultationId',
-      (json) => MessageModel.fromJson(json!),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 

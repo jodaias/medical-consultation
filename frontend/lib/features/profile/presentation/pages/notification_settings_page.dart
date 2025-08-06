@@ -61,9 +61,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
     await _profileStore.updateNotificationSettings(settings);
 
-    if (_profileStore.errorMessage == null && mounted) {
+    if (_profileStore.errorMessage == null) {
       ToastUtils.showSuccessToast('Configurações salvas com sucesso!');
-    } else if (mounted) {
+    } else {
       ToastUtils.showErrorToast(
           _profileStore.errorMessage ?? 'Erro ao salvar configurações');
     }

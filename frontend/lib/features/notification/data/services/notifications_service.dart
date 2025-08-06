@@ -15,9 +15,14 @@ class NotificationsService {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
-    return rest.getList<NotificationModel>(
+    return rest.getModel<List<NotificationModel>>(
       '/dashboard/notifications',
-      (json) => NotificationModel.fromJson(json ?? {}),
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map(
+                  (e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }

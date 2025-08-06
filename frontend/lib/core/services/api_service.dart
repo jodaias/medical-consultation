@@ -1,3 +1,5 @@
+import 'package:medical_consultation_app/core/custom_dio/auth_interceptor.dart';
+import 'package:medical_consultation_app/core/custom_dio/print_log_interceptor.dart';
 import 'package:medical_consultation_app/features/profile/data/services/profile_service.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_dashboard_service.dart';
 import 'package:medical_consultation_app/features/consultation/data/services/consultation_service.dart';
@@ -71,31 +73,11 @@ class ApiService extends Rest {
     _fileUploadService = FileUploadService(this);
     _chatService = ChatService(this);
     _consultationService = ConsultationService(this);
-  }
 
-  Future<bool> refreshToken() async {
-    try {
-      final storageService = getIt<StorageService>();
-      final refreshToken = await storageService.getRefreshToken();
-
-      if (refreshToken == null) return false;
-
-      final result = await postModel('/users/refresh', {
-        'refreshToken': refreshToken,
-      });
-
-      if (result.success) {
-        final newToken = result.data['data']['token'];
-        final newRefreshToken = result.data['data']['refreshToken'];
-
-        await storageService.saveToken(newToken);
-        await storageService.saveRefreshToken(newRefreshToken);
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      return false;
+    if (AppConstants.isProduction) {
+      addInterceptor(PrintLogInterceptor());
     }
+
+    addInterceptor(AuthInterceptor(dio, _authService));
   }
 }

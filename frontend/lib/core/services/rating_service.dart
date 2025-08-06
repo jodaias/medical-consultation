@@ -42,9 +42,13 @@ class RatingService {
     if (sortBy != null) queryParams['sortBy'] = sortBy;
     if (order != null) queryParams['order'] = order;
 
-    return await _rest.getList<Map<String, dynamic>>(
+    return await _rest.getModel<List<Map<String, dynamic>>>(
       'ratings/doctors/$doctorId',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -129,9 +133,13 @@ class RatingService {
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
-    return await _rest.getList<Map<String, dynamic>>(
+    return await _rest.getModel<List<Map<String, dynamic>>>(
       'ratings/user',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }
@@ -147,9 +155,13 @@ class RatingService {
 
   // Obter critérios de avaliação
   Future<RestResult<List<Map<String, dynamic>>>> getRatingCriteria() async {
-    return await _rest.getList<Map<String, dynamic>>(
+    return await _rest.getModel<List<Map<String, dynamic>>>(
       'ratings/criteria',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 

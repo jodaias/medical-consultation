@@ -7,7 +7,7 @@ class UserModel {
   final String id;
   final String name;
   final String email;
-  final String userType; // 'patient' ou 'doctor'
+  final String userType; // 'PATIENT' ou 'DOCTOR'
   final String? phone;
   final String? avatar;
   final String? specialty; // Apenas para médicos

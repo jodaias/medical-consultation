@@ -29,27 +29,39 @@ class PatientDashboardService extends DashboardBaseService {
   // Consultas recentes do paciente
   Future<RestResult<List<Map<String, dynamic>>>> getRecentConsultations(
       String patientId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/consultations/patients/$patientId/recent',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
   // Próximas consultas do paciente
   Future<RestResult<List<Map<String, dynamic>>>> getUpcomingConsultations(
       String patientId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/consultations/patients/$patientId/upcoming',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
   // Médicos favoritos
   Future<RestResult<List<Map<String, dynamic>>>> getFavoriteDoctors(
       String patientId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/users/patients/$patientId/favorite-doctors',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
@@ -65,9 +77,13 @@ class PatientDashboardService extends DashboardBaseService {
   // Prescrições recentes
   Future<RestResult<List<Map<String, dynamic>>>> getRecentPrescriptions(
       String patientId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       'prescriptions/patients/$patientId/recent',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
@@ -90,9 +106,13 @@ class PatientDashboardService extends DashboardBaseService {
 
   // Buscar alertas e insights
   Future<RestResult<List<Map<String, dynamic>>>> getAlertsAndInsights() async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/dashboard/alerts',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 }

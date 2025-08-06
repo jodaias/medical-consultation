@@ -57,9 +57,13 @@ class DashboardService {
       {int? limit}) async {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/dashboard/notifications',
-      (item) => item as Map<String, dynamic>,
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
       query: queryParams,
     );
   }

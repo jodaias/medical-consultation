@@ -348,7 +348,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       AsyncAction('SchedulingStoreBase.confirmAppointment', context: context);
 
   @override
-  Future<bool> confirmAppointment(String appointmentId) {
+  Future<void> confirmAppointment(String appointmentId) {
     return _$confirmAppointmentAsyncAction
         .run(() => super.confirmAppointment(appointmentId));
   }
@@ -357,7 +357,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       AsyncAction('SchedulingStoreBase.cancelAppointment', context: context);
 
   @override
-  Future<bool> cancelAppointment(String appointmentId, {String? reason}) {
+  Future<void> cancelAppointment(String appointmentId, {String? reason}) {
     return _$cancelAppointmentAsyncAction
         .run(() => super.cancelAppointment(appointmentId, reason: reason));
   }

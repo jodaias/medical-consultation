@@ -29,18 +29,26 @@ class DoctorDashboardService extends DashboardBaseService {
   // Consultas próximas do médico
   Future<RestResult<List<Map<String, dynamic>>>> getUpcomingConsultations(
       String doctorId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/consultations/doctors/$doctorId/upcoming',
-      (mp) => mp ?? <String, dynamic>{},
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
   // Pacientes recentes
   Future<RestResult<List<Map<String, dynamic>>>> getRecentPatients(
       String doctorId) async {
-    return await rest.getList<Map<String, dynamic>>(
+    return await rest.getModel<List<Map<String, dynamic>>>(
       '/users/doctors/$doctorId/recent-patients',
-      (mp) => mp ?? <String, dynamic>{},
+      (json) =>
+          (json?['data'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [],
     );
   }
 
