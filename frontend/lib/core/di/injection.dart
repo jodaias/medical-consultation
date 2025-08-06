@@ -1,3 +1,5 @@
+import 'package:medical_consultation_app/features/doctor/data/services/doctor_dashboard_service.dart';
+import 'package:medical_consultation_app/features/chat/data/services/chat_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/core/router/app_router.dart';
@@ -5,12 +7,12 @@ import 'package:medical_consultation_app/core/services/api_service.dart';
 import 'package:medical_consultation_app/core/services/notification_service.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
-import 'package:medical_consultation_app/core/services/payment_service.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';
 import 'package:medical_consultation_app/core/services/rating_service.dart';
 import 'package:medical_consultation_app/features/auth/data/services/auth_service.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/features/chat/domain/stores/chat_store.dart';
+import 'package:medical_consultation_app/features/consultation/data/services/consultation_service.dart';
 import 'package:medical_consultation_app/features/consultation/domain/stores/consultation_store.dart';
 import 'package:medical_consultation_app/features/patient/data/services/patient_dashboard_service.dart';
 import 'package:medical_consultation_app/features/profile/data/services/profile_service.dart';
@@ -30,9 +32,7 @@ final GetIt getIt = GetIt.instance;
 @InjectableInit()
 Future<void> configureDependencies() async {
   // Initialize API Service
-  final apiService = ApiService();
-  apiService.initialize();
-  getIt.registerLazySingleton<ApiService>(() => apiService);
+  getIt.registerLazySingleton<ApiService>(() => ApiService.instance);
 
   // Initialize Storage Service
   final storageService = StorageService();
@@ -40,37 +40,39 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<StorageService>(() => storageService);
 
   // Initialize Notification Service
-  final notificationService = NotificationService(storageService, apiService);
+  final notificationService =
+      NotificationService(storageService, ApiService.instance);
   await notificationService.initialize();
   getIt.registerLazySingleton<NotificationService>(() => notificationService);
 
-  // Initialize File Upload Service
-  final fileUploadService = FileUploadService(apiService, storageService);
-  getIt.registerLazySingleton<FileUploadService>(() => fileUploadService);
-
-  // Initialize Payment Service
-  final paymentService = PaymentService(apiService, storageService);
-  getIt.registerLazySingleton<PaymentService>(() => paymentService);
-
-  // Initialize Report Service
-  final reportService = ReportService(apiService, storageService);
-  getIt.registerLazySingleton<ReportService>(() => reportService);
-
-  // Initialize Rating Service
-  final ratingService = RatingService(apiService, storageService);
-  getIt.registerLazySingleton<RatingService>(() => ratingService);
-
-  // Register services
-  getIt.registerLazySingleton<AuthService>(() => AuthService());
-  getIt.registerLazySingleton<ProfileService>(() => ProfileService());
+  // Refatoração dos services para padrão centralizado via ApiService
+  // Remover instâncias diretas e garantir que todos usem ApiService.instance
+  getIt.registerLazySingleton<ConsultationService>(
+      () => ApiService.instance.consultationService);
+  getIt.registerLazySingleton<ReportService>(
+      () => ApiService.instance.reportService);
+  getIt.registerLazySingleton<RatingService>(
+      () => ApiService.instance.ratingService);
+  getIt.registerLazySingleton<AuthService>(
+      () => ApiService.instance.authService);
   getIt.registerLazySingleton<PatientDashboardService>(
-      () => PatientDashboardService());
+      () => ApiService.instance.patientDashboardService);
   getIt.registerLazySingleton<DoctorService>(
-      () => DoctorService(getIt<ApiService>()));
+      () => ApiService.instance.doctorService);
   getIt.registerLazySingleton<SchedulingService>(
-      () => SchedulingService(getIt<ApiService>()));
+      () => ApiService.instance.schedulingService);
   getIt.registerLazySingleton<NotificationsService>(
-      () => NotificationsService(getIt<ApiService>()));
+      () => ApiService.instance.notificationsService);
+  getIt.registerLazySingleton<FileUploadService>(
+      () => ApiService.instance.fileUploadService);
+  getIt.registerLazySingleton<ChatService>(
+      () => ApiService.instance.chatService);
+  getIt.registerLazySingleton<DoctorDashboardService>(
+    () => ApiService.instance.doctorDashboardService,
+  );
+  getIt.registerLazySingleton<ProfileService>(
+    () => ApiService.instance.profileService,
+  );
 
   // Register router
   getIt.registerLazySingleton<AppRouter>(() => AppRouter());
@@ -81,10 +83,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<ConsultationStore>(() => ConsultationStore());
   getIt.registerLazySingleton<ProfileStore>(() => ProfileStore());
   getIt.registerLazySingleton<NotificationsStore>(() => NotificationsStore());
-  getIt.registerLazySingleton<DoctorStore>(
-      () => DoctorStore(getIt<DoctorService>()));
-  getIt.registerLazySingleton<SchedulingStore>(
-      () => SchedulingStore(getIt<SchedulingService>()));
+  getIt.registerLazySingleton<DoctorStore>(() => DoctorStore());
+  getIt.registerLazySingleton<SchedulingStore>(() => SchedulingStore());
   getIt.registerLazySingleton<PatientStore>(() => PatientStore());
   getIt.registerLazySingleton<PatientDashboardStore>(
       () => PatientDashboardStore());

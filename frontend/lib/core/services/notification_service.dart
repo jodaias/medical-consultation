@@ -6,6 +6,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
+import 'package:medical_consultation_app/core/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 @injectable
 class NotificationService {
@@ -80,13 +83,13 @@ class NotificationService {
     String? token = await _firebaseMessaging.getToken();
     if (token != null) {
       await _saveFCMToken(token);
-      await _sendTokenToServer(token);
+      await sendTokenToServer(token);
     }
 
     // Listener para mudanças no token
     _firebaseMessaging.onTokenRefresh.listen((newToken) async {
       await _saveFCMToken(newToken);
-      await _sendTokenToServer(newToken);
+      await sendTokenToServer(newToken);
     });
   }
 
@@ -173,25 +176,43 @@ class NotificationService {
   }
 
   void _handleNotificationNavigation(Map<String, dynamic> data) {
-    // Implementar navegação baseada no tipo de notificação
     final type = data['type'];
-    final id = data['id'];
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
 
     switch (type) {
-      case 'consultation_started':
-        // Navegar para chat da consulta
-        break;
       case 'new_message':
-        // Navegar para chat
+        final consultationId = data['consultationId'];
+        if (consultationId != null) {
+          context.go('/chat/$consultationId');
+        }
         break;
-      case 'appointment_reminder':
-        // Navegar para detalhes do agendamento
+      case 'consultation':
+      case 'consultation_update':
+      case 'consultation_cancel':
+        final consultationId = data['consultationId'];
+        if (consultationId != null) {
+          context.go('/consultation/$consultationId');
+        }
         break;
-      case 'prescription_ready':
-        // Navegar para prescrições
+      case 'prescription':
+        final prescriptionId = data['prescriptionId'];
+        if (prescriptionId != null) {
+          context.go('/prescriptions/$prescriptionId');
+        } else {
+          context.go('/profile');
+        }
+        break;
+      case 'report':
+        final reportId = data['reportId'];
+        if (reportId != null) {
+          context.go('/reports/$reportId');
+        } else {
+          context.go('/profile');
+        }
         break;
       default:
-        // Navegar para tela principal
+        context.go('/');
         break;
     }
   }
@@ -200,19 +221,20 @@ class NotificationService {
     await _storageService.saveFCMToken(token);
   }
 
-  Future<void> _sendTokenToServer(String token) async {
-    try {
-      final userId = await _storageService.getUserId();
-      if (userId != null) {
-        await _apiService.post('/notifications/register-token', data: {
+  // Enviar token FCM para o servidor seguindo novo padrão
+  Future<RestResult<dynamic>> sendTokenToServer(String token) async {
+    final userId = await _storageService.getUserId();
+    if (userId != null) {
+      return await _apiService.postModel(
+        '/notifications/register-token',
+        {
           'userId': userId,
           'token': token,
           'platform': 'mobile',
-        });
-      }
-    } catch (e) {
-      print('Erro ao enviar token para o servidor: $e');
+        },
+      );
     }
+    return RestResult<dynamic>()..error = Exception('Usuário não encontrado');
   }
 
   // Métodos públicos para gerenciar notificações

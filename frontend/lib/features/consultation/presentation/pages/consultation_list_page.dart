@@ -7,6 +7,7 @@ import 'package:medical_consultation_app/features/consultation/domain/stores/con
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class ConsultationListPage extends StatefulWidget {
   const ConsultationListPage({super.key});
@@ -81,7 +82,8 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
           Expanded(
             child: Observer(
               builder: (_) {
-                if (_consultationStore.isLoading) {
+                if (_consultationStore.requestStatus ==
+                    RequestStatusEnum.loading) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
@@ -427,11 +429,11 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
         content: const Text('Deseja iniciar esta consulta?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             child: const Text('Iniciar'),
           ),
         ],
@@ -442,6 +444,7 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
       final success =
           await _consultationStore.startConsultation(consultation.id);
       if (success && mounted) {
+        // TODO: trocar por flutter toast
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Consulta iniciada com sucesso!'),
@@ -461,11 +464,11 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
         content: const Text('Tem certeza que deseja cancelar esta consulta?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Não'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
               foregroundColor: Colors.white,
@@ -480,6 +483,7 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
       final success =
           await _consultationStore.cancelConsultation(consultation.id);
       if (success && mounted) {
+        // TODO: trocar por flutter toast
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Consulta cancelada com sucesso!'),

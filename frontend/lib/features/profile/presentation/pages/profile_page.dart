@@ -7,6 +7,7 @@ import 'package:medical_consultation_app/features/profile/domain/stores/profile_
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -64,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: const Icon(Icons.photo_library),
               title: const Text('Escolher da galeria'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _pickImage();
               },
             ),
@@ -74,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 title: const Text('Remover avatar',
                     style: TextStyle(color: Colors.red)),
                 onTap: () async {
-                  Navigator.pop(context);
+                  context.pop();
                   await _profileStore.deleteAvatar();
                   if (mounted) {
                     ToastUtils.showSuccessToast('Avatar removido com sucesso!');
@@ -102,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_profileStore.isLoading) {
+          if (_profileStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -154,7 +155,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         )
                       : null,
                 ),
-                if (_profileStore.isUploadingAvatar)
+                if (_profileStore.uploadAvatarStatus ==
+                    RequestStatusEnum.loading)
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
@@ -424,12 +426,12 @@ class _ProfilePageState extends State<ProfilePage> {
         content: const Text('Tem certeza que deseja sair?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
               _authStore.logout();
               context.go('/login');
             },

@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/features/notification/data/models/notification_model.dart';
-import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/notification/domain/stores/notifications_store.dart';
 import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
 import 'package:medical_consultation_app/features/shared/dashboard/models/dashboard_stats_model.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class PatientDashboardPage extends StatefulWidget {
   const PatientDashboardPage({super.key});
@@ -18,8 +18,8 @@ class PatientDashboardPage extends StatefulWidget {
 }
 
 class _PatientDashboardPageState extends State<PatientDashboardPage> {
-  final _dashboardStore = getIt<PatientDashboardStore>();
-  final _notifitcationsStore = getIt<NotificationsStore>();
+  final _patientDashboardStore = getIt<PatientDashboardStore>();
+  final _notificationsStore = getIt<NotificationsStore>();
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
   }
 
   Future<void> _loadDashboardData() async {
-    await _dashboardStore.refreshData();
+    await _patientDashboardStore.refreshData();
   }
 
   @override
@@ -50,11 +50,12 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_dashboardStore.isLoading) {
+          if (_patientDashboardStore.requestStatus ==
+              RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (_dashboardStore.errorMessage != null) {
+          if (_patientDashboardStore.errorMessage != null) {
             return _buildErrorWidget();
           }
 
@@ -118,10 +119,10 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
     return Observer(
       builder: (_) => FilterChip(
         label: Text(label),
-        selected: _dashboardStore.selectedPeriod == period,
+        selected: _patientDashboardStore.selectedPeriod == period,
         onSelected: (selected) {
           if (selected) {
-            _dashboardStore.setPeriod(period);
+            _patientDashboardStore.setPeriod(period);
           }
         },
         selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
@@ -133,7 +134,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
   Widget _buildStatsCards() {
     return Observer(
       builder: (_) {
-        final stats = _dashboardStore.stats;
+        final stats = _patientDashboardStore.stats;
         if (stats == null) return const SizedBox.shrink();
 
         return GridView.count(
@@ -221,7 +222,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
             const SizedBox(height: 16),
             Observer(
               builder: (_) {
-                final stats = _dashboardStore.stats;
+                final stats = _patientDashboardStore.stats;
                 if (stats == null) return const SizedBox.shrink();
 
                 return Column(
@@ -410,7 +411,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
             const SizedBox(height: 16),
             Observer(
               builder: (_) {
-                final notifications = _notifitcationsStore.recentNotifications;
+                final notifications = _notificationsStore.recentNotifications;
                 if (notifications.isEmpty) {
                   return const Center(
                     child: Padding(
@@ -463,7 +464,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
   Widget _buildAlertsAndInsights() {
     return Observer(
       builder: (_) {
-        final alerts = _dashboardStore.alertsAndInsights;
+        final alerts = _patientDashboardStore.alertsAndInsights;
         if (alerts.isEmpty) return const SizedBox.shrink();
 
         return Card(
@@ -548,7 +549,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
           const SizedBox(height: 8),
           Observer(
             builder: (_) => Text(
-              _dashboardStore.errorMessage ?? 'Erro desconhecido',
+              _patientDashboardStore.errorMessage ?? 'Erro desconhecido',
               style: TextStyle(color: AppTheme.textSecondaryColor),
               textAlign: TextAlign.center,
             ),
@@ -567,7 +568,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
     switch (type) {
       case 'consultation':
         return AppTheme.primaryColor;
-      case 'message':
+      case 'new_message':
         return Colors.blue;
       case 'system':
         return Colors.grey;
@@ -622,7 +623,7 @@ class _PatientDashboardPageState extends State<PatientDashboardPage> {
   }
 
   void _onNotificationTap(NotificationModel notification) {
-    _notifitcationsStore.markNotificationAsRead(notification.id);
+    _notificationsStore.markNotificationAsRead(notification.id);
 
     if (notification.consultationId != null) {
       context.push('/consultation/${notification.consultationId}');

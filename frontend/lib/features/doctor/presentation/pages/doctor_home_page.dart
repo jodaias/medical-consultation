@@ -6,6 +6,7 @@ import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_dashboard_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class DoctorHomePage extends StatefulWidget {
   const DoctorHomePage({super.key});
@@ -34,16 +35,19 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
           Observer(
             builder: (context) => IconButton(
               icon: Icon(
-                dashboardStore.isLoading
+                dashboardStore.requestStatus == RequestStatusEnum.loading
                     ? Icons.refresh
                     : Icons.refresh_outlined,
-                color: dashboardStore.isLoading ? AppTheme.primaryColor : null,
+                color: dashboardStore.requestStatus == RequestStatusEnum.loading
+                    ? AppTheme.primaryColor
+                    : null,
               ),
-              onPressed: dashboardStore.isLoading
-                  ? null
-                  : () async {
-                      await dashboardStore.refreshData();
-                    },
+              onPressed:
+                  dashboardStore.requestStatus == RequestStatusEnum.loading
+                      ? null
+                      : () async {
+                          await dashboardStore.refreshData();
+                        },
             ),
           ),
           IconButton(
@@ -283,6 +287,22 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               },
             ),
             _buildMenuCard(
+              title: 'Prescrições',
+              icon: Icons.receipt_long,
+              color: AppTheme.getCardInfo(),
+              onTap: () {
+                context.push('/prescriptions');
+              },
+            ),
+            _buildMenuCard(
+              title: 'Relatórios/Exames',
+              icon: Icons.description,
+              color: AppTheme.getCardSecondary(),
+              onTap: () {
+                context.push('/reports');
+              },
+            ),
+            _buildMenuCard(
               title: 'Dashboard',
               icon: Icons.analytics,
               color: AppTheme.getCardWarning(),
@@ -406,14 +426,14 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navegar para agenda completa
+                    context.push('/consultations');
                   },
                   child: const Text('Ver todas'),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            if (dashboardStore.isLoading)
+            if (dashboardStore.requestStatus == RequestStatusEnum.loading)
               const Center(child: CircularProgressIndicator())
             else if (dashboardStore.hasError)
               Card(

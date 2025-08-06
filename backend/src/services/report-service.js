@@ -1,6 +1,6 @@
 const ReportRepository = require('../repositories/report-repository');
 const { CreateReportDTO, ReportResponseDTO } = require('../dto/report-dto');
-const { ValidationException, NotFoundException } = require('../exceptions/app-exception');
+const { ValidationException } = require('../exceptions/app-exception');
 
 /**
  * ReportService - Implementa a lógica de negócio para relatórios
@@ -9,6 +9,8 @@ const { ValidationException, NotFoundException } = require('../exceptions/app-ex
 class ReportService {
   constructor() {
     this.reportRepository = new ReportRepository();
+    this.userRepository = require('../repositories/user-repository');
+    this.fcm = require('../utils/fcm');
   }
 
   async create(data) {
@@ -21,6 +23,25 @@ class ReportService {
 
     const reportData = dto.toEntity();
     const report = await this.reportRepository.create(reportData);
+
+    // Notificar paciente (caso tenha fcmToken)
+    try {
+      if (report.user && report.user.fcmToken) {
+        await this.fcm.sendFcmNotification(
+          report.user.fcmToken,
+          {
+            title: 'Novo relatório disponível',
+            body: 'Um novo relatório/exame foi adicionado ao seu histórico.'
+          },
+          {
+            type: 'report',
+            reportId: report.id
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Erro ao enviar notificação FCM (relatório):', err.message);
+    }
 
     return ReportResponseDTO.fromEntity(report);
   }

@@ -31,6 +31,22 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
               name: 'PatientDashboardStoreBase.hasRecentPrescriptions'))
       .value;
 
+  late final _$requestStatusAtom =
+      Atom(name: 'PatientDashboardStoreBase.requestStatus', context: context);
+
+  @override
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
+  }
+
+  @override
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
+    });
+  }
+
   late final _$selectedPeriodAtom =
       Atom(name: 'PatientDashboardStoreBase.selectedPeriod', context: context);
 
@@ -298,6 +314,7 @@ mixin _$PatientDashboardStore on PatientDashboardStoreBase, Store {
   @override
   String toString() {
     return '''
+requestStatus: ${requestStatus},
 selectedPeriod: ${selectedPeriod},
 stats: ${stats},
 totalConsultations: ${totalConsultations},

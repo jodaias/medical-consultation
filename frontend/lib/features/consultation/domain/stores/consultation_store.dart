@@ -2,6 +2,8 @@ import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 import 'package:medical_consultation_app/features/consultation/data/services/consultation_service.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 part 'consultation_store.g.dart';
 
@@ -9,7 +11,7 @@ part 'consultation_store.g.dart';
 class ConsultationStore = ConsultationStoreBase with _$ConsultationStore;
 
 abstract class ConsultationStoreBase with Store {
-  final ConsultationService _consultationService = ConsultationService();
+  final _consultationService = getIt<ConsultationService>();
 
   @observable
   ObservableList<ConsultationModel> consultations =
@@ -19,7 +21,7 @@ abstract class ConsultationStoreBase with Store {
   ConsultationModel? selectedConsultation;
 
   @observable
-  bool isLoading = false;
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
   String? errorMessage;
@@ -76,38 +78,35 @@ abstract class ConsultationStoreBase with Store {
     String? userId,
     String? userType,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
-
-    try {
-      final consultationsList = await _consultationService.getConsultations(
-        status: status,
-        userId: userId,
-        userType: userType,
-      );
-
+    final result = await _consultationService.getConsultations(
+      status: status,
+      userId: userId,
+      userType: userType,
+    );
+    if (result.success) {
       consultations.clear();
-      consultations.addAll(consultationsList);
-    } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+      consultations.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao buscar consultas';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadConsultation(String consultationId) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final consultation =
-          await _consultationService.getConsultation(consultationId);
-      selectedConsultation = consultation;
-    } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+    final result = await _consultationService.getConsultation(consultationId);
+    if (result.success) {
+      selectedConsultation = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao buscar consulta';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -118,24 +117,23 @@ abstract class ConsultationStoreBase with Store {
     String? notes,
     String? symptoms,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final consultation = await _consultationService.scheduleConsultation(
-        doctorId: doctorId,
-        scheduledAt: scheduledAt,
-        notes: notes,
-        symptoms: symptoms,
-      );
-
-      consultations.add(consultation);
+    final result = await _consultationService.scheduleConsultation(
+      doctorId: doctorId,
+      scheduledAt: scheduledAt,
+      notes: notes,
+      symptoms: symptoms,
+    );
+    if (result.success) {
+      consultations.add(result.data);
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao agendar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -148,112 +146,103 @@ abstract class ConsultationStoreBase with Store {
     String? diagnosis,
     String? prescription,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final updatedConsultation = await _consultationService.updateConsultation(
-        consultationId: consultationId,
-        scheduledAt: scheduledAt,
-        notes: notes,
-        symptoms: symptoms,
-        diagnosis: diagnosis,
-        prescription: prescription,
-      );
-
+    final result = await _consultationService.updateConsultation(
+      consultationId: consultationId,
+      scheduledAt: scheduledAt,
+      notes: notes,
+      symptoms: symptoms,
+      diagnosis: diagnosis,
+      prescription: prescription,
+    );
+    if (result.success) {
+      final updatedConsultation = result.data;
       final index = consultations.indexWhere((c) => c.id == consultationId);
       if (index != -1) {
         consultations[index] = updatedConsultation;
       }
-
       if (selectedConsultation?.id == consultationId) {
         selectedConsultation = updatedConsultation;
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao atualizar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
   Future<bool> cancelConsultation(String consultationId) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      await _consultationService.cancelConsultation(consultationId);
-
+    final result =
+        await _consultationService.cancelConsultation(consultationId);
+    if (result.success) {
       final index = consultations.indexWhere((c) => c.id == consultationId);
       if (index != -1) {
         consultations[index] = consultations[index].copyWith(
           status: 'CANCELLED',
         );
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao cancelar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
   Future<bool> startConsultation(String consultationId) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final consultation =
-          await _consultationService.startConsultation(consultationId);
-
+    final result = await _consultationService.startConsultation(consultationId);
+    if (result.success) {
+      final consultation = result.data;
       final index = consultations.indexWhere((c) => c.id == consultationId);
       if (index != -1) {
         consultations[index] = consultation;
       }
-
       if (selectedConsultation?.id == consultationId) {
         selectedConsultation = consultation;
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao iniciar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
   Future<bool> endConsultation(String consultationId) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final consultation =
-          await _consultationService.endConsultation(consultationId);
-
+    final result = await _consultationService.endConsultation(consultationId);
+    if (result.success) {
+      final consultation = result.data;
       final index = consultations.indexWhere((c) => c.id == consultationId);
       if (index != -1) {
         consultations[index] = consultation;
       }
-
       if (selectedConsultation?.id == consultationId) {
         selectedConsultation = consultation;
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao finalizar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -263,16 +252,15 @@ abstract class ConsultationStoreBase with Store {
     required double rating,
     String? review,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      await _consultationService.rateConsultation(
-        consultationId: consultationId,
-        rating: rating,
-        review: review,
-      );
-
+    final result = await _consultationService.rateConsultation(
+      consultationId: consultationId,
+      rating: rating,
+      review: review,
+    );
+    if (result.success) {
       final index = consultations.indexWhere((c) => c.id == consultationId);
       if (index != -1) {
         consultations[index] = consultations[index].copyWith(
@@ -280,13 +268,12 @@ abstract class ConsultationStoreBase with Store {
           review: review,
         );
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao avaliar consulta';
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -295,21 +282,21 @@ abstract class ConsultationStoreBase with Store {
     required String doctorId,
     required DateTime date,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final slots = await _consultationService.getAvailableSlots(
-        doctorId: doctorId,
-        date: date,
-      );
-
+    final result = await _consultationService.getAvailableSlots(
+      doctorId: doctorId,
+      date: date,
+    );
+    if (result.success) {
       availableSlots.clear();
-      availableSlots.addAll(slots);
-    } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+      availableSlots.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          (result.error as String?) ?? 'Erro ao buscar horários disponíveis';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -318,21 +305,21 @@ abstract class ConsultationStoreBase with Store {
     String? specialty,
     DateTime? date,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final doctors = await _consultationService.getAvailableDoctors(
-        specialty: specialty,
-        date: date,
-      );
-
+    final result = await _consultationService.getAvailableDoctors(
+      specialty: specialty,
+      date: date,
+    );
+    if (result.success) {
       availableDoctors.clear();
-      availableDoctors.addAll(doctors);
-    } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+      availableDoctors.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          (result.error as String?) ?? 'Erro ao buscar médicos disponíveis';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -343,22 +330,21 @@ abstract class ConsultationStoreBase with Store {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
-    try {
-      final statsData = await _consultationService.getConsultationStats(
-        userId: userId,
-        userType: userType,
-        startDate: startDate,
-        endDate: endDate,
-      );
-
-      stats = statsData;
-    } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+    final result = await _consultationService.getConsultationStats(
+      userId: userId,
+      userType: userType,
+      startDate: startDate,
+      endDate: endDate,
+    );
+    if (result.success) {
+      stats = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage = (result.error as String?) ?? 'Erro ao buscar estatísticas';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 

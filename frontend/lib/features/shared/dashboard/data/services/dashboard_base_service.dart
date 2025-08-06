@@ -1,79 +1,46 @@
-import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 abstract class DashboardBaseService {
-  final ApiService _apiService = ApiService();
+  final Rest rest;
+  DashboardBaseService(this.rest);
 
   // Métodos comuns para todos os dashboards
-  Future<Map<String, dynamic>> getStats({String? period}) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (period != null) queryParams['period'] = period;
-
-      final response = await _apiService.get('dashboard/stats',
-          queryParameters: queryParams);
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar estatísticas');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar estatísticas: $e');
-    }
+  Future<RestResult<Map<String, dynamic>>> getStats({String? period}) async {
+    final queryParams = <String, dynamic>{};
+    if (period != null) queryParams['period'] = period;
+    return await rest.getModel<Map<String, dynamic>>(
+      'dashboard/stats',
+      (data) => data['data'] as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
-  Future<List<Map<String, dynamic>>> getNotifications({int? limit}) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (limit != null) queryParams['limit'] = limit;
-
-      final response = await _apiService.get('dashboard/notifications',
-          queryParameters: queryParams);
-
-      if (response.data['success'] == true) {
-        return List<Map<String, dynamic>>.from(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar notificações');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar notificações: $e');
-    }
+  Future<RestResult<List<Map<String, dynamic>>>> getNotifications(
+      {int? limit}) async {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    return await rest.getList<Map<String, dynamic>>(
+      'dashboard/notifications',
+      (json) => json ?? <String, dynamic>{},
+      query: queryParams,
+    );
   }
 
-  Future<void> markNotificationAsRead(String notificationId) async {
-    try {
-      final response =
-          await _apiService.put('dashboard/notifications/$notificationId/read');
-
-      if (response.data['success'] != true) {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao marcar notificação como lida');
-      }
-    } catch (e) {
-      throw Exception('Erro ao marcar notificação como lida: $e');
-    }
+  Future<RestResult> markNotificationAsRead(String notificationId) async {
+    return await rest.putModel(
+      'dashboard/notifications/$notificationId/read',
+    );
   }
 
-  Future<Map<String, dynamic>> getChartData(
+  Future<RestResult<Map<String, dynamic>>> getChartData(
       {String? chartType, String? period}) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (chartType != null) queryParams['chartType'] = chartType;
-      if (period != null) queryParams['period'] = period;
-
-      final response = await _apiService.get('dashboard/charts',
-          queryParameters: queryParams);
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar dados do gráfico');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar dados do gráfico: $e');
-    }
+    final queryParams = <String, dynamic>{};
+    if (chartType != null) queryParams['chartType'] = chartType;
+    if (period != null) queryParams['period'] = period;
+    return await rest.getModel<Map<String, dynamic>>(
+      'dashboard/charts',
+      (data) => data['data'] as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 }

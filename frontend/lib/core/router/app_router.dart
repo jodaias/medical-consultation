@@ -1,3 +1,7 @@
+import 'package:medical_consultation_app/features/prescription/presentation/pages/prescription_list_page.dart';
+import 'package:medical_consultation_app/features/report/presentation/pages/report_list_page.dart';
+import 'package:medical_consultation_app/features/prescription/presentation/pages/prescription_detail_page.dart';
+import 'package:medical_consultation_app/features/report/presentation/pages/report_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
@@ -24,11 +28,14 @@ import 'package:medical_consultation_app/features/doctor/presentation/pages/pati
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_dashboard_page.dart';
 import 'package:medical_consultation_app/features/shared/splash/presentation/splash_page.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class AppRouter {
   late final GoRouter router;
 
   AppRouter() {
     router = GoRouter(
+      navigatorKey: navigatorKey,
       initialLocation: '/',
       routes: [
         GoRoute(
@@ -96,6 +103,16 @@ class AppRouter {
           builder: (context, state) => const NotificationsPage(),
         ),
         GoRoute(
+          path: '/reports/:reportId',
+          builder: (context, state) => ReportDetailPage(
+            reportId: state.pathParameters['reportId']!,
+          ),
+        ),
+        GoRoute(
+          path: '/reports',
+          builder: (context, state) => const ReportListPage(),
+        ),
+        GoRoute(
           path: '/doctors',
           builder: (context, state) => const DoctorListPage(),
         ),
@@ -118,6 +135,16 @@ class AppRouter {
           builder: (context, state) => AppointmentDetailPage(
             appointmentId: state.pathParameters['appointmentId']!,
           ),
+        ),
+        GoRoute(
+          path: '/prescriptions/:prescriptionId',
+          builder: (context, state) => PrescriptionDetailPage(
+            prescriptionId: state.pathParameters['prescriptionId']!,
+          ),
+        ),
+        GoRoute(
+          path: '/prescriptions',
+          builder: (context, state) => const PrescriptionListPage(),
         ),
         GoRoute(
           path: '/patients',

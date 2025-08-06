@@ -824,4 +824,51 @@ router.put('/:id/change-password', authenticateToken, userController.changePassw
  */
 router.put('/:id/verify', authenticateToken, userController.verifyUser);
 
+/**
+ * @swagger
+ * /users/{id}/fcm-token:
+ *   patch:
+ *     summary: Atualiza o token FCM do usuário
+ *     tags:
+ *       - Usuários
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fcmToken:
+ *                 type: string
+ *                 description: Token FCM do dispositivo
+ *             required:
+ *               - fcmToken
+ *     responses:
+ *       200:
+ *         description: Token FCM atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Erro de validação
+ *       401:
+ *         description: Não autorizado
+ */
+router.patch('/:id/fcm-token', authenticateToken, userController.updateFcmToken);
+
 module.exports = router;

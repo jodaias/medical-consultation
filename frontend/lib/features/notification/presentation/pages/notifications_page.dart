@@ -267,12 +267,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
             Text('Tem certeza que deseja deletar "${notification.title}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              context.pop();
               _notificationsStore.deleteNotification(notification.id);
             },
             child: const Text('Deletar'),

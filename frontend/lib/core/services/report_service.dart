@@ -1,237 +1,195 @@
 import 'package:injectable/injectable.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
-import 'package:medical_consultation_app/core/services/storage_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 @injectable
 class ReportService {
-  final ApiService _apiService;
-  final StorageService _storageService;
+  final Rest _rest;
 
-  ReportService(this._apiService, this._storageService);
+  ReportService(this._rest);
 
   // Dashboard do médico
-  Future<Map<String, dynamic>?> getDoctorDashboard({
+  Future<RestResult<Map<String, dynamic>>> getDoctorDashboard({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    try {
-      final response =
-          await _apiService.get('/reports/doctor/dashboard', queryParameters: {
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/doctor/dashboard',
+      (data) => data as Map<String, dynamic>,
+      query: {
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
-      });
-
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter dashboard: $e');
-      return null;
-    }
+      },
+    );
   }
 
   // Relatório de consultas
-  Future<Map<String, dynamic>?> getConsultationsReport({
+  Future<RestResult<Map<String, dynamic>>> getConsultationsReport({
     required DateTime startDate,
     required DateTime endDate,
     String? status,
     String? specialty,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
+    final queryParams = {
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      if (status != null) 'status': status,
+      if (specialty != null) 'specialty': specialty,
+    };
 
-      if (status != null) queryParams['status'] = status;
-      if (specialty != null) queryParams['specialty'] = specialty;
-
-      final response = await _apiService.get('/reports/consultations',
-          queryParameters: queryParams);
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter relatório de consultas: $e');
-      return null;
-    }
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/consultations',
+      (data) => data as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Relatório financeiro
-  Future<Map<String, dynamic>?> getFinancialReport({
+  Future<RestResult<Map<String, dynamic>>> getFinancialReport({
     required DateTime startDate,
     required DateTime endDate,
     String? paymentStatus,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
+    final queryParams = {
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      if (paymentStatus != null) 'paymentStatus': paymentStatus,
+    };
 
-      if (paymentStatus != null) queryParams['paymentStatus'] = paymentStatus;
-
-      final response = await _apiService.get('/reports/financial',
-          queryParameters: queryParams);
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter relatório financeiro: $e');
-      return null;
-    }
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/financial',
+      (data) => data as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Relatório de pacientes
-  Future<Map<String, dynamic>?> getPatientsReport({
+  Future<RestResult<Map<String, dynamic>>> getPatientsReport({
     required DateTime startDate,
     required DateTime endDate,
     String? ageGroup,
     String? gender,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
+    final queryParams = {
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      if (ageGroup != null) 'ageGroup': ageGroup,
+      if (gender != null) 'gender': gender,
+    };
 
-      if (ageGroup != null) queryParams['ageGroup'] = ageGroup;
-      if (gender != null) queryParams['gender'] = gender;
-
-      final response = await _apiService.get('/reports/patients',
-          queryParameters: queryParams);
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter relatório de pacientes: $e');
-      return null;
-    }
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/patients',
+      (data) => data as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Relatório de avaliações
-  Future<Map<String, dynamic>?> getRatingsReport({
+  Future<RestResult<Map<String, dynamic>>> getRatingsReport({
     required DateTime startDate,
     required DateTime endDate,
     double? minRating,
     double? maxRating,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
+    final queryParams = {
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      if (minRating != null) 'minRating': minRating,
+      if (maxRating != null) 'maxRating': maxRating,
+    };
 
-      if (minRating != null) queryParams['minRating'] = minRating;
-      if (maxRating != null) queryParams['maxRating'] = maxRating;
-
-      final response = await _apiService.get('/reports/ratings',
-          queryParameters: queryParams);
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter relatório de avaliações: $e');
-      return null;
-    }
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/ratings',
+      (data) => data as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Relatório de prescrições
-  Future<Map<String, dynamic>?> getPrescriptionsReport({
+  Future<RestResult<Map<String, dynamic>>> getPrescriptionsReport({
     required DateTime startDate,
     required DateTime endDate,
     String? medicationType,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-      };
+    final queryParams = {
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      if (medicationType != null) 'medicationType': medicationType,
+    };
 
-      if (medicationType != null) {
-        queryParams['medicationType'] = medicationType;
-      }
-
-      final response = await _apiService.get('/reports/prescriptions',
-          queryParameters: queryParams);
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter relatório de prescrições: $e');
-      return null;
-    }
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/prescriptions',
+      (data) => data as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Estatísticas gerais
-  Future<Map<String, dynamic>?> getGeneralStats({
+  Future<RestResult<Map<String, dynamic>>> getGeneralStats({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    try {
-      final response =
-          await _apiService.get('/reports/stats', queryParameters: {
+    return await _rest.getModel<Map<String, dynamic>>(
+      '/reports/stats',
+      (data) => data as Map<String, dynamic>,
+      query: {
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
-      });
-
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter estatísticas: $e');
-      return null;
-    }
+      },
+    );
   }
 
   // Exportar relatório em PDF
-  Future<String?> exportReportToPDF({
+  Future<RestResult<Map<String, dynamic>>> exportReportToPDF({
     required String reportType,
     required Map<String, dynamic> reportData,
     String? fileName,
   }) async {
-    try {
-      final response = await _apiService.post('/reports/export-pdf', data: {
+    return await _rest.postModel<Map<String, dynamic>>(
+      '/reports/export-pdf',
+      {
         'reportType': reportType,
         'reportData': reportData,
         'fileName':
             fileName ?? 'relatorio_${DateTime.now().millisecondsSinceEpoch}',
-      });
-
-      return response.data['pdfUrl'];
-    } catch (e) {
-      print('Erro ao exportar relatório: $e');
-      return null;
-    }
+      },
+      parse: (data) => data as Map<String, dynamic>,
+    );
   }
 
   // Exportar relatório em Excel
-  Future<String?> exportReportToExcel({
+  Future<RestResult<Map<String, dynamic>>> exportReportToExcel({
     required String reportType,
     required Map<String, dynamic> reportData,
     String? fileName,
   }) async {
-    try {
-      final response = await _apiService.post('/reports/export-excel', data: {
+    return await _rest.postModel<Map<String, dynamic>>(
+      '/reports/export-excel',
+      {
         'reportType': reportType,
         'reportData': reportData,
         'fileName':
             fileName ?? 'relatorio_${DateTime.now().millisecondsSinceEpoch}',
-      });
-
-      return response.data['excelUrl'];
-    } catch (e) {
-      print('Erro ao exportar relatório: $e');
-      return null;
-    }
+      },
+      parse: (data) => data as Map<String, dynamic>,
+    );
   }
 
   // Agendar relatório recorrente
-  Future<bool> scheduleRecurringReport({
+  Future<RestResult<void>> scheduleRecurringReport({
     required String reportType,
     required String frequency, // daily, weekly, monthly
     required List<String> recipients,
     required Map<String, dynamic> parameters,
   }) async {
-    try {
-      await _apiService.post('/reports/schedule', data: {
+    return await _rest.postModel<void>(
+      '/reports/schedule',
+      {
         'reportType': reportType,
         'frequency': frequency,
         'recipients': recipients,
         'parameters': parameters,
-      });
-
-      return true;
-    } catch (e) {
-      print('Erro ao agendar relatório: $e');
-      return false;
-    }
+      },
+    );
   }
 
   // Calcular métricas de performance

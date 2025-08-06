@@ -9,6 +9,7 @@ import 'package:medical_consultation_app/features/doctor/presentation/widgets/do
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/specialty_filter.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/search_bar.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/sort_filter.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class DoctorListPage extends StatefulWidget {
   const DoctorListPage({super.key});
@@ -52,7 +53,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
       ),
       body: Observer(
         builder: (context) {
-          if (_doctorStore.isLoading && _doctorStore.doctors.isEmpty) {
+          if (_doctorStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -163,7 +164,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
   Widget _buildLoadMoreButton() {
     return Observer(
       builder: (context) {
-        if (_doctorStore.isLoading) {
+        if (_doctorStore.requestStatus == RequestStatusEnum.loading) {
           return const Padding(
             padding: EdgeInsets.all(16),
             child: Center(child: CircularProgressIndicator()),
@@ -264,7 +265,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                   ),
                 ],
               ),
@@ -333,7 +334,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
                             child: OutlinedButton(
                               onPressed: () {
                                 _doctorStore.clearFilters();
-                                Navigator.pop(context);
+                                context.pop();
                               },
                               child: const Text('Limpar'),
                             ),
@@ -341,7 +342,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () => context.pop(),
                               child: const Text('Aplicar'),
                             ),
                           ),

@@ -1,190 +1,156 @@
 import 'package:injectable/injectable.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
-import 'package:medical_consultation_app/core/services/storage_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 @injectable
 class RatingService {
-  final ApiService _apiService;
-  final StorageService _storageService;
+  final Rest _rest;
 
-  RatingService(this._apiService, this._storageService);
+  RatingService(this._rest);
 
   // Criar avaliação
-  Future<Map<String, dynamic>?> createRating({
+  Future<RestResult<Map<String, dynamic>>> createRating({
     required String doctorId,
     required String consultationId,
     required int rating,
     String? comment,
-    Map<String, int>? criteriaRatings, // Avaliações por critério
+    Map<String, int>? criteriaRatings,
   }) async {
-    try {
-      final response = await _apiService.post('ratings/create', data: {
+    return await _rest.postModel<Map<String, dynamic>>(
+      'ratings/create',
+      {
         'doctorId': doctorId,
         'consultationId': consultationId,
         'rating': rating,
         'comment': comment,
         'criteriaRatings': criteriaRatings,
-      });
-
-      return response.data;
-    } catch (e) {
-      print('Erro ao criar avaliação: $e');
-      return null;
-    }
+      },
+      parse: (data) => data as Map<String, dynamic>,
+    );
   }
 
   // Obter avaliações de um médico
-  Future<List<Map<String, dynamic>>> getDoctorRatings({
+  Future<RestResult<List<Map<String, dynamic>>>> getDoctorRatings({
     required String doctorId,
     int? limit,
     int? offset,
-    String? sortBy, // rating, date, helpful
-    String? order, // asc, desc
+    String? sortBy,
+    String? order,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (limit != null) queryParams['limit'] = limit;
-      if (offset != null) queryParams['offset'] = offset;
-      if (sortBy != null) queryParams['sortBy'] = sortBy;
-      if (order != null) queryParams['order'] = order;
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
+    if (sortBy != null) queryParams['sortBy'] = sortBy;
+    if (order != null) queryParams['order'] = order;
 
-      final response = await _apiService.get('ratings/doctors/$doctorId',
-          queryParameters: queryParams);
-      return List<Map<String, dynamic>>.from(response.data['ratings']);
-    } catch (e) {
-      print('Erro ao obter avaliações do médico: $e');
-      return [];
-    }
+    return await _rest.getList<Map<String, dynamic>>(
+      'ratings/doctors/$doctorId',
+      (item) => item as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Obter estatísticas de avaliação do médico
-  Future<Map<String, dynamic>?> getDoctorRatingStats(String doctorId) async {
-    try {
-      final response = await _apiService.get('ratings/doctors/$doctorId/stats');
-      return response.data;
-    } catch (e) {
-      print('Erro ao obter estatísticas de avaliação: $e');
-      return null;
-    }
+  Future<RestResult<Map<String, dynamic>>> getDoctorRatingStats(
+      String doctorId) async {
+    return await _rest.getModel<Map<String, dynamic>>(
+      'ratings/doctors/$doctorId/stats',
+      (data) => data as Map<String, dynamic>,
+    );
   }
 
   // Marcar avaliação como útil
-  Future<bool> markRatingAsHelpful(String ratingId) async {
-    try {
-      await _apiService.post('ratings/$ratingId/helpful');
-      return true;
-    } catch (e) {
-      print('Erro ao marcar avaliação como útil: $e');
-      return false;
-    }
+  Future<RestResult<void>> markRatingAsHelpful(String ratingId) async {
+    return await _rest.postModel<void>(
+      'ratings/$ratingId/helpful',
+      null,
+    );
   }
 
   // Reportar avaliação inadequada
-  Future<bool> reportRating({
+  Future<RestResult<void>> reportRating({
     required String ratingId,
     required String reason,
     String? description,
   }) async {
-    try {
-      await _apiService.post('ratings/$ratingId/report', data: {
+    return await _rest.postModel<void>(
+      'ratings/$ratingId/report',
+      {
         'reason': reason,
         'description': description,
-      });
-      return true;
-    } catch (e) {
-      print('Erro ao reportar avaliação: $e');
-      return false;
-    }
+      },
+    );
   }
 
   // Responder a uma avaliação (médico)
-  Future<bool> replyToRating({
+  Future<RestResult<void>> replyToRating({
     required String ratingId,
     required String reply,
   }) async {
-    try {
-      await _apiService.post('ratings/$ratingId/reply', data: {
+    return await _rest.postModel<void>(
+      'ratings/$ratingId/reply',
+      {
         'reply': reply,
-      });
-      return true;
-    } catch (e) {
-      print('Erro ao responder avaliação: $e');
-      return false;
-    }
+      },
+    );
   }
 
   // Editar avaliação
-  Future<bool> updateRating({
+  Future<RestResult<void>> updateRating({
     required String ratingId,
     int? rating,
     String? comment,
     Map<String, int>? criteriaRatings,
   }) async {
-    try {
-      final data = <String, dynamic>{};
-      if (rating != null) data['rating'] = rating;
-      if (comment != null) data['comment'] = comment;
-      if (criteriaRatings != null) data['criteriaRatings'] = criteriaRatings;
+    final data = <String, dynamic>{};
+    if (rating != null) data['rating'] = rating;
+    if (comment != null) data['comment'] = comment;
+    if (criteriaRatings != null) data['criteriaRatings'] = criteriaRatings;
 
-      await _apiService.put('ratings/$ratingId', data: data);
-      return true;
-    } catch (e) {
-      print('Erro ao atualizar avaliação: $e');
-      return false;
-    }
+    return await _rest.putModel<void>(
+      'ratings/$ratingId',
+      body: data,
+    );
   }
 
   // Deletar avaliação
-  Future<bool> deleteRating(String ratingId) async {
-    try {
-      await _apiService.delete('ratings/$ratingId');
-      return true;
-    } catch (e) {
-      print('Erro ao deletar avaliação: $e');
-      return false;
-    }
+  Future<RestResult<void>> deleteRating(String ratingId) async {
+    return await _rest.deleteModel<void>(
+      'ratings/$ratingId',
+      {},
+    );
   }
 
   // Obter avaliações do usuário logado
-  Future<List<Map<String, dynamic>>> getUserRatings({
+  Future<RestResult<List<Map<String, dynamic>>>> getUserRatings({
     int? limit,
     int? offset,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (limit != null) queryParams['limit'] = limit;
-      if (offset != null) queryParams['offset'] = offset;
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
 
-      final response =
-          await _apiService.get('ratings/user', queryParameters: queryParams);
-      return List<Map<String, dynamic>>.from(response.data['ratings']);
-    } catch (e) {
-      print('Erro ao obter avaliações do usuário: $e');
-      return [];
-    }
+    return await _rest.getList<Map<String, dynamic>>(
+      'ratings/user',
+      (item) => item as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Verificar se usuário pode avaliar consulta
-  Future<bool> canRateConsultation(String consultationId) async {
-    try {
-      final response =
-          await _apiService.get('ratings/can-rate/$consultationId');
-      return response.data['canRate'] ?? false;
-    } catch (e) {
-      print('Erro ao verificar se pode avaliar: $e');
-      return false;
-    }
+  Future<RestResult<Map<String, dynamic>>> canRateConsultation(
+      String consultationId) async {
+    return await _rest.getModel<Map<String, dynamic>>(
+      'ratings/can-rate/$consultationId',
+      (data) => data as Map<String, dynamic>,
+    );
   }
 
   // Obter critérios de avaliação
-  Future<List<Map<String, dynamic>>> getRatingCriteria() async {
-    try {
-      final response = await _apiService.get('ratings/criteria');
-      return List<Map<String, dynamic>>.from(response.data['criteria']);
-    } catch (e) {
-      print('Erro ao obter critérios de avaliação: $e');
-      return [];
-    }
+  Future<RestResult<List<Map<String, dynamic>>>> getRatingCriteria() async {
+    return await _rest.getList<Map<String, dynamic>>(
+      'ratings/criteria',
+      (item) => item as Map<String, dynamic>,
+    );
   }
 
   // Calcular média de avaliações

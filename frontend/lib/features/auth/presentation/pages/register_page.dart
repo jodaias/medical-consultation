@@ -11,6 +11,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -390,8 +391,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 // Botão de registro
                 Observer(
                   builder: (_) => ElevatedButton(
-                    onPressed: _authStore.isLoading ? null : _handleRegister,
-                    child: _authStore.isLoading
+                    onPressed:
+                        _authStore.requestStatus == RequestStatusEnum.loading
+                            ? null
+                            : _handleRegister,
+                    child: _authStore.requestStatus == RequestStatusEnum.loading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
@@ -516,7 +520,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             onTap: () {
                               _formKey.currentState?.fields['specialty']
                                   ?.didChange(specialty);
-                              Navigator.of(context).pop();
+                              context.pop();
                             },
                           );
                         },
@@ -527,7 +531,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   child: const Text('Cancelar'),
                 ),
               ],

@@ -1,80 +1,57 @@
-import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 
 class ConsultationService {
-  final ApiService _apiService = ApiService();
+  final Rest rest;
+  ConsultationService(this.rest);
 
   // Buscar consultas do usuário
-  Future<List<ConsultationModel>> getConsultations({
+  Future<RestResult<List<ConsultationModel>>> getConsultations({
     String? status,
     String? userId,
     String? userType,
   }) async {
-    try {
-      final Map<String, dynamic> queryParams = {};
-      if (status != null) queryParams['status'] = status;
-      if (userId != null) queryParams['userId'] = userId;
-      if (userType != null) queryParams['userType'] = userType;
-
-      final response =
-          await _apiService.get('/consultations', queryParameters: queryParams);
-
-      if (response.data['success'] == true) {
-        final List<dynamic> consultationsData =
-            response.data['data']['consultations'];
-        return consultationsData
-            .map((json) => ConsultationModel.fromJson(json))
-            .toList();
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao buscar consultas');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar consultas: $e');
-    }
+    final Map<String, dynamic> queryParams = {};
+    if (status != null) queryParams['status'] = status;
+    if (userId != null) queryParams['userId'] = userId;
+    if (userType != null) queryParams['userType'] = userType;
+    return await rest.getList<ConsultationModel>(
+      '/consultations',
+      (json) => ConsultationModel.fromJson(json!),
+      query: queryParams,
+    );
   }
 
   // Buscar consulta específica
-  Future<ConsultationModel> getConsultation(String consultationId) async {
-    try {
-      final response = await _apiService.get('/consultations/$consultationId');
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao buscar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar consulta: $e');
-    }
+  Future<RestResult<ConsultationModel>> getConsultation(
+      String consultationId) async {
+    return await rest.getModel<ConsultationModel>(
+      '/consultations/$consultationId',
+      (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 
   // Agendar nova consulta
-  Future<ConsultationModel> scheduleConsultation({
+  Future<RestResult<ConsultationModel>> scheduleConsultation({
     required String doctorId,
     required DateTime scheduledAt,
     String? notes,
     String? symptoms,
   }) async {
-    try {
-      final response = await _apiService.post('/consultations', data: {
+    return await rest.postModel<ConsultationModel>(
+      '/consultations',
+      {
         'doctorId': doctorId,
         'scheduledAt': scheduledAt.toIso8601String(),
         'notes': notes,
         'symptoms': symptoms,
-      });
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao agendar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao agendar consulta: $e');
-    }
+      },
+      parse: (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 
   // Atualizar consulta
-  Future<ConsultationModel> updateConsultation({
+  Future<RestResult<ConsultationModel>> updateConsultation({
     required String consultationId,
     DateTime? scheduledAt,
     String? notes,
@@ -82,224 +59,132 @@ class ConsultationService {
     String? diagnosis,
     String? prescription,
   }) async {
-    try {
-      final Map<String, dynamic> data = {};
-      if (scheduledAt != null) {
-        data['scheduledAt'] = scheduledAt.toIso8601String();
-      }
-      if (notes != null) data['notes'] = notes;
-      if (symptoms != null) data['symptoms'] = symptoms;
-      if (diagnosis != null) data['diagnosis'] = diagnosis;
-      if (prescription != null) data['prescription'] = prescription;
-
-      final response =
-          await _apiService.put('/consultations/$consultationId', data: data);
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao atualizar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao atualizar consulta: $e');
+    final Map<String, dynamic> data = {};
+    if (scheduledAt != null) {
+      data['scheduledAt'] = scheduledAt.toIso8601String();
     }
+    if (notes != null) data['notes'] = notes;
+    if (symptoms != null) data['symptoms'] = symptoms;
+    if (diagnosis != null) data['diagnosis'] = diagnosis;
+    if (prescription != null) data['prescription'] = prescription;
+    return await rest.putModel<ConsultationModel>(
+      '/consultations/$consultationId',
+      body: data,
+      parse: (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 
   // Cancelar consulta
-  Future<void> cancelConsultation(String consultationId) async {
-    try {
-      final response =
-          await _apiService.put('/consultations/$consultationId/cancel');
-
-      if (response.data['success'] != true) {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao cancelar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao cancelar consulta: $e');
-    }
+  Future<RestResult> cancelConsultation(String consultationId) async {
+    return await rest.putModel(
+      '/consultations/$consultationId/cancel',
+      body: {},
+    );
   }
 
   // Iniciar consulta
-  Future<ConsultationModel> startConsultation(String consultationId) async {
-    try {
-      final response =
-          await _apiService.post('/consultations/$consultationId/start');
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao iniciar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao iniciar consulta: $e');
-    }
+  Future<RestResult<ConsultationModel>> startConsultation(
+      String consultationId) async {
+    return await rest.postModel<ConsultationModel>(
+      '/consultations/$consultationId/start',
+      {},
+      parse: (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 
   // Finalizar consulta
-  Future<ConsultationModel> endConsultation(String consultationId) async {
-    try {
-      final response =
-          await _apiService.post('/consultations/$consultationId/end');
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao finalizar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao finalizar consulta: $e');
-    }
+  Future<RestResult<ConsultationModel>> endConsultation(
+      String consultationId) async {
+    return await rest.postModel<ConsultationModel>(
+      '/consultations/$consultationId/end',
+      {},
+      parse: (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 
   // Avaliar consulta
-  Future<void> rateConsultation({
+  Future<RestResult> rateConsultation({
     required String consultationId,
     required double rating,
     String? review,
   }) async {
-    try {
-      final data = {
-        'rating': rating,
-        if (review != null) 'review': review,
-      };
-
-      final response = await _apiService.post(
-        '/consultations/$consultationId/rate',
-        data: data,
-      );
-
-      if (response.data['success'] != true) {
-        throw Exception(response.data['message'] ?? 'Erro ao avaliar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao avaliar consulta: $e');
-    }
+    final data = {
+      'rating': rating,
+      if (review != null) 'review': review,
+    };
+    return await rest.postModel(
+      '/consultations/$consultationId/rate',
+      data,
+    );
   }
 
   // Buscar horários disponíveis do médico
-  Future<List<DateTime>> getAvailableSlots({
+  Future<RestResult<List<DateTime>>> getAvailableSlots({
     required String doctorId,
     required DateTime date,
   }) async {
-    try {
-      final response = await _apiService
-          .get('/schedules/doctor/$doctorId/available-slots', queryParameters: {
-        'date': date.toIso8601String(),
-      });
-
-      if (response.data['success'] == true) {
-        final List<dynamic> slotsData = response.data['data']['slots'];
-        return slotsData.map((slot) => DateTime.parse(slot)).toList();
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao buscar horários disponíveis');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar horários disponíveis: $e');
-    }
+    return await rest.getList<DateTime>(
+      '/schedules/doctor/$doctorId/available-slots',
+      (slot) => DateTime.parse(slot as String),
+    );
   }
 
   // Buscar médicos disponíveis
-  Future<List<Map<String, dynamic>>> getAvailableDoctors({
+  Future<RestResult<List<Map<String, dynamic>>>> getAvailableDoctors({
     String? specialty,
     DateTime? date,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (specialty != null) queryParams['specialty'] = specialty;
-      if (date != null) queryParams['date'] = date.toIso8601String();
-
-      final response = await _apiService.get(
-        '/consultations/doctors/available',
-        queryParameters: queryParams,
-      );
-
-      if (response.data['success'] == true) {
-        final List<dynamic> doctorsData = response.data['data'];
-        return doctorsData
-            .map((json) => Map<String, dynamic>.from(json))
-            .toList();
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao buscar médicos disponíveis');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar médicos disponíveis: $e');
-    }
+    final queryParams = <String, dynamic>{};
+    if (specialty != null) queryParams['specialty'] = specialty;
+    if (date != null) queryParams['date'] = date.toIso8601String();
+    return await rest.getList<Map<String, dynamic>>(
+      '/consultations/doctors/available',
+      (json) => Map<String, dynamic>.from(json!),
+      query: queryParams,
+    );
   }
 
   // Buscar estatísticas de consultas
-  Future<Map<String, dynamic>> getConsultationStats({
+  Future<RestResult<Map<String, dynamic>>> getConsultationStats({
     String? userId,
     String? userType,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    try {
-      final Map<String, dynamic> queryParams = {};
-      if (userId != null) queryParams['userId'] = userId;
-      if (userType != null) queryParams['userType'] = userType;
-      if (startDate != null) {
-        queryParams['startDate'] = startDate.toIso8601String();
-      }
-
-      if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
-
-      final response = await _apiService.get('/consultations/stats',
-          queryParameters: queryParams);
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao buscar estatísticas');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar estatísticas: $e');
+    final Map<String, dynamic> queryParams = {};
+    if (userId != null) queryParams['userId'] = userId;
+    if (userType != null) queryParams['userType'] = userType;
+    if (startDate != null) {
+      queryParams['startDate'] = startDate.toIso8601String();
     }
+    if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
+    return await rest.getModel<Map<String, dynamic>>(
+      '/consultations/stats',
+      (data) => data['data'] as Map<String, dynamic>,
+      query: queryParams,
+    );
   }
 
   // Marcar como não compareceu
-  Future<void> markAsNoShow(String consultationId) async {
-    try {
-      final response =
-          await _apiService.post('/consultations/$consultationId/no-show');
-
-      if (response.data['success'] != true) {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao marcar como no-show');
-      }
-    } catch (e) {
-      throw Exception('Erro ao marcar como no-show: $e');
-    }
+  Future<RestResult> markAsNoShow(String consultationId) async {
+    return await rest.postModel(
+      '/consultations/$consultationId/no-show',
+      {},
+    );
   }
 
   // Reagendar consulta
-  Future<ConsultationModel> rescheduleConsultation({
+  Future<RestResult<ConsultationModel>> rescheduleConsultation({
     required String consultationId,
     required DateTime newScheduledAt,
   }) async {
-    try {
-      final data = {
-        'newScheduledAt': newScheduledAt.toIso8601String(),
-      };
-
-      final response = await _apiService.put(
-        '/consultations/$consultationId/reschedule',
-        data: data,
-      );
-
-      if (response.data['success'] == true) {
-        return ConsultationModel.fromJson(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao reagendar consulta');
-      }
-    } catch (e) {
-      throw Exception('Erro ao reagendar consulta: $e');
-    }
+    final data = {
+      'newScheduledAt': newScheduledAt.toIso8601String(),
+    };
+    return await rest.putModel<ConsultationModel>(
+      '/consultations/$consultationId/reschedule',
+      body: data,
+      parse: (data) => ConsultationModel.fromJson(data['data']),
+    );
   }
 }

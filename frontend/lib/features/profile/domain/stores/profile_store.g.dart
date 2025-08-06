@@ -82,19 +82,19 @@ mixin _$ProfileStore on ProfileStoreBase, Store {
     });
   }
 
-  late final _$isLoadingAtom =
-      Atom(name: 'ProfileStoreBase.isLoading', context: context);
+  late final _$requestStatusAtom =
+      Atom(name: 'ProfileStoreBase.requestStatus', context: context);
 
   @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
   }
 
   @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
     });
   }
 
@@ -179,35 +179,35 @@ mixin _$ProfileStore on ProfileStoreBase, Store {
     });
   }
 
-  late final _$isUpdatingAtom =
-      Atom(name: 'ProfileStoreBase.isUpdating', context: context);
+  late final _$updateStatusAtom =
+      Atom(name: 'ProfileStoreBase.updateStatus', context: context);
 
   @override
-  bool get isUpdating {
-    _$isUpdatingAtom.reportRead();
-    return super.isUpdating;
+  RequestStatusEnum get updateStatus {
+    _$updateStatusAtom.reportRead();
+    return super.updateStatus;
   }
 
   @override
-  set isUpdating(bool value) {
-    _$isUpdatingAtom.reportWrite(value, super.isUpdating, () {
-      super.isUpdating = value;
+  set updateStatus(RequestStatusEnum value) {
+    _$updateStatusAtom.reportWrite(value, super.updateStatus, () {
+      super.updateStatus = value;
     });
   }
 
-  late final _$isUploadingAvatarAtom =
-      Atom(name: 'ProfileStoreBase.isUploadingAvatar', context: context);
+  late final _$uploadAvatarStatusAtom =
+      Atom(name: 'ProfileStoreBase.uploadAvatarStatus', context: context);
 
   @override
-  bool get isUploadingAvatar {
-    _$isUploadingAvatarAtom.reportRead();
-    return super.isUploadingAvatar;
+  RequestStatusEnum get uploadAvatarStatus {
+    _$uploadAvatarStatusAtom.reportRead();
+    return super.uploadAvatarStatus;
   }
 
   @override
-  set isUploadingAvatar(bool value) {
-    _$isUploadingAvatarAtom.reportWrite(value, super.isUploadingAvatar, () {
-      super.isUploadingAvatar = value;
+  set uploadAvatarStatus(RequestStatusEnum value) {
+    _$uploadAvatarStatusAtom.reportWrite(value, super.uploadAvatarStatus, () {
+      super.uploadAvatarStatus = value;
     });
   }
 
@@ -371,14 +371,14 @@ mixin _$ProfileStore on ProfileStoreBase, Store {
   String toString() {
     return '''
 profile: ${profile},
-isLoading: ${isLoading},
+requestStatus: ${requestStatus},
 errorMessage: ${errorMessage},
 notificationSettings: ${notificationSettings},
 privacySettings: ${privacySettings},
 activityHistory: ${activityHistory},
 userStats: ${userStats},
-isUpdating: ${isUpdating},
-isUploadingAvatar: ${isUploadingAvatar},
+updateStatus: ${updateStatus},
+uploadAvatarStatus: ${uploadAvatarStatus},
 hasProfile: ${hasProfile},
 isDoctor: ${isDoctor},
 isPatient: ${isPatient},

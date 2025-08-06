@@ -1,116 +1,150 @@
 import 'package:injectable/injectable.dart';
 import 'package:dio/dio.dart';
-import 'package:medical_consultation_app/core/di/injection.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/features/profile/data/models/profile_model.dart';
 
 @injectable
 class ProfileService {
-  final ApiService _apiService = getIt<ApiService>();
+  final Rest rest;
+
+  ProfileService(this.rest);
 
   // Buscar perfil do usuário atual
-  Future<ProfileModel> getProfile() async {
-    final response = await _apiService.get('/profile');
-    return ProfileModel.fromJson(response.data);
+  Future<RestResult<ProfileModel>> getProfile() {
+    return rest.getModel<ProfileModel>(
+      '/profile',
+      (json) => ProfileModel.fromJson(json ?? {}),
+    );
   }
 
   // Atualizar perfil básico
-  Future<ProfileModel> updateProfile(Map<String, dynamic> data) async {
-    final response = await _apiService.put('/profile', data: data);
-    return ProfileModel.fromJson(response.data);
+  Future<RestResult<ProfileModel>> updateProfile(Map<String, dynamic> data) {
+    return rest.putModel<ProfileModel>(
+      '/profile',
+      body: data,
+      parse: (json) => ProfileModel.fromJson(json ?? {}),
+    );
   }
 
   // Atualizar informações médicas (para pacientes)
-  Future<ProfileModel> updateMedicalInfo(Map<String, dynamic> data) async {
-    final response = await _apiService.put('/profile/medical', data: data);
-    return ProfileModel.fromJson(response.data);
+  Future<RestResult<ProfileModel>> updateMedicalInfo(
+      Map<String, dynamic> data) {
+    return rest.putModel<ProfileModel>(
+      '/profile/medical',
+      body: data,
+      parse: (json) => ProfileModel.fromJson(json ?? {}),
+    );
   }
 
   // Atualizar informações profissionais (para médicos)
-  Future<ProfileModel> updateProfessionalInfo(Map<String, dynamic> data) async {
-    final response = await _apiService.put('/profile/professional', data: data);
-    return ProfileModel.fromJson(response.data);
+  Future<RestResult<ProfileModel>> updateProfessionalInfo(
+      Map<String, dynamic> data) {
+    return rest.putModel<ProfileModel>(
+      '/profile/professional',
+      body: data,
+      parse: (json) => ProfileModel.fromJson(json ?? {}),
+    );
   }
 
   // Upload de avatar
-  Future<String> uploadAvatar(String filePath) async {
+  Future<RestResult<String>> uploadAvatar(String filePath) async {
     final formData = FormData.fromMap({
       'avatar': await MultipartFile.fromFile(filePath),
     });
-
-    final response = await _apiService.post('/profile/avatar', data: formData);
-    return response.data['avatarUrl'];
+    return rest.postModel<String>(
+      '/profile/avatar',
+      formData,
+      parse: (json) => json['avatarUrl'] as String,
+    );
   }
 
   // Deletar avatar
-  Future<void> deleteAvatar() async {
-    await _apiService.delete('/profile/avatar');
+  Future<RestResult<void>> deleteAvatar() {
+    return rest.deleteModel<void>('/profile/avatar', null);
   }
 
   // Atualizar configurações de notificação
-  Future<Map<String, dynamic>> updateNotificationSettings(
-      Map<String, dynamic> settings) async {
-    final response =
-        await _apiService.put('/profile/notifications', data: settings);
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> updateNotificationSettings(
+      Map<String, dynamic> settings) {
+    return rest.putModel<Map<String, dynamic>>(
+      '/profile/notifications',
+      body: settings,
+      parse: (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 
   // Buscar configurações de notificação
-  Future<Map<String, dynamic>> getNotificationSettings() async {
-    final response = await _apiService.get('/profile/notifications');
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> getNotificationSettings() {
+    return rest.getModel<Map<String, dynamic>>(
+      '/profile/notifications',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 
   // Atualizar configurações de privacidade
-  Future<Map<String, dynamic>> updatePrivacySettings(
-      Map<String, dynamic> settings) async {
-    final response = await _apiService.put('/profile/privacy', data: settings);
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> updatePrivacySettings(
+      Map<String, dynamic> settings) {
+    return rest.putModel<Map<String, dynamic>>(
+      '/profile/privacy',
+      body: settings,
+      parse: (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 
   // Buscar configurações de privacidade
-  Future<Map<String, dynamic>> getPrivacySettings() async {
-    final response = await _apiService.get('/profile/privacy');
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> getPrivacySettings() {
+    return rest.getModel<Map<String, dynamic>>(
+      '/profile/privacy',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 
   // Alterar senha
-  Future<void> changePassword(
-      String currentPassword, String newPassword) async {
-    await _apiService.put('/profile/password', data: {
-      'currentPassword': currentPassword,
-      'newPassword': newPassword,
-    });
+  Future<RestResult<void>> changePassword(
+      String currentPassword, String newPassword) {
+    return rest.putModel<void>(
+      '/profile/password',
+      body: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+    );
   }
 
   // Solicitar exclusão de conta
-  Future<void> requestAccountDeletion(String reason) async {
-    await _apiService.post('/profile/deletion-request', data: {
-      'reason': reason,
-    });
+  Future<RestResult<void>> requestAccountDeletion(String reason) {
+    return rest.postModel<void>(
+      '/profile/deletion-request',
+      {'reason': reason},
+    );
   }
 
   // Exportar dados do usuário
-  Future<Map<String, dynamic>> exportUserData() async {
-    final response = await _apiService.get('/profile/export');
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> exportUserData() {
+    return rest.getModel<Map<String, dynamic>>(
+      '/profile/export',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 
   // Buscar histórico de atividades
-  Future<List<Map<String, dynamic>>> getActivityHistory(
-      {int? limit, int? offset}) async {
+  Future<RestResult<List<Map<String, dynamic>>>> getActivityHistory(
+      {int? limit, int? offset}) {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
-
-    final response = await _apiService.get('/profile/activity',
-        queryParameters: queryParams);
-    return List<Map<String, dynamic>>.from(response.data);
+    return rest.getList<Map<String, dynamic>>(
+      '/profile/activity',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+      query: queryParams,
+    );
   }
 
   // Buscar estatísticas do usuário
-  Future<Map<String, dynamic>> getUserStats() async {
-    final response = await _apiService.get('/profile/stats');
-    return response.data;
+  Future<RestResult<Map<String, dynamic>>> getUserStats() {
+    return rest.getModel<Map<String, dynamic>>(
+      '/profile/stats',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+    );
   }
 }

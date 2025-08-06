@@ -17,6 +17,22 @@ mixin _$DoctorDashboardStore on DoctorDashboardStoreBase, Store {
               name: 'DoctorDashboardStoreBase.hasUpcomingConsultations'))
       .value;
 
+  late final _$requestStatusAtom =
+      Atom(name: 'DoctorDashboardStoreBase.requestStatus', context: context);
+
+  @override
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
+  }
+
+  @override
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
+    });
+  }
+
   late final _$doctorSpecialtyAtom =
       Atom(name: 'DoctorDashboardStoreBase.doctorSpecialty', context: context);
 
@@ -142,6 +158,7 @@ mixin _$DoctorDashboardStore on DoctorDashboardStoreBase, Store {
   @override
   String toString() {
     return '''
+requestStatus: ${requestStatus},
 doctorSpecialty: ${doctorSpecialty},
 todayConsultations: ${todayConsultations},
 totalPatients: ${totalPatients},

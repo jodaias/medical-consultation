@@ -8,6 +8,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -157,8 +158,11 @@ class _LoginPageState extends State<LoginPage> {
                 // Botão de login
                 Observer(
                   builder: (_) => ElevatedButton(
-                    onPressed: _authStore.isLoading ? null : _handleLogin,
-                    child: _authStore.isLoading
+                    onPressed:
+                        _authStore.requestStatus == RequestStatusEnum.loading
+                            ? null
+                            : _handleLogin,
+                    child: _authStore.requestStatus == RequestStatusEnum.loading
                         ? const SizedBox(
                             height: 20,
                             width: 20,

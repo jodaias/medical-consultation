@@ -4,6 +4,7 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   const NotificationSettingsPage({super.key});
@@ -63,7 +64,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     if (_profileStore.errorMessage == null && mounted) {
       ToastUtils.showSuccessToast('Configurações salvas com sucesso!');
     } else if (mounted) {
-      ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao salvar configurações');
+      ToastUtils.showErrorToast(
+          _profileStore.errorMessage ?? 'Erro ao salvar configurações');
     }
   }
 
@@ -75,25 +77,26 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         elevation: 0,
         actions: [
           Observer(
-            builder: (_) => _profileStore.isUpdating
-                ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : TextButton(
-                    onPressed: _saveSettings,
-                    child: const Text('Salvar'),
-                  ),
+            builder: (_) =>
+                _profileStore.updateStatus == RequestStatusEnum.loading
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : TextButton(
+                        onPressed: _saveSettings,
+                        child: const Text('Salvar'),
+                      ),
           ),
         ],
       ),
       body: Observer(
         builder: (_) {
-          if (_profileStore.isLoading) {
+          if (_profileStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 

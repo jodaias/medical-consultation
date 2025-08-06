@@ -7,6 +7,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/rating_widget.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/availability_widget.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class DoctorDetailPage extends StatefulWidget {
   final String doctorId;
@@ -454,7 +455,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage>
   Widget _buildRatingsTab() {
     return Observer(
       builder: (context) {
-        if (_doctorStore.isLoadingRatings) {
+        if (_doctorStore.ratingsStatus == RequestStatusEnum.loading) {
           return const Center(child: CircularProgressIndicator());
         }
 

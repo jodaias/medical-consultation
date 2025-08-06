@@ -2,6 +2,8 @@ import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/features/profile/data/models/profile_model.dart';
 import 'package:medical_consultation_app/features/profile/data/services/profile_service.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 part 'profile_store.g.dart';
 
@@ -9,13 +11,13 @@ part 'profile_store.g.dart';
 class ProfileStore = ProfileStoreBase with _$ProfileStore;
 
 abstract class ProfileStoreBase with Store {
-  final ProfileService _profileService = ProfileService();
+  final _profileService = getIt<ProfileService>();
 
   @observable
   ProfileModel? profile;
 
   @observable
-  bool isLoading = false;
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
   String? errorMessage;
@@ -33,10 +35,10 @@ abstract class ProfileStoreBase with Store {
   Map<String, dynamic> userStats = {};
 
   @observable
-  bool isUpdating = false;
+  RequestStatusEnum updateStatus = RequestStatusEnum.none;
 
   @observable
-  bool isUploadingAvatar = false;
+  RequestStatusEnum uploadAvatarStatus = RequestStatusEnum.none;
 
   // Computed
   @computed
@@ -66,202 +68,226 @@ abstract class ProfileStoreBase with Store {
   // Actions
   @action
   Future<void> loadProfile() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      profile = await _profileService.getProfile();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar perfil: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.getProfile();
+    if (result.success) {
+      profile = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar perfil: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> updateProfile(Map<String, dynamic> data) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      profile = await _profileService.updateProfile(data);
-    } catch (e) {
-      errorMessage = 'Erro ao atualizar perfil: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.updateProfile(data);
+    if (result.success) {
+      profile = result.data;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao atualizar perfil: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> updateMedicalInfo(Map<String, dynamic> data) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      profile = await _profileService.updateMedicalInfo(data);
-    } catch (e) {
-      errorMessage = 'Erro ao atualizar informações médicas: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.updateMedicalInfo(data);
+    if (result.success) {
+      profile = result.data;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao atualizar informações médicas: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> updateProfessionalInfo(Map<String, dynamic> data) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      profile = await _profileService.updateProfessionalInfo(data);
-    } catch (e) {
-      errorMessage = 'Erro ao atualizar informações profissionais: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.updateProfessionalInfo(data);
+    if (result.success) {
+      profile = result.data;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao atualizar informações profissionais: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> uploadAvatar(String filePath) async {
-    try {
-      isUploadingAvatar = true;
-      errorMessage = null;
-      final avatarUrl = await _profileService.uploadAvatar(filePath);
-      profile = profile?.copyWith(avatar: avatarUrl);
-    } catch (e) {
-      errorMessage = 'Erro ao fazer upload do avatar: $e';
-    } finally {
-      isUploadingAvatar = false;
+    uploadAvatarStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.uploadAvatar(filePath);
+    if (result.success) {
+      profile = profile?.copyWith(avatar: result.data);
+      uploadAvatarStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao fazer upload do avatar: ${result.error?.toString() ?? ''}';
+      uploadAvatarStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> deleteAvatar() async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      await _profileService.deleteAvatar();
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.deleteAvatar();
+    if (result.success) {
       profile = profile?.copyWith(avatar: null);
-    } catch (e) {
-      errorMessage = 'Erro ao deletar avatar: $e';
-    } finally {
-      isUpdating = false;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao deletar avatar: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadNotificationSettings() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      notificationSettings = await _profileService.getNotificationSettings();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar configurações de notificação: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.getNotificationSettings();
+    if (result.success) {
+      notificationSettings = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar configurações de notificação: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> updateNotificationSettings(Map<String, dynamic> settings) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      notificationSettings =
-          await _profileService.updateNotificationSettings(settings);
-    } catch (e) {
-      errorMessage = 'Erro ao atualizar configurações de notificação: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.updateNotificationSettings(settings);
+    if (result.success) {
+      notificationSettings = result.data;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao atualizar configurações de notificação: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadPrivacySettings() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      privacySettings = await _profileService.getPrivacySettings();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar configurações de privacidade: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.getPrivacySettings();
+    if (result.success) {
+      privacySettings = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar configurações de privacidade: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> updatePrivacySettings(Map<String, dynamic> settings) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      privacySettings = await _profileService.updatePrivacySettings(settings);
-    } catch (e) {
-      errorMessage = 'Erro ao atualizar configurações de privacidade: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.updatePrivacySettings(settings);
+    if (result.success) {
+      privacySettings = result.data;
+      updateStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao atualizar configurações de privacidade: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      await _profileService.changePassword(currentPassword, newPassword);
-    } catch (e) {
-      errorMessage = 'Erro ao alterar senha: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result =
+        await _profileService.changePassword(currentPassword, newPassword);
+    if (!result.success) {
+      errorMessage = 'Erro ao alterar senha: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
+    } else {
+      updateStatus = RequestStatusEnum.success;
     }
   }
 
   @action
   Future<void> requestAccountDeletion(String reason) async {
-    try {
-      isUpdating = true;
-      errorMessage = null;
-      await _profileService.requestAccountDeletion(reason);
-    } catch (e) {
-      errorMessage = 'Erro ao solicitar exclusão de conta: $e';
-    } finally {
-      isUpdating = false;
+    updateStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.requestAccountDeletion(reason);
+    if (!result.success) {
+      errorMessage =
+          'Erro ao solicitar exclusão de conta: ${result.error?.toString() ?? ''}';
+      updateStatus = RequestStatusEnum.fail;
+    } else {
+      updateStatus = RequestStatusEnum.success;
     }
   }
 
   @action
   Future<void> loadActivityHistory({int? limit, int? offset}) async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      activityHistory = await _profileService.getActivityHistory(
-          limit: limit, offset: offset);
-    } catch (e) {
-      errorMessage = 'Erro ao carregar histórico de atividades: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result =
+        await _profileService.getActivityHistory(limit: limit, offset: offset);
+    if (result.success) {
+      activityHistory = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar histórico de atividades: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadUserStats() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      userStats = await _profileService.getUserStats();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar estatísticas: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.getUserStats();
+    if (result.success) {
+      userStats = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar estatísticas: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<Map<String, dynamic>> exportUserData() async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      return await _profileService.exportUserData();
-    } catch (e) {
-      errorMessage = 'Erro ao exportar dados: $e';
-      rethrow;
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    errorMessage = null;
+    final result = await _profileService.exportUserData();
+    requestStatus = RequestStatusEnum.none;
+    if (result.success) {
+      return result.data;
+    } else {
+      errorMessage =
+          'Erro ao exportar dados: ${result.error?.toString() ?? ''}';
+      throw Exception(errorMessage);
     }
   }
 
@@ -273,13 +299,13 @@ abstract class ProfileStoreBase with Store {
   @action
   void reset() {
     profile = null;
-    isLoading = false;
+    requestStatus = RequestStatusEnum.none;
     errorMessage = null;
     notificationSettings = {};
     privacySettings = {};
     activityHistory = [];
     userStats = {};
-    isUpdating = false;
-    isUploadingAvatar = false;
+    updateStatus = RequestStatusEnum.none;
+    uploadAvatarStatus = RequestStatusEnum.none;
   }
 }

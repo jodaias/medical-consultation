@@ -2,18 +2,10 @@ import 'package:mobx/mobx.dart';
 
 abstract class BaseStore {
   @observable
-  bool isLoading = false;
-
-  @observable
   String? errorMessage;
 
   @observable
   bool isRefreshing = false;
-
-  @action
-  void setLoading(bool loading) {
-    isLoading = loading;
-  }
 
   @action
   void setError(String? error) {
@@ -32,7 +24,4 @@ abstract class BaseStore {
 
   @computed
   bool get hasError => errorMessage != null;
-
-  @computed
-  bool get isBusy => isLoading || isRefreshing;
 }

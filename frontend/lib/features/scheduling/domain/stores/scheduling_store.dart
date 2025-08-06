@@ -1,3 +1,5 @@
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 import 'package:mobx/mobx.dart';
 import 'package:medical_consultation_app/features/scheduling/data/models/appointment_model.dart';
 import 'package:medical_consultation_app/features/scheduling/data/models/time_slot_model.dart';
@@ -8,9 +10,7 @@ part 'scheduling_store.g.dart';
 class SchedulingStore = SchedulingStoreBase with _$SchedulingStore;
 
 abstract class SchedulingStoreBase with Store {
-  final SchedulingService _schedulingService;
-
-  SchedulingStoreBase(this._schedulingService);
+  final _schedulingService = getIt<SchedulingService>();
 
   // Observables
   @observable
@@ -28,16 +28,22 @@ abstract class SchedulingStoreBase with Store {
   TimeSlotModel? selectedTimeSlot;
 
   @observable
-  bool isLoading = false;
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
-  bool isLoadingTimeSlots = false;
+  RequestStatusEnum timeSlotsStatus = RequestStatusEnum.none;
 
   @observable
   String? error;
 
   @observable
   String? timeSlotsError;
+
+  @observable
+  bool timeSlotAvailability = false;
+
+  @observable
+  Map<String, dynamic>? schedulingStats;
 
   @observable
   String searchQuery = '';
@@ -172,44 +178,40 @@ abstract class SchedulingStoreBase with Store {
 
   @action
   Future<void> loadUserAppointments() async {
-    try {
-      isLoading = true;
-      error = null;
-
-      final appointmentsList = await _schedulingService.getUserAppointments(
-        status: selectedStatus == 'all' ? null : selectedStatus,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
-      );
-
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _schedulingService.getUserAppointments(
+      status: selectedStatus == 'all' ? null : selectedStatus,
+      startDate: selectedStartDate,
+      endDate: selectedEndDate,
+    );
+    if (result.success) {
       appointments.clear();
-      appointments.addAll(appointmentsList);
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoading = false;
+      appointments.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadDoctorAppointments(String doctorId) async {
-    try {
-      isLoading = true;
-      error = null;
-
-      final appointmentsList = await _schedulingService.getDoctorAppointments(
-        doctorId: doctorId,
-        status: selectedStatus == 'all' ? null : selectedStatus,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
-      );
-
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _schedulingService.getDoctorAppointments(
+      doctorId: doctorId,
+      status: selectedStatus == 'all' ? null : selectedStatus,
+      startDate: selectedStartDate,
+      endDate: selectedEndDate,
+    );
+    if (result.success) {
       appointments.clear();
-      appointments.addAll(appointmentsList);
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoading = false;
+      appointments.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -219,148 +221,133 @@ abstract class SchedulingStoreBase with Store {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    try {
-      isLoadingTimeSlots = true;
-      timeSlotsError = null;
-
-      final timeSlots = await _schedulingService.getAvailableTimeSlots(
-        doctorId: doctorId,
-        startDate: startDate,
-        endDate: endDate,
-      );
-
+    timeSlotsStatus = RequestStatusEnum.loading;
+    final result = await _schedulingService.getAvailableTimeSlots(
+      doctorId: doctorId,
+      startDate: startDate,
+      endDate: endDate,
+    );
+    if (result.success) {
       availableTimeSlots.clear();
-      availableTimeSlots.addAll(timeSlots);
-    } catch (e) {
-      timeSlotsError = e.toString();
-    } finally {
-      isLoadingTimeSlots = false;
+      availableTimeSlots.addAll(result.data);
+      timeSlotsStatus = RequestStatusEnum.success;
+    } else {
+      timeSlotsError = result.error?.toString();
+      timeSlotsStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
-  Future<AppointmentModel?> scheduleAppointment({
+  Future<void> scheduleAppointment({
     required String doctorId,
     required DateTime scheduledAt,
     String? notes,
     String? symptoms,
   }) async {
-    try {
-      isLoading = true;
-      error = null;
-
-      final appointment = await _schedulingService.scheduleAppointment(
-        doctorId: doctorId,
-        scheduledAt: scheduledAt,
-        notes: notes,
-        symptoms: symptoms,
-      );
-
-      appointments.add(appointment);
-      return appointment;
-    } catch (e) {
-      error = e.toString();
-      return null;
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _schedulingService.scheduleAppointment(
+      doctorId: doctorId,
+      scheduledAt: scheduledAt,
+      notes: notes,
+      symptoms: symptoms,
+    );
+    if (result.success) {
+      appointments.add(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<bool> confirmAppointment(String appointmentId) async {
-    try {
-      isLoading = true;
-      error = null;
-
-      final updatedAppointment =
-          await _schedulingService.confirmAppointment(appointmentId);
-
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _schedulingService.confirmAppointment(appointmentId);
+    if (result.success) {
       final index = appointments
           .indexWhere((appointment) => appointment.id == appointmentId);
       if (index != -1) {
-        appointments[index] = updatedAppointment;
+        appointments[index] = result.data;
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      error = e.toString();
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
   Future<bool> cancelAppointment(String appointmentId, {String? reason}) async {
-    try {
-      isLoading = true;
-      error = null;
-
-      await _schedulingService.cancelAppointment(appointmentId, reason: reason);
-
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _schedulingService.cancelAppointment(appointmentId,
+        reason: reason);
+    if (result.success) {
       final index = appointments
           .indexWhere((appointment) => appointment.id == appointmentId);
       if (index != -1) {
         final appointment = appointments[index];
         appointments[index] = appointment.copyWith(status: 'cancelled');
       }
-
+      requestStatus = RequestStatusEnum.success;
       return true;
-    } catch (e) {
-      error = e.toString();
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
-  Future<AppointmentModel?> getAppointmentDetails(String appointmentId) async {
-    try {
-      isLoading = true;
-      error = null;
-
-      final appointment =
-          await _schedulingService.getAppointmentDetails(appointmentId);
-      selectedAppointment = appointment;
-      return appointment;
-    } catch (e) {
-      error = e.toString();
-      return null;
-    } finally {
-      isLoading = false;
+  Future<void> getAppointmentDetails(String appointmentId) async {
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result =
+        await _schedulingService.getAppointmentDetails(appointmentId);
+    if (result.success) {
+      selectedAppointment = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
-  Future<bool> checkTimeSlotAvailability({
+  Future<void> checkTimeSlotAvailability({
     required String doctorId,
     required DateTime scheduledAt,
   }) async {
-    try {
-      return await _schedulingService.checkTimeSlotAvailability(
-        doctorId: doctorId,
-        scheduledAt: scheduledAt,
-      );
-    } catch (e) {
-      error = e.toString();
-      return false;
+    final result = await _schedulingService.checkTimeSlotAvailability(
+      doctorId: doctorId,
+      scheduledAt: scheduledAt,
+    );
+    if (result.success) {
+      timeSlotAvailability = result.data;
+    } else {
+      timeSlotAvailability = false;
+      error = result.error?.toString();
     }
   }
 
   @action
-  Future<Map<String, dynamic>?> getSchedulingStats({
+  Future<void> getSchedulingStats({
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    try {
-      return await _schedulingService.getSchedulingStats(
-        startDate: startDate,
-        endDate: endDate,
-      );
-    } catch (e) {
-      error = e.toString();
-      return null;
+    final result = await _schedulingService.getSchedulingStats(
+      startDate: startDate,
+      endDate: endDate,
+    );
+    if (result.success) {
+      schedulingStats = result.data;
+    } else {
+      error = result.error?.toString();
     }
   }
 

@@ -3,9 +3,11 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_dashboard_store.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class DoctorDashboardPage extends StatefulWidget {
   const DoctorDashboardPage({super.key});
@@ -15,8 +17,8 @@ class DoctorDashboardPage extends StatefulWidget {
 }
 
 class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
-  final ReportService _reportService = getIt<ReportService>();
-  final DoctorStore _doctorStore = getIt<DoctorStore>();
+  final _doctorDashboardStore = getIt<DoctorDashboardStore>();
+  final _doctorStore = getIt<DoctorStore>();
 
   Map<String, dynamic>? _dashboardData;
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
@@ -25,22 +27,7 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
   @override
   void initState() {
     super.initState();
-    _loadDashboardData();
-  }
-
-  Future<void> _loadDashboardData() async {
-    _doctorStore.setLoading(true);
-    try {
-      final data = await _reportService.getDoctorDashboard(
-        startDate: _startDate,
-        endDate: _endDate,
-      );
-      _dashboardData = data;
-    } catch (e) {
-      _showErrorSnackBar('Erro ao carregar dashboard: $e');
-    } finally {
-      _doctorStore.setLoading(false);
-    }
+    _doctorDashboardStore.loadDashboardData();
   }
 
   @override
@@ -52,14 +39,14 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: _loadDashboardData,
+            onPressed: _doctorDashboardStore.loadDashboardData,
             icon: const Icon(Icons.refresh),
           ),
         ],
       ),
       body: Observer(
         builder: (_) {
-          if (_doctorStore.isLoading) {
+          if (_doctorStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           } else if (_dashboardData == null) {
             return _buildErrorWidget();
@@ -369,7 +356,7 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
           ),
           const SizedBox(height: 8),
           ElevatedButton(
-            onPressed: _loadDashboardData,
+            onPressed: _doctorDashboardStore.loadDashboardData,
             child: const Text('Tentar novamente'),
           ),
         ],
@@ -390,17 +377,8 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
         _startDate = picked.start;
         _endDate = picked.end;
       });
-      _loadDashboardData();
+      _doctorDashboardStore.loadDashboardData();
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
-      ),
-    );
   }
 
   String _formatDate(DateTime date) {

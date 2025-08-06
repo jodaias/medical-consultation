@@ -1,3 +1,4 @@
+import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/features/chat/data/models/message_model.dart';
@@ -9,7 +10,7 @@ part 'chat_store.g.dart';
 class ChatStore = ChatStoreBase with _$ChatStore;
 
 abstract class ChatStoreBase with Store {
-  final ChatService _chatService = ChatService();
+  final _chatService = getIt<ChatService>();
 
   @observable
   ObservableList<MessageModel> messages = ObservableList<MessageModel>();
@@ -73,9 +74,14 @@ abstract class ChatStoreBase with Store {
     errorMessage = null;
 
     try {
-      final messagesList = await _chatService.getMessages(consultationId);
-      messages.clear();
-      messages.addAll(messagesList);
+      final result = await _chatService.getMessages(consultationId);
+
+      if (result.success) {
+        messages.clear();
+        messages.addAll(result.data);
+      } else {
+        errorMessage = 'Nenhuma mensagem encontrada.';
+      }
     } catch (e) {
       errorMessage = e.toString();
     } finally {
@@ -88,13 +94,17 @@ abstract class ChatStoreBase with Store {
     if (content.trim().isEmpty) return;
 
     try {
-      final message = await _chatService.sendMessage(
+      final result = await _chatService.sendMessage(
         consultationId: currentConsultationId,
         content: content,
         attachmentPath: attachmentPath,
       );
 
-      messages.add(message);
+      if (!result.success) {
+        errorMessage = 'Erro ao enviar mensagem: ${result.error}';
+        return;
+      }
+      messages.add(result.data);
     } catch (e) {
       errorMessage = e.toString();
     }

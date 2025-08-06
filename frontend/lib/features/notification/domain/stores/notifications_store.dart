@@ -39,56 +39,58 @@ abstract class NotificationsStoreBase with Store {
 
   @action
   Future<void> loadNotifications({int? limit, int? offset}) async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-
-      final notificationsList = await _notificationService.getNotifications(
-          limit: limit, offset: offset);
+    isLoading = true;
+    errorMessage = null;
+    final result = await _notificationService.getNotifications(
+        limit: limit, offset: offset);
+    if (result.success) {
       notifications.clear();
-      notifications.addAll(notificationsList);
-    } catch (e) {
-      errorMessage = 'Erro ao carregar notificações: $e';
-    } finally {
-      isLoading = false;
+      notifications.addAll(result.data);
+    } else {
+      errorMessage =
+          'Erro ao carregar notificações: ${result.error?.toString() ?? ''}';
     }
+    isLoading = false;
   }
 
   @action
   Future<void> markNotificationAsRead(String notificationId) async {
-    try {
-      await _notificationService.markNotificationAsRead(notificationId);
-
+    final result =
+        await _notificationService.markNotificationAsRead(notificationId);
+    if (result.success) {
       final index = notifications.indexWhere((n) => n.id == notificationId);
       if (index != -1) {
         final notification = notifications[index];
         notifications[index] = notification.copyWith(isRead: true);
       }
-    } catch (e) {
-      errorMessage = 'Erro ao marcar notificação como lida: $e';
+    } else {
+      errorMessage =
+          'Erro ao marcar notificação como lida: ${result.error?.toString() ?? ''}';
     }
   }
 
   @action
   Future<void> markAllNotificationsAsRead() async {
-    try {
-      await _notificationService.markAllNotificationsAsRead();
-
+    final result = await _notificationService.markAllNotificationsAsRead();
+    if (result.success) {
       for (int i = 0; i < notifications.length; i++) {
         notifications[i] = notifications[i].copyWith(isRead: true);
       }
-    } catch (e) {
-      errorMessage = 'Erro ao marcar todas as notificações como lidas: $e';
+    } else {
+      errorMessage =
+          'Erro ao marcar todas as notificações como lidas: ${result.error?.toString() ?? ''}';
     }
   }
 
   @action
   Future<void> deleteNotification(String notificationId) async {
-    try {
-      await _notificationService.deleteNotification(notificationId);
+    final result =
+        await _notificationService.deleteNotification(notificationId);
+    if (result.success) {
       notifications.removeWhere((n) => n.id == notificationId);
-    } catch (e) {
-      errorMessage = 'Erro ao deletar notificação: $e';
+    } else {
+      errorMessage =
+          'Erro ao deletar notificação: ${result.error?.toString() ?? ''}';
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
 import 'package:medical_consultation_app/features/scheduling/presentation/widgets/appointment_card.dart';
 import 'package:medical_consultation_app/features/scheduling/presentation/widgets/appointment_filters.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class AppointmentListPage extends StatefulWidget {
   const AppointmentListPage({super.key});
@@ -41,7 +42,7 @@ class _AppointmentListPageState extends State<AppointmentListPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_schedulingStore.isLoading) {
+          if (_schedulingStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -217,7 +218,7 @@ class _AppointmentListPageState extends State<AppointmentListPage> {
       builder: (context) => AppointmentFilters(
         schedulingStore: _schedulingStore,
         onApply: () {
-          Navigator.pop(context);
+          context.pop();
           _loadAppointments();
         },
       ),
@@ -237,11 +238,11 @@ class _AppointmentListPageState extends State<AppointmentListPage> {
             const Text('Tem certeza que deseja cancelar este agendamento?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Não'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             child: const Text('Sim'),
           ),
         ],

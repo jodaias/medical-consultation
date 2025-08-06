@@ -3,6 +3,9 @@ const ConsultationRepository = require('../repositories/consultation-repository'
 const { CreateMessageDTO, UpdateMessageDTO, MessageResponseDTO } = require('../dto/message-dto');
 const { ValidationException, NotFoundException, ForbiddenException } = require('../exceptions/app-exception');
 
+const UserRepository = require('../repositories/user-repository');
+const { sendFcmNotification } = require('../utils/fcm');
+
 /**
  * MessageService - Lógica de negócio para mensagens
  * Seguindo o princípio de responsabilidade única (SRP)
@@ -11,6 +14,7 @@ class MessageService {
   constructor() {
     this.repository = new MessageRepository();
     this.consultationRepository = new ConsultationRepository();
+    this.userRepository = new UserRepository();
   }
 
   async create(messageData, userId) {
@@ -44,6 +48,28 @@ class MessageService {
 
     // Criar mensagem
     const message = await this.repository.create(messageEntity);
+
+    // Enviar notificação push FCM para o destinatário, se houver token
+    try {
+      const receiver = await this.userRepository.findById(receiverId);
+      if (receiver.fcmToken) {
+        await sendFcmNotification(
+          receiver.fcmToken,
+          {
+            title: 'Nova mensagem',
+            body: `${consultation.patientId === userId ? 'Paciente' : 'Médico'} ${receiver.name} enviou uma nova mensagem.`
+          },
+          {
+            type: 'new_message',
+            consultationId: consultation.id,
+            senderId: userId
+          }
+        );
+      }
+    } catch (err) {
+      // Logar erro, mas não impedir fluxo principal
+      console.error('Erro ao enviar notificação FCM:', err.message);
+    }
 
     return MessageResponseDTO.fromEntity(message);
   }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/models/token_model.dart';
 import 'package:medical_consultation_app/core/router/app_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
@@ -23,7 +24,10 @@ void main() async {
   }
 
   // Initialize Hive
-  await Hive.initFlutter();
+  if (!Hive.isAdapterRegistered(1)) {
+    await Hive.initFlutter();
+    Hive.registerAdapter(TokenModelAdapter());
+  }
 
   // Configure dependency injection
   await configureDependencies();

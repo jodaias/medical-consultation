@@ -114,4 +114,23 @@ class StorageService {
       return true;
     }
   }
+
+  /// Retorna a data de expiração do token JWT salvo, ou null se não houver token válido.
+  Future<DateTime?> getTokenExpiration() async {
+    final token = await getToken();
+    if (token == null) return null;
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+      final payload = parts[1];
+      final normalized = base64Url.normalize(payload);
+      final resp = utf8.decode(base64Url.decode(normalized));
+      final payloadMap = json.decode(resp);
+      final exp = payloadMap['exp'];
+      if (exp == null) return null;
+      return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+    } catch (e) {
+      return null;
+    }
+  }
 }

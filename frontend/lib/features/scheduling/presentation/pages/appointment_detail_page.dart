@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class AppointmentDetailPage extends StatefulWidget {
   final String appointmentId;
@@ -43,7 +45,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_schedulingStore.isLoading) {
+          if (_schedulingStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -406,11 +408,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
             const Text('Tem certeza que deseja cancelar este agendamento?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Não'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             child: const Text('Sim'),
           ),
         ],
@@ -421,7 +423,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       final success = await _schedulingStore.cancelAppointment(appointmentId);
       if (success && mounted) {
         ToastUtils.showSuccessToast('Agendamento cancelado com sucesso');
-        Navigator.pop(context);
+        context.pop();
       }
     }
   }
@@ -430,7 +432,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     final success = await _schedulingStore.confirmAppointment(appointmentId);
     if (success && mounted) {
       ToastUtils.showSuccessToast('Agendamento confirmado com sucesso');
-      Navigator.pop(context);
+      context.pop();
     }
   }
 }

@@ -23,6 +23,22 @@ mixin _$AuthStore on AuthStoreBase, Store {
           Computed<bool>(() => super.isDoctor, name: 'AuthStoreBase.isDoctor'))
       .value;
 
+  late final _$requestStatusAtom =
+      Atom(name: 'AuthStoreBase.requestStatus', context: context);
+
+  @override
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
+  }
+
+  @override
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
+    });
+  }
+
   late final _$isAuthenticatedAtom =
       Atom(name: 'AuthStoreBase.isAuthenticated', context: context);
 
@@ -36,22 +52,6 @@ mixin _$AuthStore on AuthStoreBase, Store {
   set isAuthenticated(bool value) {
     _$isAuthenticatedAtom.reportWrite(value, super.isAuthenticated, () {
       super.isAuthenticated = value;
-    });
-  }
-
-  late final _$isLoadingAtom =
-      Atom(name: 'AuthStoreBase.isLoading', context: context);
-
-  @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
-  }
-
-  @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
     });
   }
 
@@ -210,8 +210,8 @@ mixin _$AuthStore on AuthStoreBase, Store {
   @override
   String toString() {
     return '''
+requestStatus: ${requestStatus},
 isAuthenticated: ${isAuthenticated},
-isLoading: ${isLoading},
 userType: ${userType},
 userId: ${userId},
 userName: ${userName},

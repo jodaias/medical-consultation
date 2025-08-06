@@ -8,8 +8,10 @@ class AppConstants {
   // static const String socketUrl =
   //     'https://medical-consultation-api.onrender.com';
 
-  static const String baseUrl = 'http://localhost:3001/api';
-  static const String socketUrl = 'http://localhost:3001';
+  // pra rodar api local roda: iisexpress-proxy 3001 to 3000
+  // baseUrl = 'http://ip-da-maquina:3000'
+  static const String baseUrl = 'http://192.168.10.123:3000';
+  static const String socketUrl = 'http://192.168.10.123:3000';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';

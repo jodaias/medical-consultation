@@ -4,6 +4,8 @@ const UserRepository = require('../repositories/user-repository');
 const { CreatePrescriptionDTO, UpdatePrescriptionDTO, PrescriptionResponseDTO } = require('../dto/prescription-dto');
 const { ValidationException, NotFoundException, ForbiddenException } = require('../exceptions/app-exception');
 
+const { sendFcmNotification } = require('../utils/fcm');
+
 class PrescriptionService {
   constructor() {
     this.prescriptionRepository = new PrescriptionRepository();
@@ -55,6 +57,27 @@ class PrescriptionService {
         doctorId: userId,
         patientId: consultation.patientId
       });
+
+      // Notificar paciente (caso tenha fcmToken)
+      try {
+        const patient = await this.userRepository.findById(consultation.patientId);
+        if (patient.fcmToken) {
+          await sendFcmNotification(
+            patient.fcmToken,
+            {
+              title: 'Nova prescrição',
+              body: 'Uma nova prescrição foi adicionada à sua consulta.'
+            },
+            {
+              type: 'prescription',
+              prescriptionId: prescription.id,
+              consultationId: consultation.id
+            }
+          );
+        }
+      } catch (err) {
+        console.error('Erro ao enviar notificação FCM (prescrição):', err.message);
+      }
 
       return PrescriptionResponseDTO.fromEntity(prescription);
     } catch (error) {

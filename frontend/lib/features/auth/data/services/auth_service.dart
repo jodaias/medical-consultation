@@ -1,26 +1,18 @@
-import 'package:dio/dio.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
-import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 class AuthService {
-  final ApiService _apiService = ApiService();
+  final Rest rest;
 
-  // Login
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    try {
-      final response = await _apiService.post('/users/login', data: {
-        'email': email,
-        'password': password,
-      });
+  AuthService(this.rest);
 
-      return response.data;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+  Future<RestResult<dynamic>> login(String email, String password) async {
+    return await rest.postModel('/users/login', {
+      'email': email,
+      'password': password,
+    });
   }
 
-  // Register
-  Future<Map<String, dynamic>> register({
+  Future<RestResult<dynamic>> register({
     required String name,
     required String email,
     required String phone,
@@ -31,166 +23,68 @@ class AuthService {
     String? bio,
     double? hourlyRate,
   }) async {
-    try {
-      print('🔍 AuthService.register iniciado');
-      final data = {
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'password': password,
-        'userType': userType,
-      };
-
-      // Adicionar campos específicos para médicos
-      if (userType == 'DOCTOR') {
-        if (specialty != null) data['specialty'] = specialty;
-        if (crm != null) data['crm'] = crm;
-        if (bio != null) data['bio'] = bio;
-        if (hourlyRate != null) data['hourlyRate'] = hourlyRate.toString();
-      }
-
-      print('🔍 Dados enviados: $data');
-      final response = await _apiService.post('/users/register', data: data);
-      print('🔍 Resposta da API: ${response.data}');
-
-      return response.data;
-    } on DioException catch (e) {
-      print('❌ AuthService.register erro DioException: $e');
-      throw _handleDioError(e);
-    } catch (e) {
-      print('❌ AuthService.register erro geral: $e');
-      rethrow;
+    final data = {
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'password': password,
+      'userType': userType,
+    };
+    if (userType == 'DOCTOR') {
+      if (specialty != null) data['specialty'] = specialty;
+      if (crm != null) data['crm'] = crm;
+      if (bio != null) data['bio'] = bio;
+      if (hourlyRate != null) data['hourlyRate'] = hourlyRate.toString();
     }
+    return await rest.postModel('/users/register', data);
   }
 
-  // Logout
-  Future<void> logout() async {
-    try {
-      await _apiService.post('/users/logout');
-    } on DioException {
-      // Não lançar erro no logout, apenas logar
-      print('Logout completed');
-    }
+  Future<RestResult<dynamic>> logout() async {
+    return await rest.postModel('/users/logout', {});
   }
 
-  // Refresh Token
-  Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
-    try {
-      final response = await _apiService.post('/users/refresh', data: {
-        'refreshToken': refreshToken,
-      });
-
-      return response.data;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+  Future<RestResult<dynamic>> refreshToken(String refreshToken) async {
+    return await rest.postModel('/users/refresh', {
+      'refreshToken': refreshToken,
+    });
   }
 
-  // Forgot Password
-  Future<void> forgotPassword(String email) async {
-    try {
-      await _apiService.post('/users/forgot-password', data: {
-        'email': email,
-      });
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+  Future<RestResult<dynamic>> forgotPassword(String email) async {
+    return await rest.postModel('/users/forgot-password', {
+      'email': email,
+    });
   }
 
-  // Reset Password
-  Future<void> resetPassword({
+  Future<RestResult<dynamic>> resetPassword({
     required String token,
     required String newPassword,
   }) async {
-    try {
-      await _apiService.post('/users/reset-password', data: {
-        'token': token,
-        'newPassword': newPassword,
-      });
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+    return await rest.postModel('/users/reset-password', {
+      'token': token,
+      'newPassword': newPassword,
+    });
   }
 
-  // Get User Profile
-  Future<Map<String, dynamic>> getUserProfile() async {
-    try {
-      final response = await _apiService.get('/users/profile');
-      return response.data;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+  Future<RestResult<dynamic>> getUserProfile() async {
+    return await rest.getModel('/users/profile', (data) => data);
   }
 
-  // Update User Profile
-  Future<Map<String, dynamic>> updateUserProfile(
+  Future<RestResult<dynamic>> updateUserProfile(
       Map<String, dynamic> data) async {
-    try {
-      final response = await _apiService.put('/users/profile', data: data);
-      return response.data;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+    return await rest.putModel('/users/profile', body: data);
   }
 
-  // Change Password
-  Future<void> changePassword({
+  Future<RestResult<dynamic>> changePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
-    try {
-      await _apiService.post('/users/change-password', data: {
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
-      });
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+    return await rest.postModel('/users/change-password', {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
   }
 
-  // Verificar se o token é válido
-  Future<bool> validateToken() async {
-    try {
-      await _apiService.get('/users/validate');
-      return true;
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        return false;
-      }
-      throw _handleDioError(e);
-    }
-  }
-
-  // Tratamento de erros do Dio
-  Exception _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return ApiException(AppConstants.networkError);
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode;
-        final message =
-            e.response?.data?['message'] ?? AppConstants.unknownError;
-
-        switch (statusCode) {
-          case 401:
-            return UnauthorizedException(AppConstants.sessionExpired);
-          case 403:
-            return ForbiddenException(message);
-          case 404:
-            return NotFoundException(message);
-          case 422:
-            return ValidationException(message);
-          case 500:
-            return ServerException(AppConstants.serverError);
-          default:
-            return ApiException(message);
-        }
-      case DioExceptionType.cancel:
-        return ApiException('Requisição cancelada');
-      default:
-        return ApiException(AppConstants.networkError);
-    }
+  Future<RestResult<dynamic>> validateToken() async {
+    return await rest.getModel('/users/validate', (data) => data);
   }
 }

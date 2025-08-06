@@ -2,16 +2,14 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
-import 'package:medical_consultation_app/core/services/storage_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 @injectable
 class FileUploadService {
-  final ApiService _apiService;
-  final StorageService _storageService;
+  final Rest rest;
   final ImagePicker _imagePicker = ImagePicker();
 
-  FileUploadService(this._apiService, this._storageService);
+  FileUploadService(this.rest);
 
   // Tipos de arquivo suportados
   static const List<String> supportedImageTypes = ['jpg', 'jpeg', 'png', 'gif'];
@@ -153,31 +151,37 @@ class FileUploadService {
   }
 
   // Upload de arquivo para o servidor
-  Future<String?> uploadFile(File file, String consultationId) async {
-    try {
-      final token = await _storageService.getToken();
-      if (token == null) {
-        throw Exception('Token não encontrado');
-      }
+  Future<RestResult<Map<String, dynamic>>> uploadFile(
+      File file, String consultationId) async {
+    // Preparar dados do formulário
+    final formData = {
+      'consultationId': consultationId,
+      'file': await file.readAsBytes(),
+      'fileName': file.path.split('/').last,
+      'fileType': _getFileType(file.path),
+    };
 
-      // Preparar dados do formulário
-      final formData = {
-        'consultationId': consultationId,
-        'file': await file.readAsBytes(),
-        'fileName': file.path.split('/').last,
-        'fileType': _getFileType(file.path),
-      };
+    return await rest.postModel<Map<String, dynamic>>(
+      '/files/upload',
+      formData,
+      parse: (data) => data as Map<String, dynamic>,
+    );
+  }
 
-      final response = await _apiService.post(
-        '/upload/file',
-        data: formData,
-      );
-
-      return response.data['fileUrl'];
-    } catch (e) {
-      print('Erro no upload: $e');
-      return null;
-    }
+  // Upload de arquivo para consulta seguindo novo padrão RestResult
+  Future<RestResult<String>> uploadFileForConsultation(
+      File file, String consultationId) async {
+    final formData = {
+      'consultationId': consultationId,
+      'file': await file.readAsBytes(),
+      'fileName': file.path.split('/').last,
+      'fileType': _getFileType(file.path),
+    };
+    return await rest.postModel<String>(
+      '/upload/file',
+      formData,
+      parse: (data) => data['fileUrl'] as String,
+    );
   }
 
   // Upload de múltiplos arquivos
@@ -186,9 +190,10 @@ class FileUploadService {
     List<String> uploadedUrls = [];
 
     for (var file in files) {
-      final url = await uploadFile(file, consultationId);
-      if (url != null) {
-        uploadedUrls.add(url);
+      final result = await uploadFile(file, consultationId);
+
+      if (result.success) {
+        uploadedUrls.add(result.data['fileUrl']);
       }
     }
 

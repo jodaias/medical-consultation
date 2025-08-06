@@ -12,6 +12,21 @@ class UserController extends BaseController {
     this.userService = userService;
   }
 
+  // Atualizar token FCM do usuário
+  updateFcmToken = this.handleAsync(async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { fcmToken } = req.body;
+      if (!fcmToken) {
+        return this.sendError(res, new Error('fcmToken is required'), 400);
+      }
+      await this.userService.updateFcmToken(id, fcmToken);
+      return this.sendSuccess(res, null, 'FCM token atualizado com sucesso');
+    } catch (error) {
+      return this.sendError(res, error, error.statusCode || 400);
+    }
+  });
+
   // Registro de usuário
   register = this.handleAsync(async (req, res) => {
     try {

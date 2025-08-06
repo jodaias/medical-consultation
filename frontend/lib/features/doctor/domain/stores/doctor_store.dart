@@ -3,15 +3,15 @@ import 'package:medical_consultation_app/features/doctor/data/models/doctor_mode
 import 'package:medical_consultation_app/features/doctor/data/models/specialty_model.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/rating_model.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_service.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
 
 part 'doctor_store.g.dart';
 
 class DoctorStore = DoctorStoreBase with _$DoctorStore;
 
 abstract class DoctorStoreBase with Store {
-  final DoctorService _doctorService;
-
-  DoctorStoreBase(this._doctorService);
+  final _doctorService = getIt<DoctorService>();
 
   // Observables
   @observable
@@ -33,10 +33,10 @@ abstract class DoctorStoreBase with Store {
   ObservableList<RatingModel> doctorRatings = ObservableList<RatingModel>();
 
   @observable
-  bool isLoading = false;
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
-  bool isLoadingRatings = false;
+  RequestStatusEnum ratingsStatus = RequestStatusEnum.none;
 
   @observable
   String? error;
@@ -144,130 +144,141 @@ abstract class DoctorStoreBase with Store {
   }
 
   // Actions
-  @action
-  void setLoading(bool value) {
-    isLoading = value;
-  }
 
   @action
   Future<void> loadDoctors({bool refresh = false}) async {
-    try {
-      isLoading = true;
-      error = null;
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
 
-      if (refresh) {
-        currentPage = 1;
-        hasMorePages = true;
-        doctors.clear();
-      }
+    if (refresh) {
+      currentPage = 1;
+      hasMorePages = true;
+      doctors.clear();
+    }
 
-      final newDoctors = await _doctorService.getDoctors(
-        specialty: selectedSpecialty,
-        search: searchQuery,
-        minRating: minRating,
-        maxPrice: maxPrice,
-        sortBy: sortBy,
-        page: currentPage,
-        limit: 20,
-      );
+    final result = await _doctorService.getDoctors(
+      specialty: selectedSpecialty,
+      search: searchQuery,
+      minRating: minRating,
+      maxPrice: maxPrice,
+      sortBy: sortBy,
+      page: currentPage,
+      limit: 20,
+    );
 
+    if (result.success) {
       if (refresh || currentPage == 1) {
         doctors.clear();
       }
-
-      doctors.addAll(newDoctors);
-      hasMorePages = newDoctors.length == 20;
+      doctors.addAll(result.data);
+      hasMorePages = result.data.length == 20;
       currentPage++;
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoading = false;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadMoreDoctors() async {
-    if (!isLoading && hasMorePages) {
+    if (requestStatus != RequestStatusEnum.loading && hasMorePages) {
       await loadDoctors();
     }
   }
 
   @action
   Future<void> loadSpecialties() async {
-    try {
-      final newSpecialties = await _doctorService.getSpecialties();
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _doctorService.getSpecialties();
+    if (result.success) {
       specialties.clear();
-      specialties.addAll(newSpecialties);
-    } catch (e) {
-      error = e.toString();
+      specialties.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadFavoriteDoctors() async {
-    try {
-      final favorites = await _doctorService.getFavoriteDoctors();
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _doctorService.getFavoriteDoctors();
+    if (result.success) {
       favoriteDoctors.clear();
-      favoriteDoctors.addAll(favorites);
-    } catch (e) {
-      error = e.toString();
+      favoriteDoctors.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadOnlineDoctors() async {
-    try {
-      final online = await _doctorService.getOnlineDoctors();
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _doctorService.getOnlineDoctors();
+    if (result.success) {
       onlineDoctors.clear();
-      onlineDoctors.addAll(online);
-    } catch (e) {
-      error = e.toString();
+      onlineDoctors.addAll(result.data);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadDoctorDetails(String doctorId) async {
-    try {
-      selectedDoctor = await _doctorService.getDoctorById(doctorId);
-    } catch (e) {
-      error = e.toString();
+    requestStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _doctorService.getDoctorById(doctorId);
+    if (result.success) {
+      selectedDoctor = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadDoctorRatings(String doctorId) async {
-    try {
-      isLoadingRatings = true;
-      final ratings = await _doctorService.getDoctorRatings(doctorId);
+    ratingsStatus = RequestStatusEnum.loading;
+    error = null;
+    final result = await _doctorService.getDoctorRatings(doctorId);
+    if (result.success) {
       doctorRatings.clear();
-      doctorRatings.addAll(ratings);
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoadingRatings = false;
+      doctorRatings.addAll(result.data);
+      ratingsStatus = RequestStatusEnum.success;
+    } else {
+      error = result.error?.toString();
+      ratingsStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> rateDoctor(
       String doctorId, double rating, String comment) async {
-    try {
-      await _doctorService.rateDoctor(doctorId, rating, comment);
-      // Recarregar avaliações
+    final result = await _doctorService.rateDoctor(doctorId, rating, comment);
+    if (result.success) {
       await loadDoctorRatings(doctorId);
-    } catch (e) {
-      error = e.toString();
+    } else {
+      error = result.error?.toString();
     }
   }
 
   @action
   Future<void> toggleFavorite(String doctorId) async {
-    try {
-      await _doctorService.toggleFavorite(doctorId);
-      // Recarregar favoritos
+    final result = await _doctorService.toggleFavorite(doctorId);
+    if (result.success) {
       await loadFavoriteDoctors();
-    } catch (e) {
-      error = e.toString();
+    } else {
+      error = result.error?.toString();
     }
   }
 

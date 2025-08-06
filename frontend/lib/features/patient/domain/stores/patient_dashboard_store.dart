@@ -1,4 +1,5 @@
 import 'package:medical_consultation_app/features/shared/dashboard/models/dashboard_stats_model.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 import 'package:mobx/mobx.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/stores/base_store.dart';
@@ -12,10 +13,14 @@ class PatientDashboardStore = PatientDashboardStoreBase
     with _$PatientDashboardStore;
 
 abstract class PatientDashboardStoreBase extends BaseStore with Store {
-  final PatientDashboardService _dashboardService = PatientDashboardService();
+  final PatientDashboardService _dashboardService =
+      getIt<PatientDashboardService>();
   final AuthStore _authStore = getIt<AuthStore>();
 
   // Observables
+  @observable
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
+
   @observable
   String selectedPeriod = 'month';
 
@@ -62,114 +67,122 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
   // Actions
   @action
   Future<void> loadDashboardData() async {
-    try {
-      setLoading(true);
-      clearError();
-
-      final patientId = _authStore.userId;
-      if (patientId == null) {
-        throw Exception('Usuário não autenticado');
-      }
-
-      // Carregar dados do dashboard
-      final dashboardData =
-          await _dashboardService.getPatientDashboard(patientId);
-
-      // Atualizar observables com dados reais
+    requestStatus = RequestStatusEnum.loading;
+    setRefreshing(true);
+    clearError();
+    final patientId = _authStore.userId;
+    if (patientId == null) {
+      setError('Usuário não autenticado');
+      requestStatus = RequestStatusEnum.fail;
+      setRefreshing(false);
+      return;
+    }
+    final dashboardResult =
+        await _dashboardService.getPatientDashboard(patientId);
+    if (dashboardResult.success) {
+      final dashboardData = dashboardResult.data;
       totalConsultations = dashboardData['totalConsultations'] ?? 0;
       upcomingConsultations = dashboardData['upcomingConsultations'] ?? 0;
       totalSpent = (dashboardData['totalSpent'] ?? 0.0).toDouble();
-
-      // Carregar dados específicos
       await Future.wait([
         loadRecentConsultations(),
         loadFavoriteDoctors(),
         loadRecentPrescriptions(),
       ]);
-    } catch (e) {
-      setError('Erro ao carregar dashboard: $e');
-    } finally {
-      setLoading(false);
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      setError(
+          'Erro ao carregar dashboard: ${dashboardResult.error?.toString() ?? ''}');
+      requestStatus = RequestStatusEnum.fail;
     }
+    setRefreshing(false);
   }
 
   @action
   Future<void> loadDashboardStats({String? period}) async {
-    try {
-      isLoading = true;
-      errorMessage = null;
-      if (period != null) selectedPeriod = period;
-
-      stats = await _dashboardService.getDashboardStats(period: selectedPeriod);
-    } catch (e) {
-      errorMessage = 'Erro ao carregar estatísticas: $e';
-    } finally {
-      isLoading = false;
+    requestStatus = RequestStatusEnum.loading;
+    setRefreshing(true);
+    errorMessage = null;
+    if (period != null) selectedPeriod = period;
+    final result =
+        await _dashboardService.getDashboardStats(period: selectedPeriod);
+    if (result.success) {
+      stats = result.data;
+      requestStatus = RequestStatusEnum.success;
+    } else {
+      errorMessage =
+          'Erro ao carregar estatísticas: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
+    setRefreshing(false);
   }
 
   @action
   Future<void> loadRecentConsultations() async {
-    try {
-      final patientId = _authStore.userId;
-      if (patientId == null) return;
-
-      final consultations =
-          await _dashboardService.getRecentConsultations(patientId);
-
+    final patientId = _authStore.userId;
+    if (patientId == null) return;
+    final result = await _dashboardService.getRecentConsultations(patientId);
+    if (result.success) {
       recentConsultations.clear();
-      recentConsultations.addAll(consultations);
-    } catch (e) {
-      setError('Erro ao carregar consultas recentes: $e');
+      recentConsultations.addAll(result.data);
+    } else {
+      setError(
+          'Erro ao carregar consultas recentes: ${result.error?.toString() ?? ''}');
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadFavoriteDoctors() async {
-    try {
-      final patientId = _authStore.userId;
-      if (patientId == null) return;
-
-      final doctors = await _dashboardService.getFavoriteDoctors(patientId);
-
+    final patientId = _authStore.userId;
+    if (patientId == null) return;
+    final result = await _dashboardService.getFavoriteDoctors(patientId);
+    if (result.success) {
       favoriteDoctors.clear();
-      favoriteDoctors.addAll(doctors);
-    } catch (e) {
-      setError('Erro ao carregar médicos favoritos: $e');
+      favoriteDoctors.addAll(result.data);
+    } else {
+      setError(
+          'Erro ao carregar médicos favoritos: ${result.error?.toString() ?? ''}');
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadRealTimeMetrics() async {
-    try {
-      realTimeMetrics = await _dashboardService.getRealTimeMetrics();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar métricas em tempo real: $e';
+    final result = await _dashboardService.getRealTimeMetrics();
+    if (result.success) {
+      realTimeMetrics = result.data;
+    } else {
+      errorMessage =
+          'Erro ao carregar métricas em tempo real: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadAlertsAndInsights() async {
-    try {
-      alertsAndInsights = await _dashboardService.getAlertsAndInsights();
-    } catch (e) {
-      errorMessage = 'Erro ao carregar alertas e insights: $e';
+    final result = await _dashboardService.getAlertsAndInsights();
+    if (result.success) {
+      alertsAndInsights = result.data;
+    } else {
+      errorMessage =
+          'Erro ao carregar alertas e insights: ${result.error?.toString() ?? ''}';
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
   @action
   Future<void> loadRecentPrescriptions() async {
-    try {
-      final patientId = _authStore.userId;
-      if (patientId == null) return;
-
-      final prescriptions =
-          await _dashboardService.getRecentPrescriptions(patientId);
-
+    final patientId = _authStore.userId;
+    if (patientId == null) return;
+    final result = await _dashboardService.getRecentPrescriptions(patientId);
+    if (result.success) {
       recentPrescriptions.clear();
-      recentPrescriptions.addAll(prescriptions);
-    } catch (e) {
-      setError('Erro ao carregar prescrições recentes: $e');
+      recentPrescriptions.addAll(result.data);
+    } else {
+      setError(
+          'Erro ao carregar prescrições recentes: ${result.error?.toString() ?? ''}');
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -188,5 +201,6 @@ abstract class PatientDashboardStoreBase extends BaseStore with Store {
   @action
   void clearError() {
     super.clearError();
+    requestStatus = RequestStatusEnum.none;
   }
 }

@@ -97,19 +97,19 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
     });
   }
 
-  late final _$isLoadingAtom =
-      Atom(name: 'ConsultationStoreBase.isLoading', context: context);
+  late final _$requestStatusAtom =
+      Atom(name: 'ConsultationStoreBase.requestStatus', context: context);
 
   @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
   }
 
   @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
     });
   }
 
@@ -404,7 +404,7 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
     return '''
 consultations: ${consultations},
 selectedConsultation: ${selectedConsultation},
-isLoading: ${isLoading},
+requestStatus: ${requestStatus},
 errorMessage: ${errorMessage},
 selectedStatus: ${selectedStatus},
 selectedDate: ${selectedDate},

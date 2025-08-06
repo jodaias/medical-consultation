@@ -5,6 +5,7 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -28,8 +29,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _resetPassword() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await _authStore.resetPassword(_emailController.text.trim());
-    
+    final success =
+        await _authStore.resetPassword(_emailController.text.trim());
+
     if (success && mounted) {
       setState(() {
         _isEmailSent = true;
@@ -51,9 +53,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         elevation: 0,
       ),
       body: Observer(
-        builder: (_) => _isEmailSent
-            ? _buildSuccessView()
-            : _buildResetPasswordForm(),
+        builder: (_) =>
+            _isEmailSent ? _buildSuccessView() : _buildResetPasswordForm(),
       ),
     );
   }
@@ -67,39 +68,39 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 40),
-            
+
             // Ícone
             Icon(
               Icons.lock_reset,
               size: 80,
               color: AppTheme.primaryColor,
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Título
             Text(
               'Esqueceu sua senha?',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimaryColor,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimaryColor,
+                  ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Descrição
             Text(
               'Digite seu email e enviaremos um link para redefinir sua senha.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.textSecondaryColor,
-              ),
+                    color: AppTheme.textSecondaryColor,
+                  ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Campo de email
             TextFormField(
               controller: _emailController,
@@ -110,22 +111,28 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 hintText: 'Digite seu email',
                 prefixIcon: const Icon(Icons.email_outlined),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   borderSide: BorderSide(color: AppTheme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                  borderSide: BorderSide(color: AppTheme.primaryColor, width: 2),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
+                  borderSide:
+                      BorderSide(color: AppTheme.primaryColor, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   borderSide: BorderSide(color: AppTheme.errorColor),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   borderSide: BorderSide(color: AppTheme.errorColor, width: 2),
                 ),
               ),
@@ -133,34 +140,39 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 if (value == null || value.trim().isEmpty) {
                   return 'Email é obrigatório';
                 }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) {
                   return 'Digite um email válido';
                 }
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Botão de enviar
             Observer(
               builder: (_) => ElevatedButton(
-                onPressed: _authStore.isLoading ? null : _resetPassword,
+                onPressed: _authStore.requestStatus == RequestStatusEnum.loading
+                    ? null
+                    : _resetPassword,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.borderRadius),
                   ),
                 ),
-                child: _authStore.isLoading
+                child: _authStore.requestStatus == RequestStatusEnum.loading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : const Text(
@@ -172,9 +184,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Link para voltar ao login
             TextButton(
               onPressed: _goBackToLogin,
@@ -186,18 +198,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // Mensagem de erro
             Observer(
               builder: (_) => _authStore.errorMessage != null
                   ? Container(
                       padding: const EdgeInsets.all(AppConstants.smallPadding),
-                      margin: const EdgeInsets.only(bottom: AppConstants.smallPadding),
+                      margin: const EdgeInsets.only(
+                          bottom: AppConstants.smallPadding),
                       decoration: BoxDecoration(
                         color: AppTheme.errorColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                        borderRadius:
+                            BorderRadius.circular(AppConstants.borderRadius),
                         border: Border.all(color: AppTheme.errorColor),
                       ),
                       child: Text(
@@ -227,32 +241,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             size: 80,
             color: AppTheme.successColor,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Título
           Text(
             'Email Enviado!',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimaryColor,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimaryColor,
+                ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Descrição
           Text(
             'Enviamos um link de recuperação para o email informado. Verifique sua caixa de entrada e spam.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppTheme.textSecondaryColor,
-            ),
+                  color: AppTheme.textSecondaryColor,
+                ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Botão para voltar ao login
           ElevatedButton(
             onPressed: _goBackToLogin,
@@ -272,9 +286,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Botão para reenviar
           OutlinedButton(
             onPressed: () {
@@ -303,4 +317,4 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ),
     );
   }
-} 
+}

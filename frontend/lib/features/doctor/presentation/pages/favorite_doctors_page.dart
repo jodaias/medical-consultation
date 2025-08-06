@@ -5,6 +5,7 @@ import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/doctor/data/models/doctor_model.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class FavoriteDoctorsPage extends StatefulWidget {
   const FavoriteDoctorsPage({super.key});
@@ -27,7 +28,7 @@ class _FavoriteDoctorsPageState extends State<FavoriteDoctorsPage> {
         builder: (_) {
           final favorites = doctorStore.favoriteDoctors;
 
-          if (doctorStore.isLoading) {
+          if (doctorStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 

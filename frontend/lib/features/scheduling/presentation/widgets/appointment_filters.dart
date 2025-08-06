@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
 
 class AppointmentFilters extends StatefulWidget {
@@ -52,7 +53,7 @@ class _AppointmentFiltersState extends State<AppointmentFilters> {
               TextButton(
                 onPressed: () {
                   widget.schedulingStore.clearFilters();
-                  Navigator.pop(context);
+                  context.pop();
                   widget.onApply();
                 },
                 child: const Text('Limpar'),
@@ -114,7 +115,7 @@ class _AppointmentFiltersState extends State<AppointmentFilters> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   child: const Text('Cancelar'),
                 ),
               ),
@@ -125,7 +126,7 @@ class _AppointmentFiltersState extends State<AppointmentFilters> {
                     widget.schedulingStore.setSelectedStartDate(_startDate);
                     widget.schedulingStore.setSelectedEndDate(_endDate);
                     widget.schedulingStore.setSelectedStatus(_selectedStatus);
-                    Navigator.pop(context);
+                    context.pop();
                     widget.onApply();
                   },
                   child: const Text('Aplicar'),

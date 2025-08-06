@@ -353,7 +353,6 @@ class _PatientListPageState extends State<PatientListPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.pop(context);
                             // TODO: Navegar para chat com o paciente
                           },
                           icon: const Icon(Icons.chat),
@@ -368,7 +367,6 @@ class _PatientListPageState extends State<PatientListPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            Navigator.pop(context);
                             // TODO: Navegar para histórico de consultas
                           },
                           icon: const Icon(Icons.history),

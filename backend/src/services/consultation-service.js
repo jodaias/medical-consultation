@@ -3,6 +3,8 @@ const UserRepository = require('../repositories/user-repository');
 const { CreateConsultationDTO, UpdateConsultationDTO, ConsultationResponseDTO } = require('../dto/consultation-dto');
 const { ValidationException, NotFoundException, ForbiddenException } = require('../exceptions/app-exception');
 
+const { sendFcmNotification } = require('../utils/fcm');
+
 /**
  * ConsultationService - Lógica de negócio para consultas médicas
  * Seguindo o princípio de responsabilidade única (SRP)
@@ -55,6 +57,26 @@ class ConsultationService {
 
     // Criar consulta
     const consultation = await this.repository.create(consultationEntity);
+
+    // Notificar médico (caso tenha fcmToken)
+    try {
+      if (doctor.fcmToken) {
+        await sendFcmNotification(
+          doctor.fcmToken,
+          {
+            title: 'Nova consulta agendada',
+            body: `Você tem uma nova consulta agendada com o paciente ${user.name}.`
+          },
+          {
+            type: 'consultation',
+            consultationId: consultation.id,
+            patientId: userId
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Erro ao enviar notificação FCM (consulta):', err.message);
+    }
 
     return ConsultationResponseDTO.fromEntity(consultation);
   }
@@ -119,6 +141,29 @@ class ConsultationService {
 
     // Atualizar consulta
     const consultation = await this.repository.update(id, consultationEntity);
+
+    // Notificar o outro participante (caso tenha fcmToken)
+    try {
+      const patient = await this.userRepository.findById(existingConsultation.patientId);
+      const doctor = await this.userRepository.findById(existingConsultation.doctorId);
+      const isPatient = userType === 'PATIENT';
+      const recipient = isPatient ? doctor : patient;
+      if (recipient.fcmToken) {
+        await sendFcmNotification(
+          recipient.fcmToken,
+          {
+            title: 'Consulta alterada',
+            body: `A consulta foi alterada por ${isPatient ? 'paciente' : 'médico'}.`
+          },
+          {
+            type: 'consultation_update',
+            consultationId: consultation.id
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Erro ao enviar notificação FCM (alteração consulta):', err.message);
+    }
     return ConsultationResponseDTO.fromEntity(consultation);
   }
 
@@ -204,6 +249,29 @@ class ConsultationService {
     }
 
     const updatedConsultation = await this.repository.cancelConsultation(id);
+
+    // Notificar o outro participante (caso tenha fcmToken)
+    try {
+      const patient = await this.userRepository.findById(consultation.patientId);
+      const doctor = await this.userRepository.findById(consultation.doctorId);
+      const isPatient = userType === 'PATIENT';
+      const recipient = isPatient ? doctor : patient;
+      if (recipient.fcmToken) {
+        await sendFcmNotification(
+          recipient.fcmToken,
+          {
+            title: 'Consulta cancelada',
+            body: `A consulta foi cancelada por ${isPatient ? 'paciente' : 'médico'}.`
+          },
+          {
+            type: 'consultation_cancel',
+            consultationId: consultation.id
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Erro ao enviar notificação FCM (cancelamento consulta):', err.message);
+    }
     return ConsultationResponseDTO.fromEntity(updatedConsultation);
   }
 

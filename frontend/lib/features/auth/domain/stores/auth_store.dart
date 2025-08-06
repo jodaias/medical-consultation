@@ -1,8 +1,11 @@
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/data/services/auth_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/core/services/storage_service.dart';
 
 part 'auth_store.g.dart';
@@ -11,18 +14,14 @@ part 'auth_store.g.dart';
 class AuthStore = AuthStoreBase with _$AuthStore;
 
 abstract class AuthStoreBase with Store {
-  final AuthService _authService = AuthService();
-  late final StorageService _storageService;
+  final _authService = getIt<AuthService>();
+  final _storageService = getIt<StorageService>();
 
-  AuthStoreBase() {
-    _storageService = GetIt.instance<StorageService>();
-  }
+  @observable
+  RequestStatusEnum requestStatus = RequestStatusEnum.none;
 
   @observable
   bool isAuthenticated = false;
-
-  @observable
-  bool isLoading = false;
 
   @observable
   String? userType;
@@ -47,35 +46,34 @@ abstract class AuthStoreBase with Store {
 
   @action
   Future<bool> login(String email, String password) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
-
     try {
-      final response = await _authService.login(email, password);
-
-      // Extrair dados da resposta
-      isAuthenticated = true;
-
-      final data = response['data'];
-      final userData = data['user'];
-      userType = userData['userType'];
-      userId = userData['id'];
-      userName = userData['name'];
-      userEmail = userData['email'];
-
-      // Salvar dados no storage
-      await _storageService.saveToken(data['token']);
-      await _storageService.saveRefreshToken(data['refreshToken']);
-      await _storageService.saveUserData(userData);
-      await _storageService.saveUserType(userData['userType']);
-      await _storageService.setAuthenticated(true);
-
-      return true;
+      final result = await _authService.login(email, password);
+      if (result.success) {
+        final data = result.data['data'];
+        final userData = data['user'];
+        isAuthenticated = true;
+        userType = userData['userType'];
+        userId = userData['id'];
+        userName = userData['name'];
+        userEmail = userData['email'];
+        await _storageService.saveToken(data['token']);
+        await _storageService.saveRefreshToken(data['refreshToken']);
+        await _storageService.saveUserData(userData);
+        await _storageService.saveUserType(userData['userType']);
+        await _storageService.setAuthenticated(true);
+        requestStatus = RequestStatusEnum.success;
+        return true;
+      } else {
+        errorMessage = result.error?.toString() ?? 'Erro desconhecido';
+        requestStatus = RequestStatusEnum.fail;
+        return false;
+      }
     } catch (e) {
       errorMessage = e.toString();
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -91,11 +89,10 @@ abstract class AuthStoreBase with Store {
     String? bio,
     double? hourlyRate,
   }) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
-
     try {
-      final response = await _authService.register(
+      final result = await _authService.register(
         name: name,
         email: email,
         phone: phone,
@@ -106,54 +103,55 @@ abstract class AuthStoreBase with Store {
         bio: bio,
         hourlyRate: hourlyRate,
       );
-
-      // Extrair dados da resposta
-      final data = response['data'];
-      final userData = data['user'];
-      isAuthenticated = true;
-      this.userType = userData['userType'];
-      userId = userData['id'];
-      userName = userData['name'];
-      userEmail = userData['email'];
-
-      // Salvar dados no storage
-      await _storageService.saveToken(data['token']);
-      await _storageService.saveRefreshToken(data['refreshToken']);
-      await _storageService.saveUserData(userData);
-      await _storageService.saveUserType(userData['userType']);
-      await _storageService.saveUserId(userData['id']);
-      await _storageService.setAuthenticated(true);
-
-      return true;
+      if (result.success) {
+        final data = result.data['data'];
+        final userData = data['user'];
+        isAuthenticated = true;
+        this.userType = userData['userType'];
+        userId = userData['id'];
+        userName = userData['name'];
+        userEmail = userData['email'];
+        await _storageService.saveToken(data['token']);
+        await _storageService.saveRefreshToken(data['refreshToken']);
+        await _storageService.saveUserData(userData);
+        await _storageService.saveUserType(userData['userType']);
+        await _storageService.saveUserId(userData['id']);
+        await _storageService.setAuthenticated(true);
+        requestStatus = RequestStatusEnum.success;
+        return true;
+      } else {
+        errorMessage = result.error?.toString() ?? 'Erro desconhecido';
+        requestStatus = RequestStatusEnum.fail;
+        return false;
+      }
     } catch (e) {
       errorMessage = e.toString();
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 
   @action
   Future<void> logout() async {
-    isLoading = true;
-
+    requestStatus = RequestStatusEnum.loading;
     try {
-      await _authService.logout();
-
-      // Limpar dados locais
+      final result = await _authService.logout();
       isAuthenticated = false;
       userType = null;
       userId = null;
       userName = null;
       userEmail = null;
       errorMessage = null;
-
-      // Limpar dados do storage
       await _storageService.clearAll();
+      if (!result.success) {
+        errorMessage = result.error?.toString();
+        requestStatus = RequestStatusEnum.fail;
+      } else {
+        requestStatus = RequestStatusEnum.success;
+      }
     } catch (e) {
       errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+      requestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -199,17 +197,22 @@ abstract class AuthStoreBase with Store {
 
   @action
   Future<bool> resetPassword(String email) async {
-    isLoading = true;
+    requestStatus = RequestStatusEnum.loading;
     errorMessage = null;
-
     try {
-      await _authService.forgotPassword(email);
-      return true;
+      final result = await _authService.forgotPassword(email);
+      if (result.success) {
+        requestStatus = RequestStatusEnum.success;
+        return true;
+      } else {
+        errorMessage = result.error?.toString() ?? 'Erro desconhecido';
+        requestStatus = RequestStatusEnum.fail;
+        return false;
+      }
     } catch (e) {
       errorMessage = e.toString();
+      requestStatus = RequestStatusEnum.fail;
       return false;
-    } finally {
-      isLoading = false;
     }
   }
 }

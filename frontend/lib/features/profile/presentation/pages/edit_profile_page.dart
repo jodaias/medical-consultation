@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/features/profile/domain/stores/profile_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -147,7 +148,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ToastUtils.showSuccessToast('Perfil atualizado com sucesso!');
         context.pop();
       } else if (mounted) {
-        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar perfil');
+        ToastUtils.showErrorToast(
+            _profileStore.errorMessage ?? 'Erro ao atualizar perfil');
       }
     }
   }
@@ -179,9 +181,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _profileStore.updateMedicalInfo(data);
 
       if (_profileStore.errorMessage == null && mounted) {
-        ToastUtils.showSuccessToast('Informações médicas atualizadas com sucesso!');
+        ToastUtils.showSuccessToast(
+            'Informações médicas atualizadas com sucesso!');
       } else if (mounted) {
-        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar informações médicas');
+        ToastUtils.showErrorToast(_profileStore.errorMessage ??
+            'Erro ao atualizar informações médicas');
       }
     }
   }
@@ -199,9 +203,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _profileStore.updateProfessionalInfo(data);
 
       if (_profileStore.errorMessage == null && mounted) {
-        ToastUtils.showSuccessToast('Informações profissionais atualizadas com sucesso!');
+        ToastUtils.showSuccessToast(
+            'Informações profissionais atualizadas com sucesso!');
       } else if (mounted) {
-        ToastUtils.showErrorToast(_profileStore.errorMessage ?? 'Erro ao atualizar informações profissionais');
+        ToastUtils.showErrorToast(_profileStore.errorMessage ??
+            'Erro ao atualizar informações profissionais');
       }
     }
   }
@@ -214,25 +220,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
         elevation: 0,
         actions: [
           Observer(
-            builder: (_) => _profileStore.isUpdating
-                ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : TextButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Salvar'),
-                  ),
+            builder: (_) =>
+                _profileStore.updateStatus == RequestStatusEnum.loading
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : TextButton(
+                        onPressed: _saveProfile,
+                        child: const Text('Salvar'),
+                      ),
           ),
         ],
       ),
       body: Observer(
         builder: (_) {
-          if (_profileStore.isLoading) {
+          if (_profileStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 

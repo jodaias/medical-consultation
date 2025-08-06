@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
@@ -515,7 +516,7 @@ class _ChatPageState extends State<ChatPage> {
               leading: const Icon(Icons.photo),
               title: const Text('Enviar imagem'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _pickImage();
               },
             ),
@@ -523,7 +524,7 @@ class _ChatPageState extends State<ChatPage> {
               leading: const Icon(Icons.attach_file),
               title: const Text('Enviar arquivo'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _pickFile();
               },
             ),
@@ -623,7 +624,7 @@ class _ChatPageState extends State<ChatPage> {
           onFileSelected: (fileUrl) {
             // Enviar mensagem com arquivo
             _sendFileMessage(fileUrl);
-            Navigator.pop(context);
+            context.pop();
           },
         ),
       ),

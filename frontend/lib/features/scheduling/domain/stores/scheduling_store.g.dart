@@ -120,35 +120,35 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
     });
   }
 
-  late final _$isLoadingAtom =
-      Atom(name: 'SchedulingStoreBase.isLoading', context: context);
+  late final _$requestStatusAtom =
+      Atom(name: 'SchedulingStoreBase.requestStatus', context: context);
 
   @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
   }
 
   @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
     });
   }
 
-  late final _$isLoadingTimeSlotsAtom =
-      Atom(name: 'SchedulingStoreBase.isLoadingTimeSlots', context: context);
+  late final _$timeSlotsStatusAtom =
+      Atom(name: 'SchedulingStoreBase.timeSlotsStatus', context: context);
 
   @override
-  bool get isLoadingTimeSlots {
-    _$isLoadingTimeSlotsAtom.reportRead();
-    return super.isLoadingTimeSlots;
+  RequestStatusEnum get timeSlotsStatus {
+    _$timeSlotsStatusAtom.reportRead();
+    return super.timeSlotsStatus;
   }
 
   @override
-  set isLoadingTimeSlots(bool value) {
-    _$isLoadingTimeSlotsAtom.reportWrite(value, super.isLoadingTimeSlots, () {
-      super.isLoadingTimeSlots = value;
+  set timeSlotsStatus(RequestStatusEnum value) {
+    _$timeSlotsStatusAtom.reportWrite(value, super.timeSlotsStatus, () {
+      super.timeSlotsStatus = value;
     });
   }
 
@@ -181,6 +181,39 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
   set timeSlotsError(String? value) {
     _$timeSlotsErrorAtom.reportWrite(value, super.timeSlotsError, () {
       super.timeSlotsError = value;
+    });
+  }
+
+  late final _$timeSlotAvailabilityAtom =
+      Atom(name: 'SchedulingStoreBase.timeSlotAvailability', context: context);
+
+  @override
+  bool get timeSlotAvailability {
+    _$timeSlotAvailabilityAtom.reportRead();
+    return super.timeSlotAvailability;
+  }
+
+  @override
+  set timeSlotAvailability(bool value) {
+    _$timeSlotAvailabilityAtom.reportWrite(value, super.timeSlotAvailability,
+        () {
+      super.timeSlotAvailability = value;
+    });
+  }
+
+  late final _$schedulingStatsAtom =
+      Atom(name: 'SchedulingStoreBase.schedulingStats', context: context);
+
+  @override
+  Map<String, dynamic>? get schedulingStats {
+    _$schedulingStatsAtom.reportRead();
+    return super.schedulingStats;
+  }
+
+  @override
+  set schedulingStats(Map<String, dynamic>? value) {
+    _$schedulingStatsAtom.reportWrite(value, super.schedulingStats, () {
+      super.schedulingStats = value;
     });
   }
 
@@ -299,7 +332,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       AsyncAction('SchedulingStoreBase.scheduleAppointment', context: context);
 
   @override
-  Future<AppointmentModel?> scheduleAppointment(
+  Future<void> scheduleAppointment(
       {required String doctorId,
       required DateTime scheduledAt,
       String? notes,
@@ -334,7 +367,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       context: context);
 
   @override
-  Future<AppointmentModel?> getAppointmentDetails(String appointmentId) {
+  Future<void> getAppointmentDetails(String appointmentId) {
     return _$getAppointmentDetailsAsyncAction
         .run(() => super.getAppointmentDetails(appointmentId));
   }
@@ -344,7 +377,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       context: context);
 
   @override
-  Future<bool> checkTimeSlotAvailability(
+  Future<void> checkTimeSlotAvailability(
       {required String doctorId, required DateTime scheduledAt}) {
     return _$checkTimeSlotAvailabilityAsyncAction.run(() => super
         .checkTimeSlotAvailability(
@@ -355,8 +388,7 @@ mixin _$SchedulingStore on SchedulingStoreBase, Store {
       AsyncAction('SchedulingStoreBase.getSchedulingStats', context: context);
 
   @override
-  Future<Map<String, dynamic>?> getSchedulingStats(
-      {DateTime? startDate, DateTime? endDate}) {
+  Future<void> getSchedulingStats({DateTime? startDate, DateTime? endDate}) {
     return _$getSchedulingStatsAsyncAction.run(
         () => super.getSchedulingStats(startDate: startDate, endDate: endDate));
   }
@@ -470,10 +502,12 @@ appointments: ${appointments},
 availableTimeSlots: ${availableTimeSlots},
 selectedAppointment: ${selectedAppointment},
 selectedTimeSlot: ${selectedTimeSlot},
-isLoading: ${isLoading},
-isLoadingTimeSlots: ${isLoadingTimeSlots},
+requestStatus: ${requestStatus},
+timeSlotsStatus: ${timeSlotsStatus},
 error: ${error},
 timeSlotsError: ${timeSlotsError},
+timeSlotAvailability: ${timeSlotAvailability},
+schedulingStats: ${schedulingStats},
 searchQuery: ${searchQuery},
 selectedStatus: ${selectedStatus},
 selectedStartDate: ${selectedStartDate},

@@ -7,6 +7,7 @@ import 'package:medical_consultation_app/features/consultation/domain/stores/con
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class ScheduleConsultationPage extends StatefulWidget {
   const ScheduleConsultationPage({super.key});
@@ -104,7 +105,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_consultationStore.isLoading) {
+          if (_consultationStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(
               child: CircularProgressIndicator(),
             );

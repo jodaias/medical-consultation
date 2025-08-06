@@ -134,35 +134,35 @@ mixin _$DoctorStore on DoctorStoreBase, Store {
     });
   }
 
-  late final _$isLoadingAtom =
-      Atom(name: 'DoctorStoreBase.isLoading', context: context);
+  late final _$requestStatusAtom =
+      Atom(name: 'DoctorStoreBase.requestStatus', context: context);
 
   @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
+  RequestStatusEnum get requestStatus {
+    _$requestStatusAtom.reportRead();
+    return super.requestStatus;
   }
 
   @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
+  set requestStatus(RequestStatusEnum value) {
+    _$requestStatusAtom.reportWrite(value, super.requestStatus, () {
+      super.requestStatus = value;
     });
   }
 
-  late final _$isLoadingRatingsAtom =
-      Atom(name: 'DoctorStoreBase.isLoadingRatings', context: context);
+  late final _$ratingsStatusAtom =
+      Atom(name: 'DoctorStoreBase.ratingsStatus', context: context);
 
   @override
-  bool get isLoadingRatings {
-    _$isLoadingRatingsAtom.reportRead();
-    return super.isLoadingRatings;
+  RequestStatusEnum get ratingsStatus {
+    _$ratingsStatusAtom.reportRead();
+    return super.ratingsStatus;
   }
 
   @override
-  set isLoadingRatings(bool value) {
-    _$isLoadingRatingsAtom.reportWrite(value, super.isLoadingRatings, () {
-      super.isLoadingRatings = value;
+  set ratingsStatus(RequestStatusEnum value) {
+    _$ratingsStatusAtom.reportWrite(value, super.ratingsStatus, () {
+      super.ratingsStatus = value;
     });
   }
 
@@ -376,17 +376,6 @@ mixin _$DoctorStore on DoctorStoreBase, Store {
       ActionController(name: 'DoctorStoreBase', context: context);
 
   @override
-  void setLoading(bool value) {
-    final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
-        name: 'DoctorStoreBase.setLoading');
-    try {
-      return super.setLoading(value);
-    } finally {
-      _$DoctorStoreBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setSearchQuery(String? query) {
     final _$actionInfo = _$DoctorStoreBaseActionController.startAction(
         name: 'DoctorStoreBase.setSearchQuery');
@@ -472,8 +461,8 @@ favoriteDoctors: ${favoriteDoctors},
 onlineDoctors: ${onlineDoctors},
 selectedDoctor: ${selectedDoctor},
 doctorRatings: ${doctorRatings},
-isLoading: ${isLoading},
-isLoadingRatings: ${isLoadingRatings},
+requestStatus: ${requestStatus},
+ratingsStatus: ${ratingsStatus},
 error: ${error},
 searchQuery: ${searchQuery},
 selectedSpecialty: ${selectedSpecialty},

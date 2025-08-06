@@ -19,6 +19,11 @@ class UserService {
     this.LOCKOUT_DURATION = parseInt(process.env.LOCKOUT_DURATION) || 15; // minutos
   }
 
+  async updateFcmToken(userId, fcmToken) {
+    // Atualiza o campo fcmToken do usuário
+    return this.repository.update(userId, { fcmToken });
+  }
+
   async register(userData) {
     // Validação com DTO
     const createUserDTO = new CreateUserDTO(userData);

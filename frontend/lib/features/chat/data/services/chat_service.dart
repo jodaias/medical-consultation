@@ -1,10 +1,11 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/chat/data/models/message_model.dart';
 
 class ChatService {
-  final ApiService _apiService = ApiService();
+  final Rest rest;
+  ChatService(this.rest);
   IO.Socket? _socket;
   Function(MessageModel)? _onMessageReceived;
   Function(MessageModel)? _onMessageUpdated;
@@ -91,128 +92,86 @@ class ChatService {
   }
 
   // Enviar mensagem
-  Future<MessageModel> sendMessage({
+  Future<RestResult<MessageModel>> sendMessage({
     required String consultationId,
     required String content,
     String? attachmentPath,
   }) async {
-    try {
-      final response = await _apiService.post('messages', data: {
+    final result = await rest.postModel<MessageModel>(
+      'messages',
+      {
         'consultationId': consultationId,
         'content': content,
         'messageType': attachmentPath != null
             ? AppConstants.fileMessage
             : AppConstants.textMessage,
         'attachmentPath': attachmentPath,
+      },
+      parse: (data) => MessageModel.fromJson(data['data']),
+    );
+    if (result.success) {
+      _socket?.emit('send_message', {
+        'consultationId': consultationId,
+        'message': result.data.toJson(),
       });
-
-      if (response.data['success'] == true) {
-        final message = MessageModel.fromJson(response.data['data']);
-
-        // Emitir evento para outros usuários
-        _socket?.emit('send_message', {
-          'consultationId': consultationId,
-          'message': response.data['data'],
-        });
-
-        return message;
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao enviar mensagem');
-      }
-    } catch (e) {
-      throw Exception('Erro ao enviar mensagem: $e');
     }
+    return result;
   }
 
-  // Buscar mensagens
-  Future<List<MessageModel>> getMessages(String consultationId) async {
-    try {
-      final response =
-          await _apiService.get('messages/consultation/$consultationId');
-
-      if (response.data['success'] == true) {
-        final List<dynamic> messagesData = response.data['data']['messages'];
-        return messagesData.map((json) => MessageModel.fromJson(json)).toList();
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao buscar mensagens');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar mensagens: $e');
-    }
+  // Buscar mensagens (novo padrão)
+  Future<RestResult<List<MessageModel>>> getMessages(
+      String consultationId) async {
+    return await rest.getList<MessageModel>(
+      'messages/consultation/$consultationId',
+      (json) => MessageModel.fromJson(json!),
+    );
   }
 
-  // Marcar mensagem como lida
-  Future<void> markMessageAsRead(String messageId) async {
-    try {
-      final response = await _apiService.post('messages/mark-read', data: {
+  // Marcar mensagem como lida (novo padrão)
+  Future<RestResult> markMessageAsRead(String messageId) async {
+    return await rest.postModel(
+      'messages/mark-read',
+      {'messageId': messageId},
+    );
+  }
+
+  // Marcar todas as mensagens como lidas (novo padrão)
+  Future<RestResult> markAllMessagesAsRead(String consultationId) async {
+    return await rest.postModel(
+      'messages/consultation/$consultationId/mark-all-read',
+      (_) => null,
+    );
+  }
+
+  // Editar mensagem (novo padrão)
+  Future<RestResult<MessageModel>> editMessage(
+      String messageId, String newContent) async {
+    final result = await rest.putModel<MessageModel>(
+      'messages/$messageId',
+      body: {'content': newContent},
+      parse: (data) => MessageModel.fromJson(data['data']),
+    );
+    if (result.success) {
+      _socket?.emit('edit_message', {
+        'messageId': messageId,
+        'message': result.data.toJson(),
+      });
+    }
+    return result;
+  }
+
+  // Deletar mensagem (novo padrão)
+  Future<RestResult> deleteMessage(String messageId) async {
+    final result = await rest.deleteModel(
+      'messages/$messageId',
+      (_) => null,
+    );
+    if (result.success) {
+      _socket?.emit('delete_message', {
         'messageId': messageId,
       });
-
-      if (response.data['success'] != true) {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao marcar mensagem como lida');
-      }
-    } catch (e) {
-      throw Exception('Erro ao marcar mensagem como lida: $e');
     }
-  }
-
-  // Marcar todas as mensagens como lidas
-  Future<void> markAllMessagesAsRead(String consultationId) async {
-    try {
-      final response = await _apiService
-          .post('messages/consultation/$consultationId/mark-all-read');
-
-      if (response.data['success'] != true) {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao marcar mensagens como lidas');
-      }
-    } catch (e) {
-      throw Exception('Erro ao marcar mensagens como lidas: $e');
-    }
-  }
-
-  // Editar mensagem
-  Future<MessageModel> editMessage(String messageId, String newContent) async {
-    try {
-      final response = await _apiService.put('messages/$messageId', data: {
-        'content': newContent,
-      });
-
-      if (response.data['success'] == true) {
-        final message = MessageModel.fromJson(response.data['data']);
-
-        // Emitir evento para outros usuários
-        _socket?.emit('edit_message', {
-          'messageId': messageId,
-          'message': response.data['data'],
-        });
-
-        return message;
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao editar mensagem');
-      }
-    } catch (e) {
-      throw Exception('Erro ao editar mensagem: $e');
-    }
-  }
-
-  // Deletar mensagem
-  Future<void> deleteMessage(String messageId) async {
-    try {
-      final response = await _apiService.delete('messages/$messageId');
-
-      if (response.data['success'] == true) {
-        // Emitir evento para outros usuários
-        _socket?.emit('delete_message', {
-          'messageId': messageId,
-        });
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao deletar mensagem');
-      }
-    } catch (e) {
-      throw Exception('Erro ao deletar mensagem: $e');
-    }
+    return result;
   }
 
   // Enviar indicador de digitação

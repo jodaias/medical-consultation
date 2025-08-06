@@ -6,6 +6,7 @@ import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class PatientHomePage extends StatefulWidget {
   const PatientHomePage({super.key});
@@ -36,10 +37,14 @@ class _PatientHomePageState extends State<PatientHomePage> {
           Observer(
             builder: (context) => IconButton(
               icon: Icon(
-                patientStore.isLoading ? Icons.refresh : Icons.refresh_outlined,
-                color: patientStore.isLoading ? AppTheme.primaryColor : null,
+                patientStore.requestStatus == RequestStatusEnum.loading
+                    ? Icons.refresh
+                    : Icons.refresh_outlined,
+                color: patientStore.requestStatus == RequestStatusEnum.loading
+                    ? AppTheme.primaryColor
+                    : null,
               ),
-              onPressed: patientStore.isLoading
+              onPressed: patientStore.requestStatus == RequestStatusEnum.loading
                   ? null
                   : () async {
                       await patientStore.loadDashboardData();
@@ -172,6 +177,22 @@ class _PatientHomePageState extends State<PatientHomePage> {
               },
             ),
             _buildMenuCard(
+              title: 'Prescrições',
+              icon: Icons.receipt_long,
+              color: AppTheme.getCardInfo(),
+              onTap: () {
+                context.push('/prescriptions');
+              },
+            ),
+            _buildMenuCard(
+              title: 'Relatórios/Exames',
+              icon: Icons.description,
+              color: AppTheme.getCardSecondary(),
+              onTap: () {
+                context.push('/reports');
+              },
+            ),
+            _buildMenuCard(
               title: 'Dashboard',
               icon: Icons.analytics,
               color: AppTheme.getCardSecondary(),
@@ -286,7 +307,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               ),
             ),
             const SizedBox(height: 16),
-            if (patientStore.isLoading)
+            if (patientStore.requestStatus == RequestStatusEnum.loading)
               const Center(child: CircularProgressIndicator())
             else if (patientStore.hasError)
               Card(

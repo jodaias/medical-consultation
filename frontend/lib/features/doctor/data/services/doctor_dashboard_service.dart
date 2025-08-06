@@ -1,106 +1,68 @@
 import 'package:medical_consultation_app/features/shared/dashboard/data/services/dashboard_base_service.dart';
-import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 
 class DoctorDashboardService extends DashboardBaseService {
-  final ApiService _apiService = ApiService();
+  DoctorDashboardService(super.rest);
 
   // Dashboard específico para médicos
-  Future<Map<String, dynamic>> getDoctorDashboard(String doctorId) async {
-    try {
-      final response =
-          await _apiService.get('/users/doctors/$doctorId/dashboard');
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar dashboard do médico');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar dashboard do médico: $e');
-    }
+  Future<RestResult<Map<String, dynamic>>> getDoctorDashboard(
+      String doctorId) async {
+    return await rest.getModel<Map<String, dynamic>>(
+      '/users/doctors/$doctorId/dashboard',
+      (data) => data is Map<String, dynamic>
+          ? data['data'] as Map<String, dynamic>
+          : <String, dynamic>{},
+    );
   }
 
   // Estatísticas específicas do médico
-  Future<Map<String, dynamic>> getDoctorStats(String doctorId) async {
-    try {
-      final response = await _apiService.get('/users/doctors/$doctorId/stats');
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(response.data['message'] ??
-            'Erro ao carregar estatísticas do médico');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar estatísticas do médico: $e');
-    }
+  Future<RestResult<Map<String, dynamic>>> getDoctorStats(
+      String doctorId) async {
+    return await rest.getModel<Map<String, dynamic>>(
+      '/users/doctors/$doctorId/stats',
+      (data) => data is Map<String, dynamic>
+          ? data['data'] as Map<String, dynamic>
+          : <String, dynamic>{},
+    );
   }
 
   // Consultas próximas do médico
-  Future<List<Map<String, dynamic>>> getUpcomingConsultations(
+  Future<RestResult<List<Map<String, dynamic>>>> getUpcomingConsultations(
       String doctorId) async {
-    try {
-      final response =
-          await _apiService.get('/consultations/doctors/$doctorId/upcoming');
-
-      if (response.data['success'] == true) {
-        return List<Map<String, dynamic>>.from(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar consultas próximas');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar consultas próximas: $e');
-    }
+    return await rest.getList<Map<String, dynamic>>(
+      '/consultations/doctors/$doctorId/upcoming',
+      (mp) => mp ?? <String, dynamic>{},
+    );
   }
 
   // Pacientes recentes
-  Future<List<Map<String, dynamic>>> getRecentPatients(String doctorId) async {
-    try {
-      final response =
-          await _apiService.get('/users/doctors/$doctorId/recent-patients');
-
-      if (response.data['success'] == true) {
-        return List<Map<String, dynamic>>.from(response.data['data']);
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar pacientes recentes');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar pacientes recentes: $e');
-    }
+  Future<RestResult<List<Map<String, dynamic>>>> getRecentPatients(
+      String doctorId) async {
+    return await rest.getList<Map<String, dynamic>>(
+      '/users/doctors/$doctorId/recent-patients',
+      (mp) => mp ?? <String, dynamic>{},
+    );
   }
 
   // Receita mensal
-  Future<Map<String, dynamic>> getMonthlyRevenue(String doctorId) async {
-    try {
-      final response =
-          await _apiService.get('/users/doctors/$doctorId/revenue');
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(response.data['message'] ?? 'Erro ao carregar receita');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar receita: $e');
-    }
+  Future<RestResult<Map<String, dynamic>>> getMonthlyRevenue(
+      String doctorId) async {
+    return await rest.getModel<Map<String, dynamic>>(
+      '/users/doctors/$doctorId/revenue',
+      (data) => data is Map<String, dynamic>
+          ? data['data'] as Map<String, dynamic>
+          : <String, dynamic>{},
+    );
   }
 
   // Avaliações do médico
-  Future<Map<String, dynamic>> getDoctorRatings(String doctorId) async {
-    try {
-      final response = await _apiService.get('ratings/doctors/$doctorId');
-
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      } else {
-        throw Exception(
-            response.data['message'] ?? 'Erro ao carregar avaliações');
-      }
-    } catch (e) {
-      throw Exception('Erro ao carregar avaliações: $e');
-    }
+  Future<RestResult<Map<String, dynamic>>> getDoctorRatings(
+      String doctorId) async {
+    return await rest.getModel<Map<String, dynamic>>(
+      'ratings/doctors/$doctorId',
+      (data) => data is Map<String, dynamic>
+          ? data['data'] as Map<String, dynamic>
+          : <String, dynamic>{},
+    );
   }
 }

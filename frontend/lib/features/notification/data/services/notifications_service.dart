@@ -1,50 +1,59 @@
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
+import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/features/notification/data/models/notification_model.dart';
 
 @injectable
 class NotificationsService {
-  final ApiService _apiService;
+  final Rest rest;
 
-  NotificationsService(this._apiService);
+  NotificationsService(this.rest);
 
   // Buscar notificações
-  Future<List<NotificationModel>> getNotifications(
-      {int? limit, int? offset}) async {
+  Future<RestResult<List<NotificationModel>>> getNotifications(
+      {int? limit, int? offset}) {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
-
-    final response = await _apiService.get('/dashboard/notifications',
-        queryParameters: queryParams);
-    final data = response.data['data'] as List;
-    return data.map((json) => NotificationModel.fromJson(json)).toList();
+    return rest.getList<NotificationModel>(
+      '/dashboard/notifications',
+      (json) => NotificationModel.fromJson(json ?? {}),
+      query: queryParams,
+    );
   }
 
   // Marcar notificação como lida
-  Future<void> markNotificationAsRead(String notificationId) async {
-    await _apiService.put('/dashboard/notifications/$notificationId/read');
+  Future<RestResult<void>> markNotificationAsRead(String notificationId) {
+    return rest.putModel<void>(
+      '/dashboard/notifications/$notificationId/read',
+    );
   }
 
   // Marcar todas as notificações como lidas
-  Future<void> markAllNotificationsAsRead() async {
-    await _apiService.put('/dashboard/notifications/read-all');
+  Future<RestResult<void>> markAllNotificationsAsRead() {
+    return rest.putModel<void>(
+      '/dashboard/notifications/read-all',
+    );
   }
 
   // Deletar notificação
-  Future<void> deleteNotification(String notificationId) async {
-    await _apiService.delete('/dashboard/notifications/$notificationId');
+  Future<RestResult<void>> deleteNotification(String notificationId) {
+    return rest.deleteModel<void>(
+      '/dashboard/notifications/$notificationId',
+      null,
+    );
   }
 
   // Buscar dados para gráficos
-  Future<Map<String, dynamic>> getChartData(
-      {String? chartType, String? period}) async {
+  Future<RestResult<Map<String, dynamic>>> getChartData(
+      {String? chartType, String? period}) {
     final queryParams = <String, dynamic>{};
     if (chartType != null) queryParams['chartType'] = chartType;
     if (period != null) queryParams['period'] = period;
-
-    final response = await _apiService.get('/dashboard/charts',
-        queryParameters: queryParams);
-    return response.data['data'];
+    return rest.getModel<Map<String, dynamic>>(
+      '/dashboard/charts',
+      (json) => Map<String, dynamic>.from(json ?? {}),
+      query: queryParams,
+    );
   }
 }

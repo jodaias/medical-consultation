@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
@@ -214,19 +215,24 @@ class FilePickerWidget extends StatelessWidget {
       // Mostrar indicador de progresso
       _showProgressDialog(context, 'Enviando arquivo...');
 
-      final fileUrl = await fileUploadService.uploadFile(file, consultationId);
+      final result = await fileUploadService.uploadFile(file, consultationId);
 
       // Fechar diálogo de progresso
-      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      context.pop();
 
-      if (fileUrl != null) {
-        onFileSelected(fileUrl);
+      if (result.success) {
+        onFileSelected(result.data['fileUrl']);
+        // ignore: use_build_context_synchronously
         _showSuccessSnackBar(context, 'Arquivo enviado com sucesso!');
       } else {
+        // ignore: use_build_context_synchronously
         _showErrorSnackBar(context, 'Erro ao enviar arquivo');
       }
     } catch (e) {
-      Navigator.of(context).pop(); // Fechar diálogo de progresso
+      // ignore: use_build_context_synchronously
+      context.pop(); // Fechar diálogo de progresso
+      // ignore: use_build_context_synchronously
       _showErrorSnackBar(context, 'Erro ao enviar arquivo: $e');
     }
   }
@@ -243,19 +249,25 @@ class FilePickerWidget extends StatelessWidget {
           await fileUploadService.uploadMultipleFiles(files, consultationId);
 
       // Fechar diálogo de progresso
-      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      context.pop();
 
       if (fileUrls.isNotEmpty) {
         for (final url in fileUrls) {
           onFileSelected(url);
         }
         _showSuccessSnackBar(
-            context, '${fileUrls.length} arquivos enviados com sucesso!');
+            // ignore: use_build_context_synchronously
+            context,
+            '${fileUrls.length} arquivos enviados com sucesso!');
       } else {
+        // ignore: use_build_context_synchronously
         _showErrorSnackBar(context, 'Erro ao enviar arquivos');
       }
     } catch (e) {
-      Navigator.of(context).pop(); // Fechar diálogo de progresso
+      // ignore: use_build_context_synchronously
+      context.pop(); // Fechar diálogo de progresso
+      // ignore: use_build_context_synchronously
       _showErrorSnackBar(context, 'Erro ao enviar arquivos: $e');
     }
   }

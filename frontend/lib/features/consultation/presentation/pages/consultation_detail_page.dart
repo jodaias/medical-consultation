@@ -7,6 +7,7 @@ import 'package:medical_consultation_app/features/consultation/domain/stores/con
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
 class ConsultationDetailPage extends StatefulWidget {
   final String consultationId;
@@ -35,6 +36,7 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
     final success =
         await _consultationStore.startConsultation(widget.consultationId);
     if (success && mounted) {
+      // TODO: trocar por flutter toast
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Consulta iniciada com sucesso!'),
@@ -53,11 +55,11 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
         content: const Text('Deseja finalizar esta consulta?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             child: const Text('Finalizar'),
           ),
         ],
@@ -68,6 +70,7 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
       final success =
           await _consultationStore.endConsultation(widget.consultationId);
       if (success && mounted) {
+        // TODO: trocar por flutter toast
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Consulta finalizada com sucesso!'),
@@ -87,11 +90,11 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
         content: const Text('Tem certeza que deseja cancelar esta consulta?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('Não'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
               foregroundColor: Colors.white,
@@ -163,13 +166,13 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: rating > 0
                   ? () async {
-                      Navigator.pop(context);
+                      context.pop();
                       await _consultationStore.rateConsultation(
                         consultationId: widget.consultationId,
                         rating: rating,
@@ -209,7 +212,7 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_consultationStore.isLoading) {
+          if (_consultationStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(
               child: CircularProgressIndicator(),
             );
