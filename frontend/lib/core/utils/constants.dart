@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'Medical Consultation';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '2.0.0';
 
   // API Configuration
   static const String baseUrl = 'https://medical-consultation-api.onrender.com';
@@ -12,7 +12,7 @@ class AppConstants {
   // static const String baseUrl = 'http://localhost:3001';
   // static const String socketUrl = 'http://localhost:3001';
 
-  static const bool isProduction = false;
+  static const bool isProduction = true;
 
   // Storage Keys
   static const String tokenKey = 'auth_token';
