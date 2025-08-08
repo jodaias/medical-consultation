@@ -35,8 +35,6 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             onPressed: _doctorDashboardStore.loadDashboardData,

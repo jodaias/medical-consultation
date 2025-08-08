@@ -19,7 +19,7 @@ class ScheduleConsultationPage extends StatefulWidget {
 
 class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
   final ConsultationStore _consultationStore = getIt<ConsultationStore>();
-  final AuthStore _authStore = getIt<AuthStore>();
+  final _authStore = getIt<AuthStore>();
 
   String? selectedSpecialty;
   String? selectedDoctorId;
@@ -76,6 +76,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
     );
 
     await _consultationStore.scheduleConsultation(
+      patientId: _authStore.userId!,
       doctorId: selectedDoctorId!,
       scheduledAt: scheduledAt,
       notes: _notesController.text.trim(),
@@ -225,8 +226,6 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
   Widget _buildDoctorDropdown() {
     return Observer(
       builder: (context) {
-        final doctorsRequestStatus = _consultationStore.doctorsRequestStatus;
-        final availableDoctors = _consultationStore.availableDoctors;
         return Container(
           width: double.infinity,
           padding:
@@ -235,7 +234,8 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
             border: Border.all(color: AppTheme.borderColor),
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           ),
-          child: doctorsRequestStatus == RequestStatusEnum.loading
+          child: _consultationStore.doctorsRequestStatus ==
+                  RequestStatusEnum.loading
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
@@ -253,7 +253,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
                     value: selectedDoctorId,
                     hint: const Text('Selecione um médico'),
                     isExpanded: true,
-                    items: availableDoctors.map((doctor) {
+                    items: _consultationStore.availableDoctors.map((doctor) {
                       return DropdownMenuItem<String>(
                         value: doctor['id'] as String,
                         child: Column(
@@ -266,7 +266,7 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
                                   const TextStyle(fontWeight: FontWeight.w600),
                             ),
                             Text(
-                              doctor['specialty'] as String,
+                              doctor['doctorProfile']['specialty'] as String,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.textSecondaryColor,
@@ -295,7 +295,8 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
       onTap: () async {
         final date = await showDatePicker(
           context: context,
-          initialDate: DateTime.now().add(const Duration(days: 1)),
+          initialDate:
+              selectedDate ?? DateTime.now().add(const Duration(days: 1)),
           firstDate: DateTime.now(),
           lastDate: DateTime.now().add(const Duration(days: 30)),
         );
@@ -336,61 +337,83 @@ class _ScheduleConsultationPageState extends State<ScheduleConsultationPage> {
   }
 
   Widget _buildTimeSlots() {
-    if (_consultationStore.availableSlots.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        ),
-        child: const Text(
-          'Nenhum horário disponível para esta data',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppTheme.textSecondaryColor),
-        ),
-      );
-    }
+    return Observer(builder: (context) {
+      return _consultationStore.slotsRequestStatus == RequestStatusEnum.loading
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text('Carregando Horários disponíveis...'),
+              ],
+            )
+          : _consultationStore.availableSlots.isEmpty
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  decoration: BoxDecoration(
+                    color: AppTheme.backgroundColor,
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.borderRadius),
+                  ),
+                  child: const Text(
+                    'Nenhum horário disponível para esta data',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppTheme.textSecondaryColor),
+                  ),
+                )
+              : Wrap(
+                  spacing: AppConstants.smallPadding,
+                  runSpacing: AppConstants.smallPadding,
+                  children: _consultationStore.availableSlots.map((slot) {
+                    final start = slot.startTime;
+                    final timeString =
+                        '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
+                    final isSelected = selectedTime == timeString;
 
-    return Wrap(
-      spacing: AppConstants.smallPadding,
-      runSpacing: AppConstants.smallPadding,
-      children: _consultationStore.availableSlots.map((slot) {
-        final timeString =
-            '${slot.hour.toString().padLeft(2, '0')}:${slot.minute.toString().padLeft(2, '0')}';
-        final isSelected = selectedTime == timeString;
-
-        return InkWell(
-          onTap: () {
-            setState(() {
-              selectedTime = timeString;
-            });
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.defaultPadding,
-              vertical: AppConstants.smallPadding,
-            ),
-            decoration: BoxDecoration(
-              color:
-                  isSelected ? AppTheme.primaryColor : AppTheme.backgroundColor,
-              border: Border.all(
-                color:
-                    isSelected ? AppTheme.primaryColor : AppTheme.borderColor,
-              ),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            child: Text(
-              timeString,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          selectedTime = timeString;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppConstants.defaultPadding,
+                          vertical: AppConstants.smallPadding,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppTheme.primaryColor
+                              : AppTheme.backgroundColor,
+                          border: Border.all(
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : AppTheme.borderColor,
+                          ),
+                          borderRadius:
+                              BorderRadius.circular(AppConstants.borderRadius),
+                        ),
+                        child: Text(
+                          timeString,
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.white
+                                : AppTheme.textPrimaryColor,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+    });
   }
 
   Widget _buildSymptomsField() {

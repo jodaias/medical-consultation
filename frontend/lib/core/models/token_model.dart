@@ -4,7 +4,7 @@ import 'package:medical_consultation_app/core/cache/cache_adapters_id.dart';
 part 'token_model.g.dart';
 
 @HiveType(typeId: CacheAdaptersId.tokenModelAdapter)
-class TokenModel {
+class TokenModel extends HiveObject {
   @HiveField(0)
   String? accessToken;
   @HiveField(1)

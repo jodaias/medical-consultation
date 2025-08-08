@@ -81,6 +81,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // API Routes
+// Garanta que as rotas fixas estão definidas antes de qualquer rota dinâmica (/:id)
 app.use('/', healthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/consultations', consultationRoutes);

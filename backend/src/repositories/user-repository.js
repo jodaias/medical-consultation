@@ -39,7 +39,8 @@ class UserRepository {
           }
         },
         schedules: true,
-        prescriptions: true,
+        doctorPrescriptions: true,
+        patientPrescriptions: true,
         ratings: true,
         receivedRatings: true
       }

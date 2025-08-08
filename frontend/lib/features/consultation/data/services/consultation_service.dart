@@ -1,4 +1,5 @@
 import 'package:medical_consultation_app/core/custom_dio/rest.dart';
+import 'package:medical_consultation_app/features/appointment/data/models/time_slot_model.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 
 class ConsultationService {
@@ -38,6 +39,7 @@ class ConsultationService {
 
   // Agendar nova consulta
   Future<RestResult<ConsultationModel>> scheduleConsultation({
+    required String patientId,
     required String doctorId,
     required DateTime scheduledAt,
     String? notes,
@@ -47,6 +49,7 @@ class ConsultationService {
       '/consultations',
       {
         'doctorId': doctorId,
+        'patientId': patientId,
         'scheduledAt': scheduledAt.toIso8601String(),
         'notes': notes,
         'symptoms': symptoms,
@@ -124,17 +127,22 @@ class ConsultationService {
   }
 
   // Buscar horários disponíveis do médico
-  Future<RestResult<List<DateTime>>> getAvailableSlots({
+  Future<RestResult<List<TimeSlotModel>>> getAvailableSlots({
     required String doctorId,
     required DateTime date,
   }) async {
-    return await rest.getModel<List<DateTime>>(
-      '/schedules/doctor/$doctorId/available-slots',
+    final queryParams = <String, dynamic>{
+      'doctorId': doctorId,
+      'date': date.toIso8601String(),
+    };
+    return await rest.getModel<List<TimeSlotModel>>(
+      '/schedules/available-slots',
       (json) =>
           (json?['data'] as List<dynamic>?)
-              ?.map((slot) => DateTime.parse(slot as String))
+              ?.map((slot) => TimeSlotModel.fromJson(slot))
               .toList() ??
           [],
+      query: queryParams,
     );
   }
 

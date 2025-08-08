@@ -1,3 +1,4 @@
+import 'package:medical_consultation_app/features/patient/data/services/patient_dashboard_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/services/api_service.dart';
@@ -9,8 +10,8 @@ part 'patient_store.g.dart';
 class PatientStore = PatientStoreBase with _$PatientStore;
 
 abstract class PatientStoreBase with Store {
-  final ApiService _apiService = getIt<ApiService>();
-  final AuthStore _authStore = getIt<AuthStore>();
+  final _patientDashboardService = getIt<PatientDashboardService>();
+  final _authStore = getIt<AuthStore>();
 
   // Observables
   @observable
@@ -64,40 +65,21 @@ abstract class PatientStoreBase with Store {
   @action
   Future<void> loadRecentConsultations() async {
     try {
-      // TODO: Implementar chamada real para API
-      // Por enquanto, usando dados mock
-      await Future.delayed(const Duration(milliseconds: 500));
+      final userId = _authStore.userId;
+      if (userId == null) {
+        error = 'Usuário não autenticado.';
+        return;
+      }
+      final result =
+          await _patientDashboardService.getRecentConsultations(userId);
 
-      recentConsultations.clear();
-      recentConsultations.addAll([
-        {
-          'id': '1',
-          'doctorName': 'Dr. Maria Silva',
-          'specialty': 'Cardiologia',
-          'date': '15/01/2024',
-          'time': '14:00',
-          'status': 'Agendada',
-          'statusColor': 'success',
-        },
-        {
-          'id': '2',
-          'doctorName': 'Dr. João Santos',
-          'specialty': 'Dermatologia',
-          'date': '10/01/2024',
-          'time': '10:30',
-          'status': 'Concluída',
-          'statusColor': 'info',
-        },
-        {
-          'id': '3',
-          'doctorName': 'Dr. Ana Costa',
-          'specialty': 'Ortopedia',
-          'date': '08/01/2024',
-          'time': '16:00',
-          'status': 'Concluída',
-          'statusColor': 'info',
-        },
-      ]);
+      if (result.success) {
+        recentConsultations.clear();
+        recentConsultations.addAll(result.data);
+      } else {
+        error =
+            result.error?.toString() ?? 'Erro ao carregar consultas recentes.';
+      }
     } catch (e) {
       error = 'Erro ao carregar consultas recentes: $e';
     }
@@ -106,14 +88,20 @@ abstract class PatientStoreBase with Store {
   @action
   Future<void> loadStatistics() async {
     try {
-      // TODO: Implementar chamada real para API
-      // Por enquanto, usando dados mock
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      totalConsultations = 15;
-      completedConsultations = 12;
-      pendingConsultations = 3;
-      averageRating = 4.8;
+      final userId = _authStore.userId;
+      if (userId == null) {
+        error = 'Usuário não autenticado.';
+        return;
+      }
+      final result = await _patientDashboardService.getPatientDashboard(userId);
+      if (result.success) {
+        totalConsultations = result.data['totalConsultations'] ?? 0;
+        completedConsultations = result.data['completedConsultations'] ?? 0;
+        pendingConsultations = result.data['pendingConsultations'] ?? 0;
+        averageRating = (result.data['averageRating'] ?? 0).toDouble();
+      } else {
+        error = result.error?.toString() ?? 'Erro ao carregar estatísticas.';
+      }
     } catch (e) {
       error = 'Erro ao carregar estatísticas: $e';
     }

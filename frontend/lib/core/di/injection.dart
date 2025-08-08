@@ -1,3 +1,7 @@
+import 'package:medical_consultation_app/features/appointment/data/services/appointment_service.dart';
+import 'package:medical_consultation_app/features/appointment/data/services/doctor_appointment_service.dart';
+import 'package:medical_consultation_app/features/appointment/domain/stores/appointment_store.dart';
+import 'package:medical_consultation_app/features/appointment/domain/stores/doctor_appointment_store.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_dashboard_service.dart';
 import 'package:medical_consultation_app/features/chat/data/services/chat_service.dart';
 import 'package:get_it/get_it.dart';
@@ -21,8 +25,8 @@ import 'package:medical_consultation_app/features/notification/data/services/not
 import 'package:medical_consultation_app/features/notification/domain/stores/notifications_store.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_service.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
-import 'package:medical_consultation_app/features/scheduling/data/services/scheduling_service.dart';
-import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/data/services/doctor_scheduling_service.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/domain/stores/doctor_scheduling_store.dart';
 import 'package:medical_consultation_app/features/patient/domain/stores/patient_store.dart';
 import 'package:medical_consultation_app/features/patient/domain/stores/patient_dashboard_store.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_dashboard_store.dart';
@@ -59,7 +63,7 @@ Future<void> configureDependencies() async {
       () => ApiService.instance.patientDashboardService);
   getIt.registerLazySingleton<DoctorService>(
       () => ApiService.instance.doctorService);
-  getIt.registerLazySingleton<SchedulingService>(
+  getIt.registerLazySingleton<DoctorSchedulingService>(
       () => ApiService.instance.schedulingService);
   getIt.registerLazySingleton<NotificationsService>(
       () => ApiService.instance.notificationsService);
@@ -73,6 +77,12 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<ProfileService>(
     () => ApiService.instance.profileService,
   );
+  getIt.registerLazySingleton<AppointmentService>(
+    () => ApiService.instance.appointmentService,
+  );
+  getIt.registerLazySingleton<DoctorAppointmentService>(
+    () => ApiService.instance.doctorAppointmentService,
+  );
 
   // Register router
   getIt.registerLazySingleton<AppRouter>(() => AppRouter());
@@ -84,10 +94,14 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<ProfileStore>(() => ProfileStore());
   getIt.registerLazySingleton<NotificationsStore>(() => NotificationsStore());
   getIt.registerLazySingleton<DoctorStore>(() => DoctorStore());
-  getIt.registerLazySingleton<SchedulingStore>(() => SchedulingStore());
+  getIt.registerLazySingleton<DoctorSchedulingStore>(
+      () => DoctorSchedulingStore());
   getIt.registerLazySingleton<PatientStore>(() => PatientStore());
   getIt.registerLazySingleton<PatientDashboardStore>(
       () => PatientDashboardStore());
   getIt.registerLazySingleton<DoctorDashboardStore>(
       () => DoctorDashboardStore());
+  getIt.registerLazySingleton<AppointmentStore>(() => AppointmentStore());
+  getIt.registerLazySingleton<DoctorAppointmentStore>(
+      () => DoctorAppointmentStore());
 }

@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:medical_consultation_app/features/doctor/domain/stores/doctor_store.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/rating_widget.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/widgets/availability_widget.dart';
 import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DoctorDetailPage extends StatefulWidget {
   final String doctorId;
@@ -96,7 +98,9 @@ class _DoctorDetailPageState extends State<DoctorDetailPage>
                                   : null,
                               child: doctor.avatar == null
                                   ? Text(
-                                      doctor.name.substring(0, 1).toUpperCase(),
+                                      doctor.name!
+                                          .substring(0, 1)
+                                          .toUpperCase(),
                                       style: TextStyle(
                                         color: AppTheme.primaryColor,
                                         fontSize: 24,
@@ -179,7 +183,16 @@ class _DoctorDetailPageState extends State<DoctorDetailPage>
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      // TODO: Implementar compartilhamento
+                      final doctor = _doctorStore.selectedDoctor;
+                      if (doctor != null) {
+                        final shareText =
+                            'Confira o perfil do Dr. ${doctor.name} (${doctor.specialty}) na Medical Consultation Online!\n${doctor.bio != null ? '\n${doctor.bio}' : ''}\nAcesse o app para agendar uma consulta.';
+                        try {
+                          Share.share(shareText);
+                        } catch (e) {
+                          ToastUtils.showErrorToast('Erro ao compartilhar: $e');
+                        }
+                      }
                     },
                   ),
                 ],

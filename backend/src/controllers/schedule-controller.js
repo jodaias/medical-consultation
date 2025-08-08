@@ -133,10 +133,16 @@ class ScheduleController extends BaseController {
 
   findAvailableSlots = this.handleAsync(async (req, res) => {
     try {
-      const { doctorId } = req.params;
-      const { date } = req.query;
+      const { doctorId, date } = req.query;
       const userId = req.user.id;
       const userType = req.user.userType;
+      if (!doctorId) {
+        return this.sendError(
+          res,
+          new Error("DoctorId parameter is required"),
+          400
+        );
+      }
       if (!date) {
         return this.sendError(
           res,
@@ -231,7 +237,7 @@ class ScheduleController extends BaseController {
   bulkUpdate = this.handleAsync(async (req, res) => {
     try {
       const { doctorId } = req.params;
-      const { schedules } = req.body;
+      const schedules = req.body;
       const userId = req.user.id;
       const userType = req.user.userType;
       if (!Array.isArray(schedules)) {

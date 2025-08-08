@@ -8,6 +8,7 @@ class DoctorModel {
   final String name;
   final String email;
   final String specialty;
+  final String crm;
   final String? avatar;
   final String? bio;
   final double rating;
@@ -22,30 +23,31 @@ class DoctorModel {
   final String? address;
   final bool isVerified;
   final bool isOnline;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   DoctorModel({
     required this.id,
     required this.name,
     required this.email,
     required this.specialty,
+    required this.crm,
+    this.rating = 0.0,
+    this.totalReviews = 0,
+    this.totalConsultations = 0,
+    this.yearsOfExperience = 0,
+    this.certifications = const [],
+    this.languages = const [],
+    this.availability = const {},
+    this.consultationPrice = 0.0,
+    this.isVerified = false,
+    this.isOnline = false,
     this.avatar,
     this.bio,
-    required this.rating,
-    required this.totalReviews,
-    required this.totalConsultations,
-    required this.yearsOfExperience,
-    required this.certifications,
-    required this.languages,
-    required this.availability,
-    required this.consultationPrice,
     this.phone,
     this.address,
-    required this.isVerified,
-    required this.isOnline,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) =>
@@ -60,6 +62,7 @@ class DoctorModel {
     String? specialty,
     String? avatar,
     String? bio,
+    String? crm,
     double? rating,
     int? totalReviews,
     int? totalConsultations,
@@ -82,6 +85,7 @@ class DoctorModel {
       specialty: specialty ?? this.specialty,
       avatar: avatar ?? this.avatar,
       bio: bio ?? this.bio,
+      crm: crm ?? this.crm,
       rating: rating ?? this.rating,
       totalReviews: totalReviews ?? this.totalReviews,
       totalConsultations: totalConsultations ?? this.totalConsultations,

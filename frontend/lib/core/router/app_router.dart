@@ -1,3 +1,8 @@
+import 'package:medical_consultation_app/features/appointment/presentation/pages/doctor_appointment_detail_page.dart';
+import 'package:medical_consultation_app/features/appointment/presentation/pages/doctor_appointment_list_page.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/data/models/doctor_schedule_model.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/presentation/pages/doctor_schedule_edit_page.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/presentation/pages/doctor_schedule_list_page.dart';
 import 'package:medical_consultation_app/features/prescription/presentation/pages/prescription_list_page.dart';
 import 'package:medical_consultation_app/features/report/presentation/pages/report_list_page.dart';
 import 'package:medical_consultation_app/features/prescription/presentation/pages/prescription_detail_page.dart';
@@ -5,6 +10,7 @@ import 'package:medical_consultation_app/features/report/presentation/pages/repo
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
+import 'package:medical_consultation_app/features/consultation/presentation/pages/consultation_history_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/login_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/register_page.dart';
 import 'package:medical_consultation_app/features/auth/presentation/pages/forgot_password_page.dart';
@@ -22,11 +28,12 @@ import 'package:medical_consultation_app/features/patient/presentation/pages/pat
 import 'package:medical_consultation_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_list_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_detail_page.dart';
-import 'package:medical_consultation_app/features/scheduling/presentation/pages/appointment_list_page.dart';
-import 'package:medical_consultation_app/features/scheduling/presentation/pages/appointment_detail_page.dart';
+import 'package:medical_consultation_app/features/appointment/presentation/pages/appointment_list_page.dart';
+import 'package:medical_consultation_app/features/appointment/presentation/pages/appointment_detail_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/patient_list_page.dart';
 import 'package:medical_consultation_app/features/doctor/presentation/pages/doctor_dashboard_page.dart';
 import 'package:medical_consultation_app/features/shared/splash/presentation/splash_page.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/presentation/pages/doctor_schedule_create_page.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -66,26 +73,29 @@ class AppRouter {
           path: '/doctor',
           builder: (context, state) => const DoctorHomePage(),
         ),
+
+        // agendamento
         GoRoute(
-          path: '/chat/:consultationId',
-          builder: (context, state) => ChatPage(
-            consultationId: state.pathParameters['consultationId']!,
+          path: '/doctor/schedules/create',
+          builder: (context, state) => DoctorScheduleCreatePage(
+            doctorId: state.uri.queryParameters['doctorId']!,
           ),
         ),
         GoRoute(
-          path: '/schedule',
-          builder: (context, state) => const ScheduleConsultationPage(),
-        ),
-        GoRoute(
-          path: '/consultations',
-          builder: (context, state) => const ConsultationListPage(),
-        ),
-        GoRoute(
-          path: '/consultation/:consultationId',
-          builder: (context, state) => ConsultationDetailPage(
-            consultationId: state.pathParameters['consultationId']!,
+          path: '/doctor/schedules/edit',
+          builder: (context, state) => DoctorScheduleEditPage(
+            doctorId: state.uri.queryParameters['doctorId']!,
+            schedule: state.extra as DoctorScheduleModel,
           ),
         ),
+        GoRoute(
+          path: '/doctor/schedules',
+          builder: (context, state) => DoctorScheduleListPage(
+            doctorId: state.uri.queryParameters['doctorId']!,
+          ),
+        ),
+
+        // perfil
         GoRoute(
           path: '/profile',
           builder: (context, state) => const ProfilePage(),
@@ -97,6 +107,12 @@ class AppRouter {
         GoRoute(
           path: '/profile/notifications',
           builder: (context, state) => const NotificationSettingsPage(),
+        ),
+        GoRoute(
+          path: '/chat/:consultationId',
+          builder: (context, state) => ChatPage(
+            consultationId: state.pathParameters['consultationId']!,
+          ),
         ),
         GoRoute(
           path: '/dashboard/notifications',
@@ -112,44 +128,91 @@ class AppRouter {
           path: '/reports',
           builder: (context, state) => const ReportListPage(),
         ),
+
+        // médicos
         GoRoute(
-          path: '/doctors',
+          path: '/patient/doctors',
           builder: (context, state) => const DoctorListPage(),
         ),
         GoRoute(
-          path: '/doctors/:doctorId',
+          path: '/patient/doctors/:doctorId',
           builder: (context, state) => DoctorDetailPage(
             doctorId: state.pathParameters['doctorId']!,
           ),
         ),
         GoRoute(
-          path: '/doctors/favorites',
+          path: '/patient/doctors/favorites',
           builder: (context, state) => const FavoriteDoctorsPage(),
         ),
         GoRoute(
-          path: '/appointments',
+          path: '/doctor/patients',
+          builder: (context, state) => const PatientListPage(),
+        ),
+
+        // consultas
+        GoRoute(
+          path: '/patient/schedule-consultation',
+          builder: (context, state) => const ScheduleConsultationPage(),
+        ),
+        GoRoute(
+          path: '/doctor/consultation-history',
+          builder: (context, state) {
+            final patientId = state.uri.queryParameters['patientId'];
+            final patientName = state.uri.queryParameters['patientName'];
+            return ConsultationHistoryPage(
+              patientId: patientId,
+              patientName: patientName,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/patient/consultations',
+          builder: (context, state) => const ConsultationListPage(),
+        ),
+        // GoRoute(
+        //   path: '/doctor/consultations',
+        //   builder: (context, state) => const DoctorConsultationListPage(),
+        // ),
+        GoRoute(
+          path: '/patient/consultation/:consultationId',
+          builder: (context, state) => ConsultationDetailPage(
+            consultationId: state.pathParameters['consultationId']!,
+          ),
+        ),
+        GoRoute(
+          path: '/patient/appointments',
           builder: (context, state) => const AppointmentListPage(),
         ),
         GoRoute(
-          path: '/appointments/:appointmentId',
+          path: '/patient/appointments/:appointmentId',
           builder: (context, state) => AppointmentDetailPage(
             appointmentId: state.pathParameters['appointmentId']!,
           ),
         ),
         GoRoute(
-          path: '/prescriptions/:prescriptionId',
+          path: '/doctor/appointments',
+          builder: (context, state) => DoctorAppointmentListPage(),
+        ),
+        GoRoute(
+          path: '/doctor/appointments/:appointmentId',
+          builder: (context, state) => DoctorAppointmentDetailPage(
+            appointmentId: state.pathParameters['appointmentId']!,
+          ),
+        ),
+
+        // prescrições
+        GoRoute(
+          path: '/patient/prescriptions/:prescriptionId',
           builder: (context, state) => PrescriptionDetailPage(
             prescriptionId: state.pathParameters['prescriptionId']!,
           ),
         ),
         GoRoute(
-          path: '/prescriptions',
+          path: '/patient/prescriptions',
           builder: (context, state) => const PrescriptionListPage(),
         ),
-        GoRoute(
-          path: '/patients',
-          builder: (context, state) => const PatientListPage(),
-        ),
+
+        // dashboard
         GoRoute(
           path: '/doctor/dashboard',
           builder: (context, state) => const DoctorDashboardPage(),

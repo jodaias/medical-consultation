@@ -52,8 +52,34 @@ class UserService {
     const userEntity = createUserDTO.toEntity();
     userEntity.password = hashedPassword;
 
-    // Criar usuário
-    const user = await this.repository.create(userEntity);
+    let user;
+    if (userEntity.userType === 'DOCTOR') {
+      // Remover campos que pertencem ao DoctorProfile
+      const { specialty, crm, bio, hourlyRate, ...userFields } = userEntity;
+      user = await this.repository.prisma.$transaction(async (tx) => {
+        const createdUser = await tx.user.create({
+          data: {
+            ...userFields,
+            doctorProfile: {
+              create: {
+                crm: crm,
+                specialty: specialty,
+                bio: bio,
+                consultationFee: hourlyRate || 100,
+                experience: userData.experience || 1,
+                education: userData.education || [],
+                certifications: userData.certifications || [],
+                isAvailable: true,
+                availability: userData.availability || {},
+              }
+            }
+          }
+        });
+        return createdUser;
+      });
+    } else {
+      user = await this.repository.create(userEntity);
+    }
 
     // Gerar token JWT e refresh token
     const token = this.generateToken(user);

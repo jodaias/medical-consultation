@@ -11,25 +11,33 @@ DoctorModel _$DoctorModelFromJson(Map<String, dynamic> json) => DoctorModel(
       name: json['name'] as String,
       email: json['email'] as String,
       specialty: json['specialty'] as String,
+      crm: json['crm'] as String,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      totalReviews: (json['totalReviews'] as num?)?.toInt() ?? 0,
+      totalConsultations: (json['totalConsultations'] as num?)?.toInt() ?? 0,
+      yearsOfExperience: (json['yearsOfExperience'] as num?)?.toInt() ?? 0,
+      certifications: (json['certifications'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      languages: (json['languages'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      availability: json['availability'] as Map<String, dynamic>? ?? const {},
+      consultationPrice: (json['consultationPrice'] as num?)?.toDouble() ?? 0.0,
+      isVerified: json['isVerified'] as bool? ?? false,
+      isOnline: json['isOnline'] as bool? ?? false,
       avatar: json['avatar'] as String?,
       bio: json['bio'] as String?,
-      rating: (json['rating'] as num).toDouble(),
-      totalReviews: (json['totalReviews'] as num).toInt(),
-      totalConsultations: (json['totalConsultations'] as num).toInt(),
-      yearsOfExperience: (json['yearsOfExperience'] as num).toInt(),
-      certifications: (json['certifications'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      languages:
-          (json['languages'] as List<dynamic>).map((e) => e as String).toList(),
-      availability: json['availability'] as Map<String, dynamic>,
-      consultationPrice: (json['consultationPrice'] as num).toDouble(),
       phone: json['phone'] as String?,
       address: json['address'] as String?,
-      isVerified: json['isVerified'] as bool,
-      isOnline: json['isOnline'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$DoctorModelToJson(DoctorModel instance) =>
@@ -38,6 +46,7 @@ Map<String, dynamic> _$DoctorModelToJson(DoctorModel instance) =>
       'name': instance.name,
       'email': instance.email,
       'specialty': instance.specialty,
+      'crm': instance.crm,
       'avatar': instance.avatar,
       'bio': instance.bio,
       'rating': instance.rating,
@@ -52,6 +61,6 @@ Map<String, dynamic> _$DoctorModelToJson(DoctorModel instance) =>
       'address': instance.address,
       'isVerified': instance.isVerified,
       'isOnline': instance.isOnline,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };

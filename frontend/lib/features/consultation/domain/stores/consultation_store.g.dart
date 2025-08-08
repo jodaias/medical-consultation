@@ -130,6 +130,22 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
     });
   }
 
+  late final _$slotsRequestStatusAtom =
+      Atom(name: 'ConsultationStoreBase.slotsRequestStatus', context: context);
+
+  @override
+  RequestStatusEnum get slotsRequestStatus {
+    _$slotsRequestStatusAtom.reportRead();
+    return super.slotsRequestStatus;
+  }
+
+  @override
+  set slotsRequestStatus(RequestStatusEnum value) {
+    _$slotsRequestStatusAtom.reportWrite(value, super.slotsRequestStatus, () {
+      super.slotsRequestStatus = value;
+    });
+  }
+
   late final _$errorMessageAtom =
       Atom(name: 'ConsultationStoreBase.errorMessage', context: context);
 
@@ -182,13 +198,13 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       Atom(name: 'ConsultationStoreBase.availableSlots', context: context);
 
   @override
-  List<DateTime> get availableSlots {
+  ObservableList<TimeSlotModel> get availableSlots {
     _$availableSlotsAtom.reportRead();
     return super.availableSlots;
   }
 
   @override
-  set availableSlots(List<DateTime> value) {
+  set availableSlots(ObservableList<TimeSlotModel> value) {
     _$availableSlotsAtom.reportWrite(value, super.availableSlots, () {
       super.availableSlots = value;
     });
@@ -198,13 +214,13 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
       Atom(name: 'ConsultationStoreBase.availableDoctors', context: context);
 
   @override
-  List<Map<String, dynamic>> get availableDoctors {
+  ObservableList<Map<String, dynamic>> get availableDoctors {
     _$availableDoctorsAtom.reportRead();
     return super.availableDoctors;
   }
 
   @override
-  set availableDoctors(List<Map<String, dynamic>> value) {
+  set availableDoctors(ObservableList<Map<String, dynamic>> value) {
     _$availableDoctorsAtom.reportWrite(value, super.availableDoctors, () {
       super.availableDoctors = value;
     });
@@ -251,12 +267,14 @@ mixin _$ConsultationStore on ConsultationStoreBase, Store {
 
   @override
   Future<void> scheduleConsultation(
-      {required String doctorId,
+      {required String patientId,
+      required String doctorId,
       required DateTime scheduledAt,
       String? notes,
       String? symptoms}) {
     return _$scheduleConsultationAsyncAction.run(() => super
         .scheduleConsultation(
+            patientId: patientId,
             doctorId: doctorId,
             scheduledAt: scheduledAt,
             notes: notes,
@@ -423,6 +441,7 @@ consultations: ${consultations},
 selectedConsultation: ${selectedConsultation},
 requestStatus: ${requestStatus},
 doctorsRequestStatus: ${doctorsRequestStatus},
+slotsRequestStatus: ${slotsRequestStatus},
 errorMessage: ${errorMessage},
 selectedStatus: ${selectedStatus},
 selectedDate: ${selectedDate},

@@ -123,6 +123,49 @@ router.post('/', authenticateToken, apiRateLimiter, scheduleController.create);
 
 /**
  * @swagger
+ * /api/schedules/available-slots:
+ *   get:
+ *     summary: Busca horários disponíveis de um médico
+ *     tags: [Agendamentos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: doctorId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do médico
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: true
+ *         description: Data desejada (YYYY-MM-DD ou ISO)
+ *     responses:
+ *       200:
+ *         description: Lista de horários disponíveis
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Schedule'
+ *       400:
+ *         description: Parâmetros obrigatórios ausentes ou inválidos
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/available-slots', authenticateToken, scheduleController.findAvailableSlots);
+
+/**
+ * @swagger
  * /api/schedules:
  *   get:
  *     summary: Lista todos os agendamentos
@@ -170,6 +213,125 @@ router.post('/', authenticateToken, apiRateLimiter, scheduleController.create);
  *         description: Não autorizado
  */
 router.get('/', authenticateToken, scheduleController.findAll);
+
+
+/**
+ * @swagger
+ * /api/schedules/check-availability:
+ *   post:
+ *     summary: Verifica disponibilidade de horário
+ *     tags: [Agendamentos]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - doctorId
+ *               - date
+ *               - startTime
+ *               - endTime
+ *             properties:
+ *               doctorId:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               startTime:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Resultado da verificação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 isAvailable:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Dados inválidos
+ *       401:
+ *         description: Não autorizado
+ */
+router.post('/check-availability', authenticateToken, scheduleController.checkAvailability);
+
+/**
+ * @swagger
+ * /api/schedules/stats:
+ *   get:
+ *     summary: Obtém estatísticas de agendamentos
+ *     tags: [Agendamentos]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estatísticas de agendamentos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalSchedules:
+ *                       type: integer
+ *                     availableSchedules:
+ *                       type: integer
+ *                     confirmedSchedules:
+ *                       type: integer
+ *                     schedulesPerDay:
+ *                       type: object
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/stats', authenticateToken, scheduleController.getStats);
+
+/**
+ * @swagger
+ * /api/schedules/validate:
+ *   post:
+ *     summary: Validar dados de agendamento
+ *     tags: [Agendamentos]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               doctorId:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               startTime:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Dados validados
+ *       400:
+ *         description: Dados inválidos
+ *       401:
+ *         description: Não autorizado
+ */
+router.post('/validate', authenticateToken, scheduleController.validate);
 
 /**
  * @swagger
@@ -348,141 +510,7 @@ router.get('/doctor/:doctorId', authenticateToken, scheduleController.findByDoct
 
 /**
  * @swagger
- * /api/schedules/available-slots:
- *   get:
- *     summary: Busca horários disponíveis
- *     tags: [Agendamentos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: doctorId
- *         schema:
- *           type: string
- *         description: ID do médico (opcional)
- *       - in: query
- *         name: specialtyId
- *         schema:
- *           type: string
- *         description: ID da especialidade (opcional)
- *       - in: query
- *         name: startDate
- *         schema:
- *           type: string
- *           format: date
- *         description: Data inicial para filtro
- *       - in: query
- *         name: endDate
- *         schema:
- *           type: string
- *           format: date
- *         description: Data final para filtro
- *     responses:
- *       200:
- *         description: Lista de horários disponíveis
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Schedule'
- *       401:
- *         description: Não autorizado
- */
-router.get('/available-slots', authenticateToken, scheduleController.findAvailableSlots);
-
-/**
- * @swagger
- * /api/schedules/check-availability:
- *   post:
- *     summary: Verifica disponibilidade de horário
- *     tags: [Agendamentos]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - doctorId
- *               - date
- *               - startTime
- *               - endTime
- *             properties:
- *               doctorId:
- *                 type: string
- *               date:
- *                 type: string
- *                 format: date
- *               startTime:
- *                 type: string
- *               endTime:
- *                 type: string
- *     responses:
- *       200:
- *         description: Resultado da verificação
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 isAvailable:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       400:
- *         description: Dados inválidos
- *       401:
- *         description: Não autorizado
- */
-router.post('/check-availability', authenticateToken, scheduleController.checkAvailability);
-
-/**
- * @swagger
- * /api/schedules/stats:
- *   get:
- *     summary: Obtém estatísticas de agendamentos
- *     tags: [Agendamentos]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Estatísticas de agendamentos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     totalSchedules:
- *                       type: integer
- *                     availableSchedules:
- *                       type: integer
- *                     confirmedSchedules:
- *                       type: integer
- *                     schedulesPerDay:
- *                       type: object
- *       401:
- *         description: Não autorizado
- */
-router.get('/stats', authenticateToken, scheduleController.getStats);
-
-/**
- * @swagger
- * /api/schedules/doctor/{doctorId}/weekly:
+ * /api/schedules/doctors/{doctorId}/weekly:
  *   get:
  *     summary: Obtém agenda semanal do médico
  *     tags: [Agendamentos]
@@ -523,7 +551,7 @@ router.get('/stats', authenticateToken, scheduleController.getStats);
  *       404:
  *         description: Médico não encontrado
  */
-router.get('/doctor/:doctorId/weekly', authenticateToken, scheduleController.getWeeklySchedule);
+router.get('/doctors/:doctorId/weekly', authenticateToken, scheduleController.getWeeklySchedule);
 
 /**
  * @swagger
@@ -575,40 +603,6 @@ router.get('/doctor/:doctorId/weekly', authenticateToken, scheduleController.get
  *         description: Não autorizado
  */
 router.put('/doctors/:doctorId/bulk', authenticateToken, scheduleController.bulkUpdate);
-
-/**
- * @swagger
- * /api/schedules/validate:
- *   post:
- *     summary: Validar dados de agendamento
- *     tags: [Agendamentos]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               doctorId:
- *                 type: string
- *               date:
- *                 type: string
- *                 format: date
- *               startTime:
- *                 type: string
- *               endTime:
- *                 type: string
- *     responses:
- *       200:
- *         description: Dados validados
- *       400:
- *         description: Dados inválidos
- *       401:
- *         description: Não autorizado
- */
-router.post('/validate', authenticateToken, scheduleController.validate);
 
 /**
  * @swagger

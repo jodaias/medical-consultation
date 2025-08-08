@@ -4,25 +4,27 @@ part 'time_slot_model.g.dart';
 
 @JsonSerializable()
 class TimeSlotModel {
-  final String id;
+  final String? id;
   final String doctorId;
   final DateTime startTime;
   final DateTime endTime;
+  final int duration;
   final bool isAvailable;
-  final int maxAppointments;
-  final int currentAppointments;
   final double price;
+  final int? maxAppointments;
+  final int? currentAppointments;
   final String? notes;
 
   TimeSlotModel({
-    required this.id,
+    this.id,
     required this.doctorId,
     required this.startTime,
     required this.endTime,
-    this.isAvailable = true,
+    required this.duration,
+    required this.isAvailable,
+    required this.price,
     this.maxAppointments = 1,
     this.currentAppointments = 0,
-    required this.price,
     this.notes,
   });
 
@@ -36,6 +38,7 @@ class TimeSlotModel {
     String? doctorId,
     DateTime? startTime,
     DateTime? endTime,
+    int? duration,
     bool? isAvailable,
     int? maxAppointments,
     int? currentAppointments,
@@ -47,6 +50,7 @@ class TimeSlotModel {
       doctorId: doctorId ?? this.doctorId,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
+      duration: duration ?? this.duration,
       isAvailable: isAvailable ?? this.isAvailable,
       maxAppointments: maxAppointments ?? this.maxAppointments,
       currentAppointments: currentAppointments ?? this.currentAppointments,
@@ -63,10 +67,11 @@ class TimeSlotModel {
   String get timeRange => '$formattedStartTime - $formattedEndTime';
   String get formattedDate =>
       '${startTime.day.toString().padLeft(2, '0')}/${startTime.month.toString().padLeft(2, '0')}/${startTime.year}';
-  String get formattedPrice => 'R\$ ${price.toStringAsFixed(2)}';
+  String get formattedPrice => 'R\$ ${price?.toStringAsFixed(2) ?? '0.00'}';
 
-  bool get hasAvailability => currentAppointments < maxAppointments;
-  int get availableSlots => maxAppointments - currentAppointments;
+  bool get hasAvailability =>
+      (currentAppointments ?? 0) < (maxAppointments ?? 0);
+  int get availableSlots => (maxAppointments ?? 0) - (currentAppointments ?? 0);
   bool get isToday =>
       startTime.day == DateTime.now().day &&
       startTime.month == DateTime.now().month &&

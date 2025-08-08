@@ -1,5 +1,7 @@
 import 'package:medical_consultation_app/core/custom_dio/auth_interceptor.dart';
 import 'package:medical_consultation_app/core/custom_dio/print_log_interceptor.dart';
+import 'package:medical_consultation_app/features/appointment/data/services/appointment_service.dart';
+import 'package:medical_consultation_app/features/appointment/data/services/doctor_appointment_service.dart';
 import 'package:medical_consultation_app/features/profile/data/services/profile_service.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_dashboard_service.dart';
 import 'package:medical_consultation_app/features/consultation/data/services/consultation_service.dart';
@@ -13,7 +15,7 @@ import 'package:medical_consultation_app/core/services/rating_service.dart';
 import 'package:medical_consultation_app/core/services/report_service.dart';
 import 'package:medical_consultation_app/features/patient/data/services/patient_dashboard_service.dart';
 import 'package:medical_consultation_app/features/doctor/data/services/doctor_service.dart';
-import 'package:medical_consultation_app/features/scheduling/data/services/scheduling_service.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/data/services/doctor_scheduling_service.dart';
 import 'package:medical_consultation_app/features/notification/data/services/notifications_service.dart';
 import 'package:medical_consultation_app/core/services/file_upload_service.dart';
 
@@ -48,8 +50,8 @@ class ApiService extends Rest {
   late final DoctorService _doctorService;
   DoctorService get doctorService => _doctorService;
 
-  late final SchedulingService _schedulingService;
-  SchedulingService get schedulingService => _schedulingService;
+  late final DoctorSchedulingService _schedulingService;
+  DoctorSchedulingService get schedulingService => _schedulingService;
 
   late final NotificationsService _notificationsService;
   NotificationsService get notificationsService => _notificationsService;
@@ -60,6 +62,13 @@ class ApiService extends Rest {
   late final DoctorDashboardService _doctorDashboardService;
   DoctorDashboardService get doctorDashboardService => _doctorDashboardService;
 
+  late final AppointmentService _appointmentService;
+  AppointmentService get appointmentService => _appointmentService;
+
+  late final DoctorAppointmentService _doctorAppointmentService;
+  DoctorAppointmentService get doctorAppointmentService =>
+      _doctorAppointmentService;
+
   ApiService._() {
     _profileService = ProfileService(this);
     _authService = AuthService(this);
@@ -68,11 +77,13 @@ class ApiService extends Rest {
     _patientDashboardService = PatientDashboardService(this);
     _doctorDashboardService = DoctorDashboardService(this);
     _doctorService = DoctorService(this);
-    _schedulingService = SchedulingService(this);
+    _schedulingService = DoctorSchedulingService(this);
     _notificationsService = NotificationsService(this);
     _fileUploadService = FileUploadService(this);
     _chatService = ChatService(this);
     _consultationService = ConsultationService(this);
+    _appointmentService = AppointmentService(this);
+    _doctorAppointmentService = DoctorAppointmentService(this);
 
     if (AppConstants.isProduction) {
       addInterceptor(PrintLogInterceptor());

@@ -44,7 +44,7 @@ class UserController extends BaseController {
         hourlyRate
       });
 
-      return this.sendSuccess(res, result, 'User registered successfully', 201);
+      return this.sendSuccess(res, result, 'User registered successfully', 200);
     } catch (error) {
       return this.sendError(res, error, error.statusCode || 400);
     }

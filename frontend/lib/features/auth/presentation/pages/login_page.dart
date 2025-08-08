@@ -134,12 +134,6 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   },
                 ),
-// Requisitos da senha
-                if (_password.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _buildPasswordContainer(),
-                ],
-
                 const SizedBox(height: 10),
 
                 // Esqueci a senha
@@ -225,6 +219,9 @@ class _LoginPageState extends State<LoginPage> {
           } else {
             context.go('/patient');
           }
+        } else {
+          ToastUtils.showErrorToast(
+              'Erro ao fazer login: ${_authStore.errorMessage}');
         }
       } catch (e) {
         ToastUtils.showErrorToast(
@@ -237,194 +234,5 @@ class _LoginPageState extends State<LoginPage> {
     return password.length >= 8 &&
         RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]')
             .hasMatch(password);
-  }
-
-  // Container principal dos requisitos da senha
-  Widget _buildPasswordContainer() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header com título e botão toggle
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Requisitos da senha',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _showPasswordRequirements = !_showPasswordRequirements;
-                  });
-                },
-                icon: Icon(
-                  _showPasswordRequirements
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 16,
-                ),
-                label: Text(
-                  _showPasswordRequirements
-                      ? 'Ocultar requisitos'
-                      : 'Mostrar requisitos',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Conteúdo baseado no estado
-          if (_showPasswordRequirements) ...[
-            const SizedBox(height: 8),
-            _buildPasswordRequirements(),
-          ] else ...[
-            const SizedBox(height: 8),
-            _buildPasswordSummary(),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // Widget de requisitos da senha
-  Widget _buildPasswordRequirements() {
-    final hasMinLength = _password.length >= 8;
-    final hasUpperCase = RegExp(r'[A-Z]').hasMatch(_password);
-    final hasLowerCase = RegExp(r'[a-z]').hasMatch(_password);
-    final hasNumber = RegExp(r'\d').hasMatch(_password);
-    final hasSpecialChar = RegExp(r'[@$!%*?&]').hasMatch(_password);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildRequirementItem(
-          'Pelo menos 8 caracteres',
-          hasMinLength,
-        ),
-        _buildRequirementItem(
-          'Uma letra maiúscula',
-          hasUpperCase,
-        ),
-        _buildRequirementItem(
-          'Uma letra minúscula',
-          hasLowerCase,
-        ),
-        _buildRequirementItem(
-          'Um número',
-          hasNumber,
-        ),
-        _buildRequirementItem(
-          'Um caractere especial (@\$!%*?&)',
-          hasSpecialChar,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRequirementItem(String text, bool isMet) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Icon(
-            isMet ? Icons.check_circle : Icons.circle_outlined,
-            size: 16,
-            color: isMet ? Colors.green : colorScheme.outline,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: isMet
-                  ? Colors.green[700]
-                  : colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget de resumo da senha
-  Widget _buildPasswordSummary() {
-    final hasMinLength = _password.length >= 8;
-    final hasUpperCase = RegExp(r'[A-Z]').hasMatch(_password);
-    final hasLowerCase = RegExp(r'[a-z]').hasMatch(_password);
-    final hasNumber = RegExp(r'\d').hasMatch(_password);
-    final hasSpecialChar = RegExp(r'[@$!%*?&]').hasMatch(_password);
-
-    final totalRequirements = 5;
-    final metRequirements = [
-      hasMinLength,
-      hasUpperCase,
-      hasLowerCase,
-      hasNumber,
-      hasSpecialChar
-    ].where((met) => met).length;
-
-    final progress = metRequirements / totalRequirements;
-    final isComplete = metRequirements == totalRequirements;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Força da senha:',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 4),
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isComplete ? Colors.green : Colors.orange,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$metRequirements de $totalRequirements requisitos atendidos',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isComplete
-                      ? Colors.green[700]
-                      : colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Icon(
-          isComplete ? Icons.check_circle : Icons.info_outline,
-          size: 20,
-          color: isComplete ? Colors.green : Colors.orange,
-        ),
-      ],
-    );
   }
 }

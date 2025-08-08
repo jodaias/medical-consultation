@@ -1,5 +1,9 @@
-const { PrismaClient } = require('@prisma/client');
-const { NotFoundException, ConflictException } = require('../exceptions/app-exception');
+const { PrismaClient } = require("@prisma/client");
+const {
+  NotFoundException,
+  ConflictException,
+} = require("../exceptions/app-exception");
+const _ = require("lodash");
 
 /**
  * ScheduleRepository - Implementa o padrão Repository
@@ -23,17 +27,19 @@ class ScheduleRepository {
               doctorProfile: {
                 select: {
                   specialty: true,
-                  crm: true
-                }
-              }
-            }
-          }
-        }
+                  crm: true,
+                },
+              },
+            },
+          },
+        },
       });
       return schedule;
     } catch (error) {
-      if (error.code === 'P2002') {
-        throw new ConflictException('Schedule already exists for this doctor and day');
+      if (error.code === "P2002") {
+        throw new ConflictException(
+          "Schedule already exists for this doctor and day"
+        );
       }
       throw error;
     }
@@ -51,16 +57,16 @@ class ScheduleRepository {
             doctorProfile: {
               select: {
                 specialty: true,
-                crm: true
-              }
+                crm: true,
+              },
             },
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!schedule) {
-      throw new NotFoundException('Schedule not found');
+      throw new NotFoundException("Schedule not found");
     }
 
     return schedule;
@@ -73,8 +79,8 @@ class ScheduleRepository {
       isAvailable,
       page = 1,
       limit = 10,
-      orderBy = 'dayOfWeek',
-      order = 'asc'
+      orderBy = "dayOfWeek",
+      order = "asc",
     } = filters;
 
     const skip = (page - 1) * limit;
@@ -107,14 +113,14 @@ class ScheduleRepository {
               doctorProfile: {
                 select: {
                   specialty: true,
-                  crm: true
-                }
+                  crm: true,
+                },
               },
-            }
-          }
-        }
+            },
+          },
+        },
       }),
-      this.prisma.schedule.count({ where })
+      this.prisma.schedule.count({ where }),
     ]);
 
     return {
@@ -123,8 +129,8 @@ class ScheduleRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -142,17 +148,17 @@ class ScheduleRepository {
               doctorProfile: {
                 select: {
                   specialty: true,
-                  crm: true
-                }
+                  crm: true,
+                },
               },
-            }
-          }
-        }
+            },
+          },
+        },
       });
       return schedule;
     } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('Schedule not found');
+      if (error.code === "P2025") {
+        throw new NotFoundException("Schedule not found");
       }
       throw error;
     }
@@ -161,12 +167,12 @@ class ScheduleRepository {
   async delete(id) {
     try {
       await this.prisma.schedule.delete({
-        where: { id }
+        where: { id },
       });
       return true;
     } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('Schedule not found');
+      if (error.code === "P2025") {
+        throw new NotFoundException("Schedule not found");
       }
       throw error;
     }
@@ -175,18 +181,13 @@ class ScheduleRepository {
   async exists(id) {
     const schedule = await this.prisma.schedule.findUnique({
       where: { id },
-      select: { id: true }
+      select: { id: true },
     });
     return !!schedule;
   }
 
   async findByDoctor(doctorId, filters = {}) {
-    const {
-      dayOfWeek,
-      isAvailable,
-      page = 1,
-      limit = 10
-    } = filters;
+    const { dayOfWeek, isAvailable, page = 1, limit = 10 } = filters;
 
     const skip = (page - 1) * limit;
     const where = { doctorId };
@@ -204,7 +205,7 @@ class ScheduleRepository {
         where,
         skip,
         take: limit,
-        orderBy: { dayOfWeek: 'asc' },
+        orderBy: { dayOfWeek: "asc" },
         include: {
           doctor: {
             select: {
@@ -214,14 +215,14 @@ class ScheduleRepository {
               doctorProfile: {
                 select: {
                   specialty: true,
-                  crm: true
-                }
+                  crm: true,
+                },
               },
-            }
-          }
-        }
+            },
+          },
+        },
       }),
-      this.prisma.schedule.count({ where })
+      this.prisma.schedule.count({ where }),
     ]);
 
     return {
@@ -230,8 +231,8 @@ class ScheduleRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -242,8 +243,24 @@ class ScheduleRepository {
       where: {
         doctorId,
         dayOfWeek,
-        isAvailable: true
-      }
+        isAvailable: true,
+      },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            doctorProfile: {
+              select: {
+                specialty: true,
+                crm: true,
+                consultationFee: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!schedule) {
@@ -260,7 +277,12 @@ class ScheduleRepository {
 
     while (currentTime < endTime) {
       const slotStart = new Date(date);
-      slotStart.setHours(currentTime.getHours(), currentTime.getMinutes(), 0, 0);
+      slotStart.setHours(
+        currentTime.getHours(),
+        currentTime.getMinutes(),
+        0,
+        0
+      );
 
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotEnd.getMinutes() + schedule.consultationDuration);
@@ -268,7 +290,10 @@ class ScheduleRepository {
       slots.push({
         startTime: slotStart,
         endTime: slotEnd,
-        duration: schedule.consultationDuration
+        duration: schedule.consultationDuration,
+        isAvailable: schedule.isAvailable,
+        doctorId: schedule.doctorId,
+        price: Number(schedule.doctor.doctorProfile.consultationFee ?? 0),
       });
 
       currentTime.setTime(currentTime.getTime() + duration);
@@ -287,8 +312,8 @@ class ScheduleRepository {
         dayOfWeek,
         startTime: { lte: timeString },
         endTime: { gte: timeString },
-        isAvailable: true
-      }
+        isAvailable: true,
+      },
     });
 
     if (!schedule) {
@@ -301,53 +326,52 @@ class ScheduleRepository {
         doctorId,
         scheduledAt: {
           gte: startTime,
-          lt: endTime
+          lt: endTime,
         },
         status: {
-          in: ['SCHEDULED', 'IN_PROGRESS']
-        }
-      }
+          in: ["SCHEDULED", "IN_PROGRESS"],
+        },
+      },
     });
 
     return !conflictingConsultation;
   }
 
   async getScheduleStats(doctorId) {
-    const [
-      totalSchedules,
-      availableSchedules,
-      totalHours,
-      averageDuration
-    ] = await Promise.all([
-      this.prisma.schedule.count({ where: { doctorId } }),
-      this.prisma.schedule.count({ where: { doctorId, isAvailable: true } }),
-      this.prisma.schedule.aggregate({
-        where: { doctorId },
-        _sum: {
-          consultationDuration: true
-        }
-      }),
-      this.prisma.schedule.aggregate({
-        where: { doctorId },
-        _avg: {
-          consultationDuration: true
-        }
-      })
-    ]);
+    const [totalSchedules, availableSchedules, totalHours, averageDuration] =
+      await Promise.all([
+        this.prisma.schedule.count({ where: { doctorId } }),
+        this.prisma.schedule.count({ where: { doctorId, isAvailable: true } }),
+        this.prisma.schedule.aggregate({
+          where: { doctorId },
+          _sum: {
+            consultationDuration: true,
+          },
+        }),
+        this.prisma.schedule.aggregate({
+          where: { doctorId },
+          _avg: {
+            consultationDuration: true,
+          },
+        }),
+      ]);
 
     return {
       totalSchedules,
       availableSchedules,
       totalHours: totalHours._sum?.consultationDuration || 0,
-      averageDuration: Math.round(averageDuration._avg?.consultationDuration || 0),
-      availabilityRate: totalSchedules > 0 ? (availableSchedules / totalSchedules) * 100 : 0
+      averageDuration: Math.round(
+        averageDuration._avg?.consultationDuration || 0
+      ),
+      availabilityRate:
+        totalSchedules > 0 ? (availableSchedules / totalSchedules) * 100 : 0,
     };
   }
 
   async getWeeklySchedule(doctorId) {
     const schedules = await this.prisma.schedule.findMany({
       where: { doctorId },
-      orderBy: { dayOfWeek: 'asc' },
+      orderBy: { dayOfWeek: "asc" },
       include: {
         doctor: {
           select: {
@@ -357,18 +381,18 @@ class ScheduleRepository {
             doctorProfile: {
               select: {
                 specialty: true,
-                crm: true
-              }
+                crm: true,
+              },
             },
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Organizar por dia da semana
     const weeklySchedule = {};
     for (let i = 0; i < 7; i++) {
-      weeklySchedule[i] = schedules.find(s => s.dayOfWeek === i) || null;
+      weeklySchedule[i] = schedules.find((s) => s.dayOfWeek === i) || null;
     }
 
     return weeklySchedule;
@@ -377,14 +401,22 @@ class ScheduleRepository {
   async bulkUpdate(doctorId, schedules) {
     // Deletar horários existentes
     await this.prisma.schedule.deleteMany({
-      where: { doctorId }
+      where: { doctorId },
     });
 
     // Criar novos horários
     const createdSchedules = await Promise.all(
-      schedules.map(schedule =>
+      schedules.map((schedule) =>
         this.prisma.schedule.create({
-          data: { ...schedule, doctorId },
+          data: _.pick(schedule, [
+              "doctorId",
+              "consultationDuration",
+              "dayOfWeek",
+              "startTime",
+              "endTime",
+              "isAvailable",
+            ]),
+
           include: {
             doctor: {
               select: {
@@ -394,12 +426,12 @@ class ScheduleRepository {
                 doctorProfile: {
                   select: {
                     specialty: true,
-                    crm: true
-                  }
+                    crm: true,
+                  },
                 },
-              }
-            }
-          }
+              },
+            },
+          },
         })
       )
     );
@@ -420,12 +452,12 @@ class ScheduleRepository {
             doctorProfile: {
               select: {
                 specialty: true,
-                crm: true
-              }
+                crm: true,
+              },
             },
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     return schedule;

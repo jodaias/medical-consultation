@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
-import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
+import 'package:medical_consultation_app/features/appointment/domain/stores/appointment_store.dart';
 
 class AppointmentFilters extends StatefulWidget {
-  final SchedulingStore schedulingStore;
+  final AppointmentStore schedulingStore;
   final VoidCallback onApply;
 
   const AppointmentFilters({

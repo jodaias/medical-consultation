@@ -1,3 +1,6 @@
+import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/services/storage_service.dart';
+import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
@@ -15,9 +18,18 @@ class ChatService {
 
   // Obter token de autenticação
   Future<String> _getAuthToken() async {
-    // TODO: Implementar obtenção do token de autenticação
-    // Por enquanto, retornar token mock
-    return 'mock_token';
+    // Obtém o token do usuário logado via StorageService
+    try {
+      final storageService = getIt<StorageService>();
+      final token = await storageService.getToken();
+      if (token != null && token.isNotEmpty) {
+        return token;
+      } else {
+        throw Exception('Token de autenticação não encontrado');
+      }
+    } catch (e) {
+      throw Exception('Erro ao obter token de autenticação: $e');
+    }
   }
 
   // Conectar ao chat
@@ -36,7 +48,7 @@ class ChatService {
 
       _socket!.connect();
     } catch (e) {
-      throw Exception('Erro ao conectar ao chat: $e');
+      ToastUtils.showErrorToast('Erro ao conectar ao chat: $e');
     }
   }
 

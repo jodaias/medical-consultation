@@ -170,11 +170,44 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // TODO: Mostrar menu de opções
+            onSelected: (value) {
+              switch (value) {
+                case 'delete':
+                  _showDeleteConversationDialog();
+                  break;
+                case 'leave':
+                  _showLeaveChatDialog();
+                  break;
+                case 'info':
+                  _showChatInfo();
+                  break;
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'info',
+                child: ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('Informações da consulta'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(Icons.delete_outline),
+                  title: Text('Apagar conversa'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'leave',
+                child: ListTile(
+                  leading: Icon(Icons.exit_to_app),
+                  title: Text('Sair do chat'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -659,5 +692,77 @@ class _ChatPageState extends State<ChatPage> {
     } else {
       return 'TEXT';
     }
+  }
+
+  void _showDeleteConversationDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Apagar conversa'),
+          content:
+              const Text('Deseja apagar todas as mensagens desta conversa?'),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _chatStore.messages.clear();
+                });
+                context.pop();
+              },
+              child: const Text('Apagar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLeaveChatDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Sair do chat'),
+          content: const Text('Deseja sair desta conversa?'),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.pop();
+                context.pop();
+              },
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showChatInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Informações da consulta'),
+          content: const Text(
+              'Aqui você pode exibir detalhes da consulta, participantes, etc.'),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

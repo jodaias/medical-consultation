@@ -95,7 +95,7 @@ class DoctorCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${doctor.rating.toStringAsFixed(1)} (${doctor.totalReviews})',
+                              '${doctor.rating?.toStringAsFixed(1)} (${doctor.totalReviews})',
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -211,4 +211,4 @@ class DoctorCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

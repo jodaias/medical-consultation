@@ -8,14 +8,15 @@ part of 'time_slot_model.dart';
 
 TimeSlotModel _$TimeSlotModelFromJson(Map<String, dynamic> json) =>
     TimeSlotModel(
-      id: json['id'] as String,
+      id: json['id'] as String?,
       doctorId: json['doctorId'] as String,
       startTime: DateTime.parse(json['startTime'] as String),
       endTime: DateTime.parse(json['endTime'] as String),
-      isAvailable: json['isAvailable'] as bool? ?? true,
+      duration: (json['duration'] as num).toInt(),
+      isAvailable: json['isAvailable'] as bool,
+      price: (json['price'] as num).toDouble(),
       maxAppointments: (json['maxAppointments'] as num?)?.toInt() ?? 1,
       currentAppointments: (json['currentAppointments'] as num?)?.toInt() ?? 0,
-      price: (json['price'] as num).toDouble(),
       notes: json['notes'] as String?,
     );
 
@@ -25,9 +26,10 @@ Map<String, dynamic> _$TimeSlotModelToJson(TimeSlotModel instance) =>
       'doctorId': instance.doctorId,
       'startTime': instance.startTime.toIso8601String(),
       'endTime': instance.endTime.toIso8601String(),
+      'duration': instance.duration,
       'isAvailable': instance.isAvailable,
+      'price': instance.price,
       'maxAppointments': instance.maxAppointments,
       'currentAppointments': instance.currentAppointments,
-      'price': instance.price,
       'notes': instance.notes,
     };

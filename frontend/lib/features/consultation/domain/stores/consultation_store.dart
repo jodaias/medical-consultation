@@ -1,3 +1,4 @@
+import 'package:medical_consultation_app/features/appointment/data/models/time_slot_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
@@ -27,6 +28,9 @@ abstract class ConsultationStoreBase with Store {
   RequestStatusEnum doctorsRequestStatus = RequestStatusEnum.none;
 
   @observable
+  RequestStatusEnum slotsRequestStatus = RequestStatusEnum.none;
+
+  @observable
   String? errorMessage;
 
   @observable
@@ -36,10 +40,12 @@ abstract class ConsultationStoreBase with Store {
   DateTime selectedDate = DateTime.now();
 
   @observable
-  List<DateTime> availableSlots = [];
+  ObservableList<TimeSlotModel> availableSlots =
+      ObservableList<TimeSlotModel>();
 
   @observable
-  List<Map<String, dynamic>> availableDoctors = [];
+  ObservableList<Map<String, dynamic>> availableDoctors =
+      ObservableList<Map<String, dynamic>>();
 
   @observable
   Map<String, dynamic> stats = {};
@@ -115,6 +121,7 @@ abstract class ConsultationStoreBase with Store {
 
   @action
   Future<void> scheduleConsultation({
+    required String patientId,
     required String doctorId,
     required DateTime scheduledAt,
     String? notes,
@@ -124,6 +131,7 @@ abstract class ConsultationStoreBase with Store {
     errorMessage = null;
 
     final result = await _consultationService.scheduleConsultation(
+      patientId: patientId,
       doctorId: doctorId,
       scheduledAt: scheduledAt,
       notes: notes,
@@ -273,7 +281,7 @@ abstract class ConsultationStoreBase with Store {
     required String doctorId,
     required DateTime date,
   }) async {
-    requestStatus = RequestStatusEnum.loading;
+    slotsRequestStatus = RequestStatusEnum.loading;
     errorMessage = null;
 
     final result = await _consultationService.getAvailableSlots(
@@ -283,11 +291,11 @@ abstract class ConsultationStoreBase with Store {
     if (result.success) {
       availableSlots.clear();
       availableSlots.addAll(result.data);
-      requestStatus = RequestStatusEnum.success;
+      slotsRequestStatus = RequestStatusEnum.success;
     } else {
       errorMessage =
           (result.error as String?) ?? 'Erro ao buscar horários disponíveis';
-      requestStatus = RequestStatusEnum.fail;
+      slotsRequestStatus = RequestStatusEnum.fail;
     }
   }
 
@@ -306,24 +314,6 @@ abstract class ConsultationStoreBase with Store {
     if (result.success) {
       availableDoctors.clear();
       availableDoctors.addAll(result.data);
-      // Adiciona médicos de teste para facilitar testes no front
-      availableDoctors.addAll([
-        {
-          'id': 'doc_test_1',
-          'name': 'Teste Um',
-          'specialty': specialty ?? 'Clínico Geral',
-        },
-        {
-          'id': 'doc_test_2',
-          'name': 'Teste Dois',
-          'specialty': specialty ?? 'Pediatria',
-        },
-        {
-          'id': 'doc_test_3',
-          'name': 'Teste Três',
-          'specialty': specialty ?? 'Cardiologia',
-        },
-      ]);
       doctorsRequestStatus = RequestStatusEnum.success;
     } else {
       errorMessage =

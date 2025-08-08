@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
-import 'package:medical_consultation_app/features/scheduling/domain/stores/scheduling_store.dart';
+import 'package:medical_consultation_app/features/appointment/domain/stores/appointment_store.dart';
+import 'package:medical_consultation_app/features/doctor/scheduling/domain/stores/doctor_scheduling_store.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
 import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
@@ -19,7 +20,7 @@ class AppointmentDetailPage extends StatefulWidget {
 }
 
 class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
-  final SchedulingStore _schedulingStore = getIt<SchedulingStore>();
+  final _appointmentStore = getIt<AppointmentStore>();
 
   @override
   void initState() {
@@ -28,7 +29,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   }
 
   Future<void> _loadAppointmentDetails() async {
-    await _schedulingStore.getAppointmentDetails(widget.appointmentId);
+    await _appointmentStore.getAppointmentDetails(widget.appointmentId);
   }
 
   @override
@@ -45,11 +46,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       ),
       body: Observer(
         builder: (_) {
-          if (_schedulingStore.requestStatus == RequestStatusEnum.loading) {
+          if (_appointmentStore.requestStatus == RequestStatusEnum.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (_schedulingStore.error != null) {
+          if (_appointmentStore.error != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +67,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _schedulingStore.error!,
+                    _appointmentStore.error!,
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -80,7 +81,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
             );
           }
 
-          final appointment = _schedulingStore.selectedAppointment;
+          final appointment = _appointmentStore.selectedAppointment;
           if (appointment == null) {
             return const Center(
               child: Text('Agendamento não encontrado'),
@@ -420,8 +421,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     );
 
     if (confirmed == true) {
-      await _schedulingStore.cancelAppointment(appointmentId);
-      if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
+      await _appointmentStore.cancelAppointment(appointmentId);
+      if (_appointmentStore.requestStatus == RequestStatusEnum.success) {
         ToastUtils.showSuccessToast('Agendamento cancelado com sucesso');
         // ignore: use_build_context_synchronously
         context.pop();
@@ -430,8 +431,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   }
 
   Future<void> _confirmAppointment(String appointmentId) async {
-    await _schedulingStore.confirmAppointment(appointmentId);
-    if (_schedulingStore.requestStatus == RequestStatusEnum.success) {
+    await _appointmentStore.confirmAppointment(appointmentId);
+    if (_appointmentStore.requestStatus == RequestStatusEnum.success) {
       ToastUtils.showSuccessToast('Agendamento confirmado com sucesso');
       // ignore: use_build_context_synchronously
       context.pop();

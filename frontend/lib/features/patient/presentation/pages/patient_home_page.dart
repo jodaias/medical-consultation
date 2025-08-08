@@ -163,7 +163,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.add_circle_outline,
               color: AppTheme.getCardPrimary(),
               onTap: () {
-                context.push('/schedule');
+                context.push('/patient/schedule-consultation');
               },
             ),
             _buildMenuCard(
@@ -171,7 +171,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.calendar_today,
               color: AppTheme.getCardSuccess(),
               onTap: () {
-                context.push('/consultations');
+                context.push('/patient/consultations');
               },
             ),
             _buildMenuCard(
@@ -203,7 +203,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.medical_services,
               color: AppTheme.getCardWarning(),
               onTap: () {
-                context.push('/doctors');
+                context.push('/patient/doctors');
               },
             ),
             _buildMenuCard(

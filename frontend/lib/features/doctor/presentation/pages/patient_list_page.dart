@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
+import 'package:medical_consultation_app/features/patient/domain/stores/patient_store.dart';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({super.key});
@@ -9,6 +12,7 @@ class PatientListPage extends StatefulWidget {
 }
 
 class _PatientListPageState extends State<PatientListPage> {
+  final patientStore = getIt<PatientStore>();
   bool isLoading = false;
   String selectedFilter = 'all';
   final List<String> filters = ['all', 'recent', 'active', 'completed'];
@@ -227,7 +231,6 @@ class _PatientListPageState extends State<PatientListPage> {
         ),
         trailing: _buildStatusChip(patient['status']),
         onTap: () {
-          // TODO: Navegar para detalhes do paciente
           _showPatientDetails(patient);
         },
       ),
@@ -351,7 +354,10 @@ class _PatientListPageState extends State<PatientListPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // TODO: Navegar para chat com o paciente
+                            context.pop();
+                            context.push(
+                              '/chat?patientId=${patient['id']}&patientName=${Uri.encodeComponent(patient['name'])}',
+                            );
                           },
                           icon: const Icon(Icons.chat),
                           label: const Text('Chat'),
@@ -365,7 +371,10 @@ class _PatientListPageState extends State<PatientListPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            // TODO: Navegar para histórico de consultas
+                            context.pop();
+                            context.push(
+                              '/consultation-history?patientId=${patient['id']}&patientName=${Uri.encodeComponent(patient['name'])}',
+                            );
                           },
                           icon: const Icon(Icons.history),
                           label: const Text('Histórico'),

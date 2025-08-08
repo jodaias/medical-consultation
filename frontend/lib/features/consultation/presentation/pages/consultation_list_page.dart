@@ -60,11 +60,11 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
   }
 
   void _onConsultationTap(ConsultationModel consultation) {
-    context.push('/consultation/${consultation.id}');
+    context.push('/patient/consultation/${consultation.id}');
   }
 
   void _onScheduleNew() {
-    context.push('/schedule');
+    context.push('/patient/schedule-consultation');
   }
 
   @override

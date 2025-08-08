@@ -603,7 +603,7 @@ class _RegisterPageState extends State<RegisterPage> {
           }
         } else {
           ToastUtils.showErrorToast(
-              'Registro falhou: ${_authStore.errorMessage ?? 'Erro desconhecido'}');
+              'Registro falhou: ${_authStore.errorMessage}');
         }
       } catch (e) {
         ToastUtils.showErrorToast(

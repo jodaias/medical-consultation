@@ -16,18 +16,17 @@ class DoctorHomePage extends StatefulWidget {
 }
 
 class _DoctorHomePageState extends State<DoctorHomePage> {
+  final authStore = getIt<AuthStore>();
+  final dashboardStore = getIt<DoctorDashboardStore>();
+
   @override
   void initState() {
     super.initState();
-    final dashboardStore = getIt<DoctorDashboardStore>();
     dashboardStore.loadDashboardData();
   }
 
   @override
   Widget build(BuildContext context) {
-    final authStore = getIt<AuthStore>();
-    final dashboardStore = getIt<DoctorDashboardStore>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -273,7 +272,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               icon: Icons.schedule,
               color: AppTheme.getCardPrimary(),
               onTap: () {
-                context.push('/appointments');
+                context.push('/doctor/schedules?doctorId=${authStore.userId}');
               },
             ),
             _buildMenuCard(
@@ -281,25 +280,25 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               icon: Icons.medical_services,
               color: AppTheme.getCardSecondary(),
               onTap: () {
-                context.push('/consultations');
+                context.push('/doctor/appointments');
               },
             ),
-            _buildMenuCard(
-              title: 'Prescrições',
-              icon: Icons.receipt_long,
-              color: AppTheme.getCardInfo(),
-              onTap: () {
-                context.push('/prescriptions');
-              },
-            ),
-            _buildMenuCard(
-              title: 'Relatórios/Exames',
-              icon: Icons.description,
-              color: AppTheme.getCardSecondary(),
-              onTap: () {
-                context.push('/reports');
-              },
-            ),
+            // _buildMenuCard(
+            //   title: 'Prescrições',
+            //   icon: Icons.receipt_long,
+            //   color: AppTheme.getCardInfo(),
+            //   onTap: () {
+            //     context.push('/prescriptions');
+            //   },
+            // ),
+            // _buildMenuCard(
+            //   title: 'Relatórios/Exames',
+            //   icon: Icons.description,
+            //   color: AppTheme.getCardSecondary(),
+            //   onTap: () {
+            //     context.push('/reports');
+            //   },
+            // ),
             _buildMenuCard(
               title: 'Dashboard',
               icon: Icons.analytics,
@@ -313,17 +312,17 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               icon: Icons.people_outline,
               color: AppTheme.getCardSuccess(),
               onTap: () {
-                context.push('/patients');
+                context.push('/doctor/patients');
               },
             ),
-            _buildMenuCard(
-              title: 'Encontrar Médicos',
-              icon: Icons.medical_services,
-              color: AppTheme.getCardSecondary(),
-              onTap: () {
-                context.push('/doctors');
-              },
-            ),
+            // _buildMenuCard(
+            //   title: 'Encontrar Médicos',
+            //   icon: Icons.medical_services,
+            //   color: AppTheme.getCardSecondary(),
+            //   onTap: () {
+            //     context.push('/doctors');
+            //   },
+            // ),
             _buildMenuCard(
               title: 'Perfil',
               icon: Icons.person_outline,
@@ -424,7 +423,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    context.push('/consultations');
+                    context.push('/doctor/consultations');
                   },
                   child: const Text('Ver todas'),
                 ),
