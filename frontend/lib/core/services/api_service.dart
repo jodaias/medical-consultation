@@ -85,7 +85,7 @@ class ApiService extends Rest {
     _appointmentService = AppointmentService(this);
     _doctorAppointmentService = DoctorAppointmentService(this);
 
-    if (AppConstants.isProduction) {
+    if (!AppConstants.isProduction) {
       addInterceptor(PrintLogInterceptor());
     }
 
