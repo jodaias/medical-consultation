@@ -305,8 +305,8 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
                       children: [
                         Text(
                           consultation.isPatient
-                              ? 'Dr. ${consultation.doctorName}'
-                              : consultation.patientName,
+                              ? 'Dr. ${consultation.doctor.name}'
+                              : consultation.patient.name,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -314,7 +314,7 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
                         ),
                         Text(
                           consultation.isPatient
-                              ? consultation.doctorSpecialty
+                              ? consultation.doctor.specialty
                               : 'Paciente',
                           style: TextStyle(
                             color: AppTheme.textSecondaryColor,

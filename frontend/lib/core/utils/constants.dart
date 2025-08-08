@@ -3,14 +3,14 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // API Configuration
-  // static const String baseUrl = 'https://medical-consultation-api.onrender.com';
-  // static const String socketUrl =
-  //     'https://medical-consultation-api.onrender.com';
+  static const String baseUrl = 'https://medical-consultation-api.onrender.com';
+  static const String socketUrl =
+      'https://medical-consultation-api.onrender.com';
 
   // pra rodar api local roda: iisexpress-proxy 3001 to 3000
   // baseUrl = 'http://ip-da-maquina:3000'
-  static const String baseUrl = 'http://localhost:3001';
-  static const String socketUrl = 'http://localhost:3001';
+  // static const String baseUrl = 'http://localhost:3001';
+  // static const String socketUrl = 'http://localhost:3001';
 
   static const bool isProduction = false;
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
@@ -344,9 +343,9 @@ class _ConsultationDetailPageState extends State<ConsultationDetailPage> {
               ),
             ),
             const SizedBox(height: AppConstants.smallPadding),
-            _buildInfoRow('Paciente', consultation.patientName),
-            _buildInfoRow('Médico', 'Dr. ${consultation.doctorName}'),
-            _buildInfoRow('Especialidade', consultation.doctorSpecialty),
+            _buildInfoRow('Paciente', consultation.patient.name),
+            _buildInfoRow('Médico', 'Dr. ${consultation.doctor.name}'),
+            _buildInfoRow('Especialidade', consultation.doctor.specialty),
           ],
         ),
       ),

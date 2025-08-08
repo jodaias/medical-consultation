@@ -11,6 +11,7 @@ class CreateConsultationDTO {
     this.notes = data.notes;
     this.diagnosis = data.diagnosis;
     this.prescription = data.prescription;
+    this.symptoms = data.symptoms;
   }
 
   validate() {
@@ -44,6 +45,11 @@ class CreateConsultationDTO {
       errors.push('Notes cannot exceed 1000 characters');
     }
 
+    // Validação de sintomas
+    if (this.symptoms && this.symptoms.length > 1000) {
+      errors.push('Symptoms cannot exceed 1000 characters');
+    }
+
     // Validação de diagnóstico
     if (this.diagnosis && this.diagnosis.length > 500) {
       errors.push('Diagnosis cannot exceed 500 characters');
@@ -64,7 +70,8 @@ class CreateConsultationDTO {
       scheduledAt: new Date(this.scheduledAt),
       notes: this.notes?.trim(),
       diagnosis: this.diagnosis?.trim(),
-      prescription: this.prescription?.trim()
+      prescription: this.prescription?.trim(),
+      symptoms: this.symptoms?.trim(),
     };
   }
 }
@@ -73,6 +80,7 @@ class UpdateConsultationDTO {
   constructor(data) {
     this.scheduledAt = data.scheduledAt;
     this.notes = data.notes;
+    this.symptoms = data.symptoms;
     this.diagnosis = data.diagnosis;
     this.prescription = data.prescription;
     this.status = data.status;
@@ -99,6 +107,11 @@ class UpdateConsultationDTO {
       errors.push('Notes cannot exceed 1000 characters');
     }
 
+    // Validação de sintomas
+    if (this.symptoms && this.symptoms.length > 1000) {
+      errors.push('Symptoms cannot exceed 1000 characters');
+    }
+
     // Validação de diagnóstico
     if (this.diagnosis && this.diagnosis.length > 500) {
       errors.push('Diagnosis cannot exceed 500 characters');
@@ -120,6 +133,7 @@ class UpdateConsultationDTO {
     if (this.diagnosis !== undefined) entity.diagnosis = this.diagnosis?.trim();
     if (this.prescription !== undefined) entity.prescription = this.prescription?.trim();
     if (this.status) entity.status = this.status;
+    if (this.symptoms !== undefined) entity.symptoms = this.symptoms?.trim();
 
     return entity;
   }
@@ -139,6 +153,7 @@ class ConsultationResponseDTO {
     this.prescription = consultation.prescription;
     this.createdAt = consultation.createdAt;
     this.updatedAt = consultation.updatedAt;
+    this.symptoms = consultation.symptoms;
 
     // Relacionamentos
     this.patient = consultation.patient ? {

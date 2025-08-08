@@ -1,50 +1,55 @@
-import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/features/doctor/data/models/doctor_model.dart';
+import 'package:medical_consultation_app/features/patient/data/models/patient_model.dart';
 
 part 'consultation_model.g.dart';
 
 @JsonSerializable()
 class ConsultationModel {
+  static const Object _undefined = Object();
+
   final String id;
   final String patientId;
-  final String patientName;
   final String doctorId;
-  final String doctorName;
-  final String doctorSpecialty;
-  final DateTime scheduledAt;
   final String status;
+  final DateTime scheduledAt;
+  final DateTime? startedAt;
+  final DateTime? endedAt;
   final String? notes;
   final String? symptoms;
   final String? diagnosis;
   final String? prescription;
-  final DateTime? startedAt;
-  final DateTime? endedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final int? duration;
+
   final double? rating;
   final String? review;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final PatientModel patient;
+  final DoctorModel doctor;
 
   ConsultationModel({
     required this.id,
     required this.patientId,
-    required this.patientName,
     required this.doctorId,
-    required this.doctorName,
-    required this.doctorSpecialty,
-    required this.scheduledAt,
     required this.status,
+    required this.scheduledAt,
+    this.startedAt,
+    this.endedAt,
     this.notes,
     this.symptoms,
     this.diagnosis,
     this.prescription,
-    this.startedAt,
-    this.endedAt,
+    this.createdAt,
+    this.updatedAt,
+    this.duration,
     this.rating,
     this.review,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.patient,
+    required this.doctor,
   });
 
   factory ConsultationModel.fromJson(Map<String, dynamic> json) =>
@@ -55,51 +60,59 @@ class ConsultationModel {
   ConsultationModel copyWith({
     String? id,
     String? patientId,
-    String? patientName,
     String? doctorId,
-    String? doctorName,
-    String? doctorSpecialty,
-    DateTime? scheduledAt,
     String? status,
-    String? notes,
-    String? symptoms,
-    String? diagnosis,
-    String? prescription,
-    DateTime? startedAt,
-    DateTime? endedAt,
-    double? rating,
-    String? review,
+    DateTime? scheduledAt,
+    Object? startedAt = _undefined, // use null to set to null explicitly
+    Object? endedAt = _undefined,
+    Object? notes = _undefined,
+    Object? symptoms = _undefined,
+    Object? diagnosis = _undefined,
+    Object? prescription = _undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? rating,
+    Object? review = _undefined,
+    Object? duration = _undefined,
+    PatientModel? patient,
+    DoctorModel? doctor,
   }) {
     return ConsultationModel(
       id: id ?? this.id,
       patientId: patientId ?? this.patientId,
-      patientName: patientName ?? this.patientName,
       doctorId: doctorId ?? this.doctorId,
-      doctorName: doctorName ?? this.doctorName,
-      doctorSpecialty: doctorSpecialty ?? this.doctorSpecialty,
-      scheduledAt: scheduledAt ?? this.scheduledAt,
       status: status ?? this.status,
-      notes: notes ?? this.notes,
-      symptoms: symptoms ?? this.symptoms,
-      diagnosis: diagnosis ?? this.diagnosis,
-      prescription: prescription ?? this.prescription,
-      startedAt: startedAt ?? this.startedAt,
-      endedAt: endedAt ?? this.endedAt,
-      rating: rating ?? this.rating,
-      review: review ?? this.review,
+      scheduledAt: scheduledAt ?? this.scheduledAt,
+      startedAt: identical(startedAt, _undefined)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      endedAt:
+          identical(endedAt, _undefined) ? this.endedAt : endedAt as DateTime?,
+      notes: identical(notes, _undefined) ? this.notes : notes as String?,
+      symptoms:
+          identical(symptoms, _undefined) ? this.symptoms : symptoms as String?,
+      rating: identical(rating, _undefined) ? this.rating : rating,
+      review: identical(review, _undefined) ? this.review : review as String?,
+      diagnosis: identical(diagnosis, _undefined)
+          ? this.diagnosis
+          : diagnosis as String?,
+      prescription: identical(prescription, _undefined)
+          ? this.prescription
+          : prescription as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      duration:
+          identical(duration, _undefined) ? this.duration : duration as int?,
+      patient: patient ?? this.patient,
+      doctor: doctor ?? this.doctor,
     );
   }
 
-  // Getters úteis
+  /// Getters
   bool get isScheduled => status == AppConstants.scheduledStatus;
   bool get isInProgress => status == AppConstants.inProgressStatus;
   bool get isCompleted => status == AppConstants.completedStatus;
   bool get isCancelled => status == AppConstants.cancelledStatus;
-  bool get isAll => status == AppConstants.allStatus;
 
   bool get canStart =>
       isScheduled &&
@@ -107,9 +120,8 @@ class ConsultationModel {
   bool get canCancel =>
       isScheduled &&
       DateTime.now().isBefore(scheduledAt.subtract(const Duration(hours: 1)));
-  bool get canRate => isCompleted && rating == null;
+  bool get canRate => isCompleted;
 
-  // Verificar se o usuário atual é paciente ou médico
   bool get isPatient => patientId == getIt<AuthStore>().userId;
   bool get isDoctor => doctorId == getIt<AuthStore>().userId;
 
@@ -130,46 +142,36 @@ class ConsultationModel {
     }
   }
 
-  String get formattedScheduledTime {
-    return '${scheduledAt.hour.toString().padLeft(2, '0')}:${scheduledAt.minute.toString().padLeft(2, '0')}';
-  }
+  String get formattedScheduledTime =>
+      '${scheduledAt.hour.toString().padLeft(2, '0')}:${scheduledAt.minute.toString().padLeft(2, '0')}';
 
-  String get formattedScheduledDate {
-    return '${scheduledAt.day.toString().padLeft(2, '0')}/${scheduledAt.month.toString().padLeft(2, '0')}/${scheduledAt.year}';
-  }
+  String get formattedScheduledDate =>
+      '${scheduledAt.day.toString().padLeft(2, '0')}/${scheduledAt.month.toString().padLeft(2, '0')}/${scheduledAt.year}';
 
   String get timeUntilConsultation {
     final now = DateTime.now();
     final difference = scheduledAt.difference(now);
 
-    if (difference.isNegative) {
-      return 'Já passou';
-    }
+    if (difference.isNegative) return 'Já passou';
 
     final days = difference.inDays;
     final hours = difference.inHours % 24;
     final minutes = difference.inMinutes % 60;
 
-    if (days > 0) {
-      return '$days dia${days > 1 ? 's' : ''}';
-    } else if (hours > 0) {
-      return '$hours hora${hours > 1 ? 's' : ''}';
-    } else {
-      return '$minutes minuto${minutes > 1 ? 's' : ''}';
-    }
+    if (days > 0) return '$days dia${days > 1 ? 's' : ''}';
+    if (hours > 0) return '$hours hora${hours > 1 ? 's' : ''}';
+    return '$minutes minuto${minutes > 1 ? 's' : ''}';
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ConsultationModel && other.id == id;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is ConsultationModel && other.id == id);
 
   @override
   int get hashCode => id.hashCode;
 
   @override
   String toString() {
-    return 'ConsultationModel(id: $id, patientName: $patientName, doctorName: $doctorName, scheduledAt: $scheduledAt, status: $status)';
+    return 'ConsultationModel(id: $id, patient: ${patient.name}, doctor: ${doctor.name}, scheduledAt: $scheduledAt, status: $status)';
   }
 }
