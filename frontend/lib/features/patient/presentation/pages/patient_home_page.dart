@@ -171,7 +171,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.calendar_today,
               color: AppTheme.getCardSuccess(),
               onTap: () {
-                context.push('/patient/consultations');
+                context.push('/consultations');
               },
             ),
             _buildMenuCard(

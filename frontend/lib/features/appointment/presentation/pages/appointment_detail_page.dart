@@ -129,7 +129,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                appointment.doctorName,
+                                appointment.doctor.name,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -139,7 +139,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                appointment.doctorSpecialty,
+                                appointment.doctor.specialty,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -216,7 +216,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                 const SizedBox(height: 16),
 
                 // Ações
-                if (appointment.canCancel || appointment.canConfirm)
+                if (appointment.canCancel || appointment.canStart)
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -248,10 +248,9 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                                     ),
                                   ),
                                 ),
-                              if (appointment.canCancel &&
-                                  appointment.canConfirm)
+                              if (appointment.canCancel && appointment.canStart)
                                 const SizedBox(width: 12),
-                              if (appointment.canConfirm)
+                              if (appointment.canStart)
                                 Expanded(
                                   child: ElevatedButton.icon(
                                     onPressed: () =>

@@ -68,6 +68,7 @@ class AppConstants {
   static const String inProgressStatus = 'IN_PROGRESS';
   static const String completedStatus = 'COMPLETED';
   static const String cancelledStatus = 'CANCELLED';
+  // static const String confirmedStatus = 'CONFIRMED';
   static const String noShowStatus = 'NO_SHOW';
   static const String allStatus = 'ALL';
 

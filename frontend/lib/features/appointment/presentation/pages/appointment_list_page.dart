@@ -165,8 +165,8 @@ class _AppointmentListPageState extends State<AppointmentListPage> {
                                             appointment.id),
                                         onCancel: () =>
                                             _cancelAppointment(appointment.id),
-                                        onConfirm: () =>
-                                            _confirmAppointment(appointment.id),
+                                        // onConfirm: () =>
+                                        //     _confirmAppointment(appointment.id),
                                       ),
                                     );
                                   },

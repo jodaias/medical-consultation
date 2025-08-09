@@ -280,7 +280,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
               icon: Icons.medical_services,
               color: AppTheme.getCardSecondary(),
               onTap: () {
-                context.push('/doctor/appointments');
+                context.push('/consultations');
               },
             ),
             // _buildMenuCard(

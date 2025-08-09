@@ -1,5 +1,5 @@
 import 'package:medical_consultation_app/core/custom_dio/rest.dart';
-import 'package:medical_consultation_app/features/appointment/data/models/time_slot_model.dart';
+import 'package:medical_consultation_app/features/consultation/data/models/time_slot_model.dart';
 import 'package:medical_consultation_app/features/consultation/data/models/consultation_model.dart';
 
 class ConsultationService {

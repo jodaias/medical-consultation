@@ -66,7 +66,7 @@ class _DoctorAppointmentDetailPageState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        appointment.patientName,
+                        appointment.patient.name,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       // if (appointment.patientEmail != null)
@@ -106,7 +106,7 @@ class _DoctorAppointmentDetailPageState
                   ),
                 ],
                 const SizedBox(height: 24),
-                if (appointment.canCancel || appointment.canConfirm)
+                if (appointment.canCancel) //|| appointment.canConfirm)
                   Row(
                     children: [
                       if (appointment.canCancel)
@@ -121,17 +121,17 @@ class _DoctorAppointmentDetailPageState
                             ),
                           ),
                         ),
-                      if (appointment.canCancel && appointment.canConfirm)
+                      if (appointment.canCancel) //&& appointment.canConfirm)
                         const SizedBox(width: 12),
-                      if (appointment.canConfirm)
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.check),
-                            label: const Text('Confirmar'),
-                            onPressed: () =>
-                                _confirmAppointment(appointment.id),
-                          ),
-                        ),
+                      // if (appointment.canConfirm)
+                      // Expanded(
+                      //   child: ElevatedButton.icon(
+                      //     icon: const Icon(Icons.check),
+                      //     label: const Text('Confirmar'),
+                      //     onPressed: () =>
+                      //         _confirmAppointment(appointment.id),
+                      //   ),
+                      // ),
                     ],
                   )
               ],

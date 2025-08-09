@@ -166,9 +166,13 @@ class AppRouter {
           },
         ),
         GoRoute(
-          path: '/patient/consultations',
+          path: '/consultations',
           builder: (context, state) => const ConsultationListPage(),
         ),
+        // GoRoute(
+        //   path: '/patient/consultations',
+        //   builder: (context, state) => const ConsultationListPage(),
+        // ),
         // GoRoute(
         //   path: '/doctor/consultations',
         //   builder: (context, state) => const DoctorConsultationListPage(),

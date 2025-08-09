@@ -1,7 +1,6 @@
 import 'package:medical_consultation_app/core/custom_dio/rest.dart';
 import 'package:medical_consultation_app/features/appointment/data/models/appointment_model.dart';
-import 'package:medical_consultation_app/features/appointment/data/models/time_slot_model.dart';
-import 'package:medical_consultation_app/features/doctor/scheduling/data/models/doctor_schedule_model.dart';
+import 'package:medical_consultation_app/features/consultation/data/models/time_slot_model.dart';
 
 class DoctorAppointmentService {
   final Rest rest;
@@ -95,9 +94,9 @@ class DoctorAppointmentService {
     }
     if (endDate != null) queryParams['endDate'] = endDate.toIso8601String();
     return await rest.getModel<List<AppointmentModel>>(
-      '/appointments',
+      '/consultations',
       (json) =>
-          (json?['data']?['appointments'] as List<dynamic>?)
+          (json?['data']?['consultations'] as List<dynamic>?)
               ?.map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],

@@ -269,23 +269,30 @@ class ScheduleRepository {
 
     // Gerar slots de tempo baseados na duração da consulta
     const slots = [];
-    const startTime = new Date(`2000-01-01T${schedule.startTime}:00`);
-    const endTime = new Date(`2000-01-01T${schedule.endTime}:00`);
-    const duration = schedule.consultationDuration * 60 * 1000; // em milissegundos
+    const startTime = new Date(
+      Date.UTC(2000, 0, 1, ...schedule.startTime.split(":").map(Number))
+    );
+    const endTime = new Date(
+      Date.UTC(2000, 0, 1, ...schedule.endTime.split(":").map(Number))
+    );
+
+    const duration = schedule.consultationDuration * 60 * 1000; // ms
 
     let currentTime = new Date(startTime);
 
     while (currentTime < endTime) {
       const slotStart = new Date(date);
-      slotStart.setHours(
-        currentTime.getHours(),
-        currentTime.getMinutes(),
+      slotStart.setUTCHours(
+        currentTime.getUTCHours(),
+        currentTime.getUTCMinutes(),
         0,
         0
       );
 
       const slotEnd = new Date(slotStart);
-      slotEnd.setMinutes(slotEnd.getMinutes() + schedule.consultationDuration);
+      slotEnd.setUTCMinutes(
+        slotEnd.getUTCMinutes() + schedule.consultationDuration
+      );
 
       slots.push({
         startTime: slotStart,
@@ -293,10 +300,10 @@ class ScheduleRepository {
         duration: schedule.consultationDuration,
         isAvailable: schedule.isAvailable,
         doctorId: schedule.doctorId,
-        price: Number(schedule.doctor.doctorProfile.consultationFee ?? 0),
+        price: parseFloat(schedule.doctor.doctorProfile.consultationFee ?? '0'),
       });
 
-      currentTime.setTime(currentTime.getTime() + duration);
+      currentTime = new Date(currentTime.getTime() + duration);
     }
 
     return slots;
@@ -409,13 +416,13 @@ class ScheduleRepository {
       schedules.map((schedule) =>
         this.prisma.schedule.create({
           data: _.pick(schedule, [
-              "doctorId",
-              "consultationDuration",
-              "dayOfWeek",
-              "startTime",
-              "endTime",
-              "isAvailable",
-            ]),
+            "doctorId",
+            "consultationDuration",
+            "dayOfWeek",
+            "startTime",
+            "endTime",
+            "isAvailable",
+          ]),
 
           include: {
             doctor: {

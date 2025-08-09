@@ -3,7 +3,6 @@ import 'package:medical_consultation_app/features/appointment/data/services/doct
 import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 import 'package:mobx/mobx.dart';
 import 'package:medical_consultation_app/features/appointment/data/models/appointment_model.dart';
-import 'package:medical_consultation_app/features/appointment/data/models/time_slot_model.dart';
 
 part 'doctor_appointment_store.g.dart';
 
@@ -70,13 +69,13 @@ abstract class DoctorAppointmentStoreBase with Store {
     if (searchQuery.isNotEmpty) {
       filtered = filtered
           .where((appointment) =>
-              appointment.doctorName
+              appointment.doctor.name
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()) ||
-              appointment.doctorSpecialty
+              appointment.doctor.specialty
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()) ||
-              appointment.patientName
+              appointment.patient.name
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()))
           .toList();
@@ -86,17 +85,17 @@ abstract class DoctorAppointmentStoreBase with Store {
   }
 
   @computed
-  List<AppointmentModel> get pendingAppointments =>
-      appointments.where((appointment) => appointment.isPending).toList();
+  List<AppointmentModel> get isScheduledAppointments =>
+      appointments.where((appointment) => appointment.isScheduled).toList();
 
   @computed
-  List<AppointmentModel> get confirmedAppointments =>
-      appointments.where((appointment) => appointment.isConfirmed).toList();
+  List<AppointmentModel> get completedAppointments =>
+      appointments.where((appointment) => appointment.isCompleted).toList();
 
   @computed
   List<AppointmentModel> get upcomingAppointments => appointments
       .where((appointment) =>
-          appointment.isConfirmed &&
+          appointment.isCompleted &&
           appointment.scheduledAt.isAfter(DateTime.now()))
       .toList();
 

@@ -6,7 +6,7 @@ class ToastUtils {
   static void showSuccessToast(String message) {
     Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 5,
       backgroundColor: AppTheme.successColor,
@@ -18,7 +18,7 @@ class ToastUtils {
   static void showErrorToast(String message) {
     Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 5,
       backgroundColor: AppTheme.errorColor,
@@ -30,7 +30,7 @@ class ToastUtils {
   static void showInfoToast(String message) {
     Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 5,
       backgroundColor: AppTheme.infoColor,
@@ -42,7 +42,7 @@ class ToastUtils {
   static void showWarningToast(String message) {
     Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 5,
       backgroundColor: AppTheme.warningColor,

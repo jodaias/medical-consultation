@@ -39,17 +39,12 @@ class _ConsultationListPageState extends State<ConsultationListPage> {
   }
 
   Future<void> _loadConsultations() async {
-    // Só busca do banco se não houver consultas carregadas
-    // ou se o filtro for 'Todas'.
-    if (_consultationStore.consultations.isEmpty &&
-        _selectedFilter == AppConstants.allStatus) {
-      await _consultationStore.loadConsultations(
-        userId: _authStore.userId,
-        userType: _authStore.userType,
-        status:
-            _selectedFilter == AppConstants.allStatus ? null : _selectedFilter,
-      );
-    }
+    await _consultationStore.loadConsultations(
+      userId: _authStore.userId,
+      userType: _authStore.userType,
+      status:
+          _selectedFilter == AppConstants.allStatus ? null : _selectedFilter,
+    );
   }
 
   void _onFilterChanged(String filter) {

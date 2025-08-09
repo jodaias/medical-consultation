@@ -5,14 +5,14 @@ class AppointmentCard extends StatelessWidget {
   final AppointmentModel appointment;
   final VoidCallback? onTap;
   final VoidCallback? onCancel;
-  final VoidCallback? onConfirm;
+  // final VoidCallback? onConfirm;
 
   const AppointmentCard({
     super.key,
     required this.appointment,
     this.onTap,
     this.onCancel,
-    this.onConfirm,
+    // this.onConfirm,
   });
 
   @override
@@ -38,7 +38,7 @@ class AppointmentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          appointment.doctorName,
+                          appointment.doctor.name,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -46,7 +46,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          appointment.doctorSpecialty,
+                          appointment.doctor.specialty,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -117,7 +117,7 @@ class AppointmentCard extends StatelessWidget {
               ),
 
               // Ações
-              if (appointment.canCancel || appointment.canConfirm)
+              if (appointment.canCancel) //|| appointment.canConfirm)
                 Padding(
                   padding: const EdgeInsets.only(top: 12.0),
                   child: Row(
@@ -132,19 +132,19 @@ class AppointmentCard extends StatelessWidget {
                           ),
                           child: const Text('Cancelar'),
                         ),
-                      if (appointment.canConfirm) ...[
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: onConfirm,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          child: const Text('Confirmar'),
-                        ),
-                      ],
+                      // if (appointment.canConfirm) ...[
+                      //   const SizedBox(width: 8),
+                      //   ElevatedButton(
+                      //     onPressed: onConfirm,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor:
+                      //           Theme.of(context).colorScheme.primary,
+                      //       foregroundColor:
+                      //           Theme.of(context).colorScheme.onPrimary,
+                      //     ),
+                      //     child: const Text('Confirmar'),
+                      //   ),
+                      // ],
                     ],
                   ),
                 ),

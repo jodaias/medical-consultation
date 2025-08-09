@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
 import 'package:medical_consultation_app/features/appointment/domain/stores/doctor_appointment_store.dart';
+import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:medical_consultation_app/features/shared/enums/request_status_enum.dart';
 
-class DoctorAppointmentListPage extends StatelessWidget {
-  final appointmentStore = getIt<DoctorAppointmentStore>();
+class DoctorAppointmentListPage extends StatefulWidget {
+  const DoctorAppointmentListPage({super.key});
 
-  DoctorAppointmentListPage({super.key});
+  @override
+  State<DoctorAppointmentListPage> createState() =>
+      _DoctorAppointmentListPageState();
+}
+
+class _DoctorAppointmentListPageState extends State<DoctorAppointmentListPage> {
+  final appointmentStore = getIt<DoctorAppointmentStore>();
+  final authStore = getIt<AuthStore>();
+
+  @override
+  void initState() {
+    super.initState();
+    appointmentStore.loadUserAppointments(authStore.userId!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +41,8 @@ class DoctorAppointmentListPage extends StatelessWidget {
                         return Card(
                           margin: const EdgeInsets.all(12),
                           child: ListTile(
-                            title: Text("Paciente: ${appointment.patientName}"),
+                            title:
+                                Text("Paciente: ${appointment.patient.name}"),
                             subtitle: Text(
                               "Data: ${appointment.formattedScheduledDate}\nStatus: ${appointment.status}",
                             ),

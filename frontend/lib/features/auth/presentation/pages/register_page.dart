@@ -8,6 +8,7 @@ import 'package:medical_consultation_app/core/theme/app_theme.dart';
 import 'package:medical_consultation_app/core/utils/constants.dart';
 import 'package:medical_consultation_app/core/utils/currency_formatter.dart';
 import 'package:medical_consultation_app/core/di/injection.dart';
+import 'package:medical_consultation_app/core/utils/currency_utils.dart';
 import 'package:medical_consultation_app/features/auth/domain/stores/auth_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:medical_consultation_app/core/utils/toast_utils.dart';
@@ -567,10 +568,11 @@ class _RegisterPageState extends State<RegisterPage> {
           registerData['bio'] = formData['bio'] ?? '';
 
           // Processar valor monetário
+          // Uso no seu código:
           if (formData['hourlyRate'] != null &&
               formData['hourlyRate'].isNotEmpty) {
-            final cleanValue =
-                formData['hourlyRate'].replaceAll(RegExp(r'[^\d]'), '');
+            String hourlyRateStr = formData['hourlyRate'];
+            final cleanValue = normalizeCurrency(hourlyRateStr);
             if (cleanValue.isNotEmpty) {
               registerData['hourlyRate'] = double.parse(cleanValue);
             }

@@ -17,21 +17,21 @@ mixin _$DoctorAppointmentStore on DoctorAppointmentStoreBase, Store {
               () => super.filteredAppointments,
               name: 'DoctorAppointmentStoreBase.filteredAppointments'))
           .value;
-  Computed<List<AppointmentModel>>? _$pendingAppointmentsComputed;
+  Computed<List<AppointmentModel>>? _$isScheduledAppointmentsComputed;
 
   @override
-  List<AppointmentModel> get pendingAppointments =>
-      (_$pendingAppointmentsComputed ??= Computed<List<AppointmentModel>>(
-              () => super.pendingAppointments,
-              name: 'DoctorAppointmentStoreBase.pendingAppointments'))
+  List<AppointmentModel> get isScheduledAppointments =>
+      (_$isScheduledAppointmentsComputed ??= Computed<List<AppointmentModel>>(
+              () => super.isScheduledAppointments,
+              name: 'DoctorAppointmentStoreBase.isScheduledAppointments'))
           .value;
-  Computed<List<AppointmentModel>>? _$confirmedAppointmentsComputed;
+  Computed<List<AppointmentModel>>? _$completedAppointmentsComputed;
 
   @override
-  List<AppointmentModel> get confirmedAppointments =>
-      (_$confirmedAppointmentsComputed ??= Computed<List<AppointmentModel>>(
-              () => super.confirmedAppointments,
-              name: 'DoctorAppointmentStoreBase.confirmedAppointments'))
+  List<AppointmentModel> get completedAppointments =>
+      (_$completedAppointmentsComputed ??= Computed<List<AppointmentModel>>(
+              () => super.completedAppointments,
+              name: 'DoctorAppointmentStoreBase.completedAppointments'))
           .value;
   Computed<List<AppointmentModel>>? _$upcomingAppointmentsComputed;
 
@@ -302,8 +302,8 @@ selectedStatus: ${selectedStatus},
 selectedStartDate: ${selectedStartDate},
 selectedEndDate: ${selectedEndDate},
 filteredAppointments: ${filteredAppointments},
-pendingAppointments: ${pendingAppointments},
-confirmedAppointments: ${confirmedAppointments},
+isScheduledAppointments: ${isScheduledAppointments},
+completedAppointments: ${completedAppointments},
 upcomingAppointments: ${upcomingAppointments}
     ''';
   }
